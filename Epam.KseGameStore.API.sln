@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpamGameDistribution", "EpamGameDistribution\EpamGameDistribution.csproj", "{3D9A7A2C-05BA-48C4-841C-781D086B881F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Epam.KseGameStore.API", "Epam.KseGameStore.API\Epam.KseGameStore.API.csproj", "{3D9A7A2C-05BA-48C4-841C-781D086B881F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
