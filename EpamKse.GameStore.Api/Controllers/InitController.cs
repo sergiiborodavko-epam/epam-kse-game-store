@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace EpamGameDistribution.Controllers;
+namespace EpamKse.GameStore.Api.Controllers;
 
 [ApiController]
 [Route("init")]
