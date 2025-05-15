@@ -1,0 +1,6 @@
+@EpamGameDistribution_HostAddress = http://localhost:5186
+
+GET {{EpamGameDistribution_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
