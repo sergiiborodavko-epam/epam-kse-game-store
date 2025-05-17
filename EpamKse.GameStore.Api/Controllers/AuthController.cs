@@ -24,7 +24,7 @@ public class AuthController:ControllerBase
         return Ok(new { AccessToken = at });
     }
     [HttpPost("login")]
-    public async Task<IActionResult> Register([FromBody] LoginDTO request)
+    public async Task<IActionResult> Login([FromBody] LoginDTO request)
     {
         var at =await _authService.Login(request);
         return Ok(new { AccessToken = at });
