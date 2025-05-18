@@ -1,7 +1,6 @@
 using EpamKse.GameStore.Api.DTO.Platform;
 using EpamKse.GameStore.Api.Services;
 using EpamKse.GameStore.DataAccess.Context;
-using EpamKse.GameStore.DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace EpamKse.GameStore.Tests;
@@ -20,10 +19,6 @@ public class PlatformServiceTests
         
         _contextMock = new GameStoreDbContext(options);
         _contextMock.Database.EnsureCreated();
-        
-        _contextMock.Platforms.Add(new Platform() { Name = "android" });
-        _contextMock.Platforms.Add(new Platform() { Name = "ios" } );
-        _contextMock.Platforms.Add(new Platform() { Name = "windows" });
 
         _contextMock.SaveChanges();
         
