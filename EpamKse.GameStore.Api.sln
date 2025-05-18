@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpamKse.GameStore.Api", "Ep
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D02A0407-E1FF-4BE0-A264-CD29349B1354}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpamKse.GameStore.DataAccess", " EpamKse.GameStore.DataAccess\EpamKse.GameStore.DataAccess.csproj", "{D39AD1D8-3A8E-4667-954F-E13A166E8BB3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpamKse.GameStore.DataAccess", "EpamKse.GameStore.DataAccess\EpamKse.GameStore.DataAccess.csproj", "{D39AD1D8-3A8E-4667-954F-E13A166E8BB3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
