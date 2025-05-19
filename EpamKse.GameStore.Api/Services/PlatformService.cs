@@ -1,4 +1,5 @@
 using EpamKse.GameStore.Api.DTO.Platform;
+using EpamKse.GameStore.Api.Exceptions;
 using EpamKse.GameStore.Api.Interfaces;
 using EpamKse.GameStore.DataAccess.Context;
 using EpamKse.GameStore.DataAccess.Entities;
@@ -20,21 +21,33 @@ public class PlatformService : IPlatformService
         return await _context.Platforms.ToListAsync();
     }
 
-    public async Task<Platform?> GetPlatformById(int id)
+    public async Task<Platform> GetPlatformById(int id)
     {
-        return await _context.Platforms.FirstOrDefaultAsync(platform => platform.Id == id);
+        var platform = await _context.Platforms.FirstOrDefaultAsync(platform => platform.Id == id);
+        if (platform == null)
+        {
+            throw new NotFoundException($"Platform with id {id} was not found");
+        }
+        
+        return platform;
     }
 
-    public async Task<Platform?> GetPlatformByName(string name)
+    public async Task<Platform> GetPlatformByName(string name)
     {
-        return await _context.Platforms.FirstOrDefaultAsync(platform => platform.Name == name);
+        var platform = await _context.Platforms.FirstOrDefaultAsync(platform => platform.Name == name);
+        if (platform == null)
+        {
+            throw new NotFoundException($"Platform with name {name} was not found");
+        }
+        
+        return platform;
     }
 
-    public async Task<Platform?> CreatePlatform(CreatePlatformDto dto)
+    public async Task<Platform> CreatePlatform(CreatePlatformDto dto)
     {
         if (await _context.Platforms.AnyAsync(platform => platform.Name.ToLower() == dto.Name.ToLower()))
         {
-            return null;
+            throw new ConflictException($"Platform with name {dto.Name} already exists");
         }
         
         var platform = new Platform()
@@ -48,12 +61,12 @@ public class PlatformService : IPlatformService
         return platform;
     }
 
-    public async Task<Platform?> UpdatePlatform(int id, UpdatePlatformDto dto)
+    public async Task<Platform> UpdatePlatform(int id, UpdatePlatformDto dto)
     {
         var platform = await _context.Platforms.FirstOrDefaultAsync(platform => platform.Id == id);
         if (platform == null)
         {
-            return null;
+            throw new NotFoundException($"Platform with id {id} was not found");
         }
         
         platform.Name = dto.Name?.ToLower() ?? platform.Name;
@@ -62,12 +75,12 @@ public class PlatformService : IPlatformService
         return platform;
     }
 
-    public async Task<Platform?> DeletePlatform(int id)
+    public async Task<Platform> DeletePlatform(int id)
     {
         var platform = await _context.Platforms.FirstOrDefaultAsync(platform => platform.Id == id);
         if (platform == null)
         {
-            return null;
+            throw new NotFoundException($"Platform with id {id} was not found");
         }
         
         _context.Platforms.Remove(platform);

@@ -1,4 +1,5 @@
 using EpamKse.GameStore.Api.DTO.Platform;
+using EpamKse.GameStore.Api.Exceptions;
 using EpamKse.GameStore.Api.Services;
 using EpamKse.GameStore.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
@@ -44,12 +45,10 @@ public class PlatformServiceTests
     }
 
     [Test]
-    public async Task GetPlatformByName_ReturnsNull_WhenNotFound()
+    public void GetPlatformByName_ThrowsNotFoundException_WhenNotFound()
     {
         var randomName = "dfjdjfdfjd";
-        var platform = await _platformService.GetPlatformByName(randomName);
-        
-        Assert.That(platform, Is.Null);
+        Assert.ThrowsAsync<NotFoundException>(async () => await _platformService.GetPlatformByName(randomName));
     }
 
     [Test]
@@ -63,12 +62,10 @@ public class PlatformServiceTests
     }
 
     [Test]
-    public async Task GetPlatformById_ReturnsNull_WhenNotFound()
+    public void GetPlatformById_ReturnsNotFoundException_WhenNotFound()
     {
         var randomId = 9999;
-        var platform = await _platformService.GetPlatformById(randomId);
-        
-        Assert.That(platform, Is.Null);
+        Assert.ThrowsAsync<NotFoundException>(async () => await _platformService.GetPlatformById(randomId));
     }
 
     [Test]
@@ -91,13 +88,12 @@ public class PlatformServiceTests
     }
 
     [Test]
-    public async Task CreatePlatform_ReturnsNull_WhenPlatformExists()
+    public void CreatePlatform_ThrowsConflictException_WhenPlatformExists()
     {
         var existingPlatformName = _contextMock.Platforms.First().Name;
         var newPlatformDto = new CreatePlatformDto() { Name = existingPlatformName };
-        
-        var platform = await _platformService.CreatePlatform(newPlatformDto);
-        Assert.That(platform, Is.Null);
+
+        Assert.ThrowsAsync<ConflictException>(async () => await _platformService.CreatePlatform(newPlatformDto));
     }
 
     [Test]
@@ -113,12 +109,11 @@ public class PlatformServiceTests
     }
 
     [Test]
-    public async Task UpdatePlatform_ReturnsNull_WhenNotFound()
+    public void UpdatePlatform_ThrowsNotFoundException_WhenNotFound()
     {
         var randomId = 9999;
-        var platform = await _platformService.UpdatePlatform(randomId, new UpdatePlatformDto { Name = "test os name "});
-        
-        Assert.That(platform, Is.Null);
+        Assert.ThrowsAsync<NotFoundException>(async () =>
+            await _platformService.UpdatePlatform(randomId, new UpdatePlatformDto { Name = "test os name " }));
     }
 
     [Test]
@@ -132,12 +127,10 @@ public class PlatformServiceTests
     }
 
     [Test]
-    public async Task DeletePlatform_ReturnsNull_WhenNotFound()
+    public void DeletePlatform_ThrowsNotFoundException_WhenNotFound()
     {
         var randomId = 9999;
-        var platform = await _platformService.DeletePlatform(randomId);
-        
-        Assert.That(platform, Is.Null);
+        Assert.ThrowsAsync<NotFoundException>(async () => await _platformService.DeletePlatform(randomId));
     }
     
     [TearDown]
