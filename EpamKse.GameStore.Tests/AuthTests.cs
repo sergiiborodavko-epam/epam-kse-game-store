@@ -1,9 +1,12 @@
 using EpamGameDistribution.Services;
 using EpamKse.GameStore.Api.DTO.Auth;
+using EpamKse.GameStore.Api.Exceptions.Auth;
+using EpamKse.GameStore.Api.Helpers.Auth;
 using EpamKse.GameStore.DataAccess.Context;
 using EpamKse.GameStore.DataAccess.Entities;
 using EpamKse.GameStore.DataAccess.Enums;
 using Microsoft.EntityFrameworkCore;
+
 namespace EpamKse.GameStore.Tests;
 
 public class AuthServiceTests
@@ -11,12 +14,13 @@ public class AuthServiceTests
     private GameStoreDbContext _dbContext;
     private AuthService _authService;
 
-    private const string TestSecret = "1JrdlK1ebzvcEr611SkJBBKgFtWvuEzqD-qC3DYssfj5NwZCqWEmn3fTOQphK-wWYghS5g3T-FQaHEbGzxIeTQ==";
+    private const string TestSecret =
+        "1JrdlK1ebzvcEr611SkJBBKgFtWvuEzqD-qC3DYssfj5NwZCqWEmn3fTOQphK-wWYghS5g3T-FQaHEbGzxIeTQ==";
 
     [SetUp]
     public void Setup()
     {
-        Environment.SetEnvironmentVariable("AT_SECRET", TestSecret);
+        Environment.SetEnvironmentVariable("ACCESS_TOKEN_SECRET", TestSecret);
 
         var options = new DbContextOptionsBuilder<GameStoreDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -67,18 +71,14 @@ public class AuthServiceTests
             UserName = "UserName"
         };
 
-        var token = await _authService.Register(dto);
-
-        Assert.IsTrue(string.IsNullOrEmpty(token));
+        var ex = Assert.ThrowsAsync<UserAlreadyExistsException>(() => _authService.Register(dto));
+        Assert.That(ex.Message, Is.EqualTo("User already exists."));
     }
 
     [Test]
     public async Task Login_ValidCredentials_ReturnsToken()
     {
-        var password = "Test123!";
-        var hashed = typeof(AuthService)
-            .GetMethod("HashPassword", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
-            .Invoke(null, new object[] { password }) as string;
+        var hashed = AuthHelper.HashPassword("Test123!");
 
         var user = new User
         {
@@ -103,9 +103,7 @@ public class AuthServiceTests
     [Test]
     public async Task Login_WrongPassword_ReturnsEmptyToken()
     {
-        var hashed = typeof(AuthService)
-            .GetMethod("HashPassword", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
-            .Invoke(null, new object[] { "Correct123" }) as string;
+        var hashed = AuthHelper.HashPassword("Correct123");
 
         var user = new User
         {
@@ -123,8 +121,8 @@ public class AuthServiceTests
             Email = "Email@example.com",
             Password = "wergthntgfd"
         };
-        var token = await _authService.Login(dto);
-        Assert.IsTrue(string.IsNullOrEmpty(token));
+        var ex = Assert.ThrowsAsync<InvalidCredentialsException>(() => _authService.Login(dto));
+        Assert.That(ex.Message, Is.EqualTo("Invalid email or password."));
     }
 
     [TearDown]

@@ -45,7 +45,7 @@ builder.Services.AddAuthentication()
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("AT_SECRET")))
+                Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("ACCESS_TOKEN_SECRET")))
         };
     });
 builder.Services.AddControllers();
