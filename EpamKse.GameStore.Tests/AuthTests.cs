@@ -50,7 +50,7 @@ public class AuthServiceTests
     }
 
     [Test]
-    public async Task Register_ExistingEmail_ReturnsEmptyToken()
+    public async Task Register_ExistingEmail_ThrowsUserAlreadyExistsException()
     {
         var existingUser = new User
         {
@@ -101,7 +101,7 @@ public class AuthServiceTests
     }
 
     [Test]
-    public async Task Login_WrongPassword_ReturnsEmptyToken()
+    public async Task Login_WrongPassword_ThrowsInvalidCredentialsException()
     {
         var hashed = AuthHelper.HashPassword("Correct123");
 
