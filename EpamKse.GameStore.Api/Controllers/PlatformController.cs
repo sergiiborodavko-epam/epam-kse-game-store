@@ -16,14 +16,8 @@ public class PlatformController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetPlatforms([FromQuery] string? name)
+    public async Task<IActionResult> GetPlatforms()
     {
-        if (name != null)
-        {
-            var platform = await _platformService.GetPlatformByName(name);
-            return platform == null ? NotFound() : Ok(platform);
-        }
-        
         var platforms = await _platformService.GetPlatforms();
         return Ok(platforms);
     }
@@ -32,6 +26,13 @@ public class PlatformController : ControllerBase
     public async Task<IActionResult> GetPlatformById(int id)
     {
         var platform = await _platformService.GetPlatformById(id);
+        return platform == null ? NotFound() : Ok(platform);
+    }
+
+    [HttpGet("name/{name}")]
+    public async Task<IActionResult> GetPlatformByName(string name)
+    {
+        var platform = await _platformService.GetPlatformByName(name);
         return platform == null ? NotFound() : Ok(platform);
     }
 
