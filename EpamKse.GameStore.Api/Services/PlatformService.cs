@@ -30,8 +30,13 @@ public class PlatformService : IPlatformService
         return await _context.Platforms.FirstOrDefaultAsync(platform => platform.Name == name);
     }
 
-    public async Task<Platform> CreatePlatform(CreatePlatformDto dto)
+    public async Task<Platform?> CreatePlatform(CreatePlatformDto dto)
     {
+        if (await _context.Platforms.AnyAsync(platform => platform.Name == dto.Name))
+        {
+            return null;
+        }
+        
         var platform = new Platform()
         {
             Name = dto.Name,

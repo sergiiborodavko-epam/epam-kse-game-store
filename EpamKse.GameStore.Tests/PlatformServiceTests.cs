@@ -72,12 +72,22 @@ public class PlatformServiceTests
     }
 
     [Test]
-    public async Task CreatePlatform_ReturnsNewPlatform()
+    public async Task CreatePlatform_ReturnsNewPlatform_WhenPlatformDoesNotExist()
     {
-        var newPlatformDto = new CreatePlatformDto() { Name = "linux" };
+        var newPlatformDto = new CreatePlatformDto() { Name = "dfldkjfdjfkd" };
         var platform = await _platformService.CreatePlatform(newPlatformDto);
         
         Assert.That(platform.Name, Is.EqualTo(newPlatformDto.Name));
+    }
+
+    [Test]
+    public async Task CreatePlatform_ReturnsNull_WhenPlatformExists()
+    {
+        var existingPlatformName = _contextMock.Platforms.First().Name;
+        var newPlatformDto = new CreatePlatformDto() { Name = existingPlatformName };
+        
+        var platform = await _platformService.CreatePlatform(newPlatformDto);
+        Assert.That(platform, Is.Null);
     }
 
     [Test]

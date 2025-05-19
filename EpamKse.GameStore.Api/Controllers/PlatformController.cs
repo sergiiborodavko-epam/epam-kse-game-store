@@ -40,7 +40,7 @@ public class PlatformController : ControllerBase
     public async Task<IActionResult> CreatePlatform(CreatePlatformDto dto)
     {
         var platform = await _platformService.CreatePlatform(dto);
-        return Created($"/platforms/{platform.Id}", platform);
+        return platform == null ? Conflict($"Platform with name '{dto.Name}' already exists") : Created($"/platforms/{platform.Id}", platform);
     }
 
     [HttpPatch("{id:int}")]
