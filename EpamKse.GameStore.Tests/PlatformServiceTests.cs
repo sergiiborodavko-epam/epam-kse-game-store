@@ -79,6 +79,16 @@ public class PlatformServiceTests
         
         Assert.That(platform.Name, Is.EqualTo(newPlatformDto.Name));
     }
+    
+    [Test]
+    public async Task CreatePlatform_ReturnsNewPlatform_WhenPlatformDoesNotExist_AndNameIsInLowerCase()
+    {
+        var randomNameWithCapitals = "DjhjdfJdkjhfdUUUIUVD";
+        var newPlatformDto = new CreatePlatformDto() { Name = randomNameWithCapitals };
+        var platform = await _platformService.CreatePlatform(newPlatformDto);
+        
+        Assert.That(platform.Name, Is.EqualTo(randomNameWithCapitals.ToLower()));
+    }
 
     [Test]
     public async Task CreatePlatform_ReturnsNull_WhenPlatformExists()

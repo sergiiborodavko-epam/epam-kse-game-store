@@ -32,14 +32,14 @@ public class PlatformService : IPlatformService
 
     public async Task<Platform?> CreatePlatform(CreatePlatformDto dto)
     {
-        if (await _context.Platforms.AnyAsync(platform => platform.Name == dto.Name))
+        if (await _context.Platforms.AnyAsync(platform => platform.Name.ToLower() == dto.Name.ToLower()))
         {
             return null;
         }
         
         var platform = new Platform()
         {
-            Name = dto.Name,
+            Name = dto.Name.ToLower()
         };
         
         _context.Platforms.Add(platform);
@@ -56,7 +56,7 @@ public class PlatformService : IPlatformService
             return null;
         }
         
-        platform.Name = dto.Name ?? platform.Name;
+        platform.Name = dto.Name?.ToLower() ?? platform.Name;
         await _context.SaveChangesAsync();
         
         return platform;
