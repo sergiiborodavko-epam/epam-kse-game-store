@@ -35,7 +35,7 @@ public class PlatformServiceTests
     }
 
     [Test]
-    public async Task GetPlatformByName_ReturnsPlatform_WhenFound()
+    public async Task GetPlatformByName_ReturnsPlatform_WhenPlatformExists()
     {
         var existingName = _contextMock.Platforms.First().Name;
         var platform = await _platformService.GetPlatformByName(existingName);
@@ -45,14 +45,14 @@ public class PlatformServiceTests
     }
 
     [Test]
-    public void GetPlatformByName_ThrowsNotFoundException_WhenNotFound()
+    public void GetPlatformByName_ThrowsNotFoundException_WhenPlatformDoesNotExist()
     {
         var randomName = "dfjdjfdfjd";
         Assert.ThrowsAsync<NotFoundException>(async () => await _platformService.GetPlatformByName(randomName));
     }
 
     [Test]
-    public async Task GetPlatformById_ReturnsPlatform_WhenFound()
+    public async Task GetPlatformById_ReturnsPlatform_WhenPlatformExists()
     {
         var existingId = _contextMock.Platforms.First().Id;
         var platform = await _platformService.GetPlatformById(existingId);
@@ -62,7 +62,7 @@ public class PlatformServiceTests
     }
 
     [Test]
-    public void GetPlatformById_ReturnsNotFoundException_WhenNotFound()
+    public void GetPlatformById_ReturnsNotFoundException_WhenPlatformDoesNotExist()
     {
         var randomId = 9999;
         Assert.ThrowsAsync<NotFoundException>(async () => await _platformService.GetPlatformById(randomId));
@@ -97,7 +97,7 @@ public class PlatformServiceTests
     }
 
     [Test]
-    public async Task UpdatePlatform_ReturnsUpdatedPlatform_WhenFound()
+    public async Task UpdatePlatform_ReturnsUpdatedPlatform_WhenPlatformExists()
     {
         var existingId = _contextMock.Platforms.First().Id;
         var newName = "test os name";
@@ -109,7 +109,7 @@ public class PlatformServiceTests
     }
 
     [Test]
-    public void UpdatePlatform_ThrowsNotFoundException_WhenNotFound()
+    public void UpdatePlatform_ThrowsNotFoundException_WhenPlatformDoesNotExist()
     {
         var randomId = 9999;
         Assert.ThrowsAsync<NotFoundException>(async () =>
@@ -117,7 +117,7 @@ public class PlatformServiceTests
     }
 
     [Test]
-    public async Task DeletePlatform_ReturnsDeletedPlatform_WhenFound()
+    public async Task DeletePlatform_ReturnsDeletedPlatform_WhenPlatformExists()
     {
         var existingId = _contextMock.Platforms.First().Id;
         var deletedPlatform = await _platformService.DeletePlatform(existingId);
@@ -127,7 +127,7 @@ public class PlatformServiceTests
     }
 
     [Test]
-    public void DeletePlatform_ThrowsNotFoundException_WhenNotFound()
+    public void DeletePlatform_ThrowsNotFoundException_WhenPlatformDoesNotExist()
     {
         var randomId = 9999;
         Assert.ThrowsAsync<NotFoundException>(async () => await _platformService.DeletePlatform(randomId));
