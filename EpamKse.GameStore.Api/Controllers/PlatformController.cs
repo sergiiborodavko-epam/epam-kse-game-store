@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace EpamKse.GameStore.Api.Controllers;
 
 [ApiController]
-[CustomHttpExceptionFilter]
 [Route("platforms")]
 public class PlatformController : ControllerBase
 {

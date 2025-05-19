@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace EpamKse.GameStore.Api.Filters;
 
-public class CustomHttpExceptionFilter : ExceptionFilterAttribute
+public class CustomHttpExceptionFilter : IExceptionFilter
 {
-    public override void OnException(ExceptionContext context)
+    public void OnException(ExceptionContext context)
     {
         if (context.Exception is CustomHttpException ex)
         {
