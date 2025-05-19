@@ -29,7 +29,7 @@ public class AuthService:IAuthService
             return "";
         }
         var hashedPassword = HashPassword(registerDto.Password);
-        var at = GenerateAt(registerDto.Email, Roles.Customer.ToString());
+        var accessToken = GenerateAt(registerDto.Email, Roles.Customer.ToString());
         await _dbContext.Users.AddAsync(new User
         {
             UserName = registerDto.UserName,
@@ -42,7 +42,7 @@ public class AuthService:IAuthService
         });
         await _dbContext.SaveChangesAsync();
        
-        return at;
+        return accessToken;
     }
 
     public async Task<string> Login(LoginDTO loginDto)
