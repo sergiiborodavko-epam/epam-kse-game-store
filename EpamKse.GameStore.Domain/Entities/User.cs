@@ -1,6 +1,6 @@
-using EpamKse.GameStore.DataAccess.Enums;
+namespace EpamKse.GameStore.Domain.Entities;
 
-namespace EpamKse.GameStore.DataAccess.Entities;
+using Enums;
 
 public class User
 {
