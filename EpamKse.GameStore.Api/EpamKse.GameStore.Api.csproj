@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ EpamKse.GameStore.Services\EpamKse.GameStore.Services.csproj" />
+      <ProjectReference Include="..\EpamKse.GameStore.Services\EpamKse.GameStore.Services.csproj" />
     </ItemGroup>
 
 </Project>
