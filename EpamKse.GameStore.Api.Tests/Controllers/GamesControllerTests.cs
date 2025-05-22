@@ -7,6 +7,7 @@ using Moq;
 using Api.Controllers;
 using Domain.DTO;
 using Domain.Entities;
+using Domain.Exceptions;
 using Services.Services.Game;
 
 public class GamesControllerTests {
@@ -49,7 +50,7 @@ public class GamesControllerTests {
         var result = await _controller.GetGameById(gameId);
 
         // Assert
-        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var okResult = Assert.IsType<OkObjectResult>(result);
         var returnedGame = Assert.IsType<Game>(okResult.Value);
         Assert.Equal(gameId, returnedGame.Id);
     }
@@ -59,13 +60,13 @@ public class GamesControllerTests {
         // Arrange
         const int gameId = 99;
         _mockGameService.Setup(service => service.GetGameByIdAsync(gameId))
-            .ReturnsAsync((Game?)null);
+            .ThrowsAsync(new GameNotFoundException(gameId));
 
         // Act
         var result = await _controller.GetGameById(gameId);
 
         // Assert
-        Assert.IsType<NotFoundResult>(result.Result);
+        Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
@@ -89,14 +90,33 @@ public class GamesControllerTests {
         var result = await _controller.CreateGame(gameDto);
 
         // Assert
-        var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result.Result);
+        var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result);
         var returnedGame = Assert.IsType<Game>(createdAtActionResult.Value);
         Assert.Equal(createdGame.Id, returnedGame.Id);
         Assert.Equal(gameDto.Title, returnedGame.Title);
     }
 
     [Fact]
-    public async Task UpdateGame_ReturnsOkResult_WithUpdatedGame_WhenGameExists() {
+    public async Task CreateGame_ReturnsConflict_WhenGameAlreadyExists() {
+        // Arrange
+        var gameDto = new GameDTO {
+            Title = "Existing Game",
+            Description = "New Description",
+            Price = 39.99m
+        };
+        _mockGameService.Setup(service => service.CreateGameAsync(gameDto))
+            .ThrowsAsync(new GameAlreadyExistsException(gameDto.Title));
+
+        // Act
+        var result = await _controller.CreateGame(gameDto);
+
+        // Assert
+        Assert.IsType<ConflictObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdateGame_ReturnsOkResult_WithUpdatedGame_WhenGameExists()
+    {
         // Arrange
         const int gameId = 1;
         var gameDto = new GameDTO {
@@ -117,7 +137,7 @@ public class GamesControllerTests {
         var result = await _controller.UpdateGame(gameId, gameDto);
 
         // Assert
-        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var okResult = Assert.IsType<OkObjectResult>(result);
         var returnedGame = Assert.IsType<Game>(okResult.Value);
         Assert.Equal(gameId, returnedGame.Id);
         Assert.Equal(gameDto.Title, returnedGame.Title);
@@ -133,13 +153,13 @@ public class GamesControllerTests {
             Price = 49.99m
         };
         _mockGameService.Setup(service => service.UpdateGameAsync(gameId, gameDto))
-            .ReturnsAsync((Game?)null);
+            .ThrowsAsync(new GameNotFoundException(gameId));
 
         // Act
         var result = await _controller.UpdateGame(gameId, gameDto);
 
         // Assert
-        Assert.IsType<NotFoundResult>(result.Result);
+        Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
@@ -147,7 +167,7 @@ public class GamesControllerTests {
         // Arrange
         var gameId = 1;
         _mockGameService.Setup(service => service.DeleteGameAsync(gameId))
-            .ReturnsAsync(true);
+            .Returns(Task.CompletedTask);
 
         // Act
         var result = await _controller.DeleteGame(gameId);
@@ -161,7 +181,7 @@ public class GamesControllerTests {
         // Arrange
         const int gameId = 99;
         _mockGameService.Setup(service => service.DeleteGameAsync(gameId))
-            .ReturnsAsync(false);
+            .ThrowsAsync(new GameNotFoundException(gameId));
 
         // Act
         var result = await _controller.DeleteGame(gameId);

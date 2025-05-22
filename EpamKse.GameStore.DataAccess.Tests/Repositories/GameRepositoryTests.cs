@@ -18,7 +18,7 @@ public class GameRepositoryTests : BaseRepositoryTests {
         var games = await _repository.GetAllAsync();
 
         // Assert
-        var gamesList = Assert.IsAssignableFrom<IEnumerable<Game>>(games);
+        var gamesList = Assert.IsType<IEnumerable<Game>>(games, exactMatch: false);
         Assert.Equal(2, gamesList.Count());
     }
 
@@ -49,13 +49,38 @@ public class GameRepositoryTests : BaseRepositoryTests {
     }
 
     [Fact]
+    public async Task GetByTitleAsync_ReturnsGame_WhenGameExists() {
+        // Arrange
+        const string title = "Test Game 1";
+
+        // Act
+        var result = await _repository.GetByTitleAsync(title);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(title, result.Title);
+    }
+
+    [Fact]
+    public async Task GetByTitleAsync_ReturnsNull_WhenGameDoesNotExist() {
+        // Arrange
+        const string nonExistentTitle = "Non Existent Game";
+
+        // Act
+        var result = await _repository.GetByTitleAsync(nonExistentTitle);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
     public async Task CreateAsync_CreatesAndReturnsGame() {
         // Arrange
-        var game = new Game { 
-            Title = "New Game", 
-            Description = "New Description", 
-            Price = 39.99m, 
-            ReleaseDate = new DateTime(2023, 3, 1) 
+        var game = new Game {
+            Title = "New Game",
+            Description = "New Description",
+            Price = 39.99m,
+            ReleaseDate = new DateTime(2023, 3, 1)
         };
 
         // Act

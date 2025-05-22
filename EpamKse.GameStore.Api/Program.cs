@@ -9,11 +9,18 @@ Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") 
+    ?? throw new InvalidOperationException("CONNECTION_STRING environment variable is not set");
+
 builder.Services.AddDbContext<GameStoreDbContext>(options => 
-    options.UseSqlServer(Environment.GetEnvironmentVariable("CONNECTION_STRING"))
+    options.UseSqlServer(connectionString)
 );
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().
+    ConfigureApiBehaviorOptions(options => {
+    options.SuppressModelStateInvalidFilter = false;
+});
+
 builder.Services.AddRepositories();
 builder.Services.AddServices();
 

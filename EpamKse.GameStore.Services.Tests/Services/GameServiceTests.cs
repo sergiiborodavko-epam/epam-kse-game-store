@@ -5,6 +5,7 @@ using Moq;
 
 using Domain.DTO;
 using Domain.Entities;
+using Domain.Exceptions;
 using DataAccess.Repositories.Game;
 using EpamKse.GameStore.Services.Services.Game;
 
@@ -31,14 +32,14 @@ public class GameServiceTests {
         var result = await _gameService.GetAllGamesAsync();
 
         // Assert
-        var returnedGames = Assert.IsAssignableFrom<IEnumerable<Game>>(result);
+        var returnedGames = Assert.IsType<IEnumerable<Game>>(result, exactMatch: false);
         Assert.Equal(2, returnedGames.Count());
     }
 
     [Fact]
     public async Task GetGameByIdAsync_ReturnsGame_WhenGameExists() {
         // Arrange
-        var gameId = 1;
+        const int gameId = 1;
         var game = new Game { Id = gameId, Title = "Test Game", Description = "Test Description", Price = 19.99m };
         _mockGameRepository.Setup(repo => repo.GetByIdAsync(gameId))
             .ReturnsAsync(game);
@@ -52,21 +53,18 @@ public class GameServiceTests {
     }
 
     [Fact]
-    public async Task GetGameByIdAsync_ReturnsNull_WhenGameDoesNotExist() {
+    public async Task GetGameByIdAsync_ThrowsException_WhenGameDoesNotExist() {
         // Arrange
         const int gameId = 99;
         _mockGameRepository.Setup(repo => repo.GetByIdAsync(gameId))
             .ReturnsAsync((Game?)null);
 
-        // Act
-        var result = await _gameService.GetGameByIdAsync(gameId);
-
-        // Assert
-        Assert.Null(result);
+        // Act & Assert
+        await Assert.ThrowsAsync<GameNotFoundException>(() => _gameService.GetGameByIdAsync(gameId));
     }
 
     [Fact]
-    public async Task CreateGameAsync_ReturnsCreatedGame() {
+    public async Task CreateGameAsync_ReturnsCreatedGame_WhenTitleIsUnique() {
         // Arrange
         var gameDto = new GameDTO {
             Title = "New Game",
@@ -79,6 +77,8 @@ public class GameServiceTests {
             Description = gameDto.Description,
             Price = gameDto.Price
         };
+        _mockGameRepository.Setup(repo => repo.GetByTitleAsync(gameDto.Title))
+            .ReturnsAsync((Game?)null);
         _mockGameRepository.Setup(repo => repo.CreateAsync(It.IsAny<Game>()))
             .ReturnsAsync(createdGame);
 
@@ -88,6 +88,22 @@ public class GameServiceTests {
         // Assert
         Assert.Equal(createdGame.Id, result.Id);
         Assert.Equal(gameDto.Title, result.Title);
+    }
+
+    [Fact]
+    public async Task CreateGameAsync_ThrowsException_WhenTitleAlreadyExists() {
+        // Arrange
+        var gameDto = new GameDTO {
+            Title = "Existing Game",
+            Description = "New Description",
+            Price = 39.99m
+        };
+        var existingGame = new Game { Id = 1, Title = gameDto.Title };
+        _mockGameRepository.Setup(repo => repo.GetByTitleAsync(gameDto.Title))
+            .ReturnsAsync(existingGame);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<GameAlreadyExistsException>(() => _gameService.CreateGameAsync(gameDto));
     }
 
     [Fact]
@@ -108,6 +124,8 @@ public class GameServiceTests {
         };
         _mockGameRepository.Setup(repo => repo.GetByIdAsync(gameId))
             .ReturnsAsync(existingGame);
+        _mockGameRepository.Setup(repo => repo.GetByTitleAsync(gameDto.Title))
+            .ReturnsAsync((Game?)null);
         _mockGameRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Game>()))
             .ReturnsAsync(updatedGame);
 
@@ -121,7 +139,7 @@ public class GameServiceTests {
     }
 
     [Fact]
-    public async Task UpdateGameAsync_ReturnsNull_WhenGameDoesNotExist() {
+    public async Task UpdateGameAsync_ThrowsException_WhenGameDoesNotExist() {
         // Arrange
         const int gameId = 99;
         var gameDto = new GameDTO {
@@ -132,41 +150,32 @@ public class GameServiceTests {
         _mockGameRepository.Setup(repo => repo.GetByIdAsync(gameId))
             .ReturnsAsync((Game?)null);
 
-        // Act
-        var result = await _gameService.UpdateGameAsync(gameId, gameDto);
-
-        // Assert
-        Assert.Null(result);
+        // Act & Assert
+        await Assert.ThrowsAsync<GameNotFoundException>(() => _gameService.UpdateGameAsync(gameId, gameDto));
     }
 
     [Fact]
-    public async Task DeleteGameAsync_ReturnsTrue_WhenGameExists() {
+    public async Task DeleteGameAsync_DoesNotThrow_WhenGameExists() {
         // Arrange
         const int gameId = 1;
         var game = new Game { Id = gameId, Title = "Test Game", Description = "Test Description", Price = 19.99m };
         _mockGameRepository.Setup(repo => repo.GetByIdAsync(gameId))
             .ReturnsAsync(game);
 
-        // Act
-        var result = await _gameService.DeleteGameAsync(gameId);
-
-        // Assert
-        Assert.True(result);
+        // Act & Assert
+        await _gameService.DeleteGameAsync(gameId);
         _mockGameRepository.Verify(repo => repo.DeleteAsync(game), Times.Once);
     }
 
     [Fact]
-    public async Task DeleteGameAsync_ReturnsFalse_WhenGameDoesNotExist() {
+    public async Task DeleteGameAsync_ThrowsException_WhenGameDoesNotExist() {
         // Arrange
         const int gameId = 99;
         _mockGameRepository.Setup(repo => repo.GetByIdAsync(gameId))
             .ReturnsAsync((Game?)null);
 
-        // Act
-        var result = await _gameService.DeleteGameAsync(gameId);
-
-        // Assert
-        Assert.False(result);
+        // Act & Assert
+        await Assert.ThrowsAsync<GameNotFoundException>(() => _gameService.DeleteGameAsync(gameId));
         _mockGameRepository.Verify(repo => repo.DeleteAsync(It.IsAny<Game>()), Times.Never);
     }
 }
