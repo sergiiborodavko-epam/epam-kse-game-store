@@ -1,0 +1,28 @@
+name: .NET Tests
+
+on:
+  push:
+    branches: [ "*" ]
+  pull_request:
+    branches: [ "*" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore EpamKse.GameStore.Api.sln
+
+      - name: Build
+        run: dotnet build EpamKse.GameStore.Api.sln --no-restore
+
+      - name: Run tests
+        run: dotnet test EpamKse.GameStore.Api.sln --no-build --verbosity normal
