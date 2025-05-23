@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ EpamKse.GameStore.DataAccess\EpamKse.GameStore.DataAccess.csproj" />
+      <ProjectReference Include="..\EpamKse.GameStore.DataAccess\EpamKse.GameStore.DataAccess.csproj" />
     </ItemGroup>
 
     <ItemGroup>
