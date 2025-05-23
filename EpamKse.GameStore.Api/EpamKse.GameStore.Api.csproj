@@ -23,4 +23,8 @@
       <ProjectReference Include="..\ EpamKse.GameStore.DataAccess\EpamKse.GameStore.DataAccess.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include=".github\workflows\auto-test.yml" />
+    </ItemGroup>
+
 </Project>
