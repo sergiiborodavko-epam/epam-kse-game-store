@@ -1,7 +1,9 @@
 using System.Text;
 using DotNetEnv;
-using EpamGameDistribution.Services;
+using EpamKse.GameStore.Api.Filters;
 using EpamKse.GameStore.Api.Interfaces;
+using EpamKse.GameStore.Api.Services;
+using EpamGameDistribution.Services;
 using EpamKse.GameStore.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -10,6 +12,11 @@ Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<CustomHttpExceptionFilter>();
+});
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -50,6 +57,7 @@ builder.Services.AddAuthentication()
     });
 builder.Services.AddControllers();
 builder.Services.AddDbContext<GameStoreDbContext>(options => options.UseSqlServer(Environment.GetEnvironmentVariable("CONNECTION_STRING")));
+builder.Services.AddScoped<IPlatformService, PlatformService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 var app = builder.Build();
 app.MapControllers();
