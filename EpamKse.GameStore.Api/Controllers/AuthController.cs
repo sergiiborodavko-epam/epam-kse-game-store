@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using EpamKse.GameStore.Api.DTO.Auth;
 using EpamKse.GameStore.Api.Exceptions.Auth;
+using EpamKse.GameStore.Api.Helpers.Auth;
 using EpamKse.GameStore.Api.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,13 +24,7 @@ public class AuthController : ControllerBase
         try
         {
             var (accessToken, refreshToken) = await _authService.Register(request);
-            Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddDays(7)
-            });
+            Response.Cookies.AddRefreshTokenToCookies(refreshToken);
             return Ok(new { AccessToken = accessToken });
         }
         catch (UserAlreadyExistsException ex)
@@ -44,14 +39,7 @@ public class AuthController : ControllerBase
         try
         {
             var (accessToken, refreshToken) = await _authService.Login(request);
-            Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddDays(7)
-            });
-
+            Response.Cookies.AddRefreshTokenToCookies(refreshToken);
             return Ok(new { AccessToken = accessToken });
         }
         catch (InvalidCredentialsException ex)
@@ -67,20 +55,9 @@ public class AuthController : ControllerBase
         {
             if (HttpContext.Items.TryGetValue("RefreshTokenClaims", out var obj) && obj is ClaimsPrincipal principal)
             {
-                var email = principal.FindFirst(ClaimTypes.Email)?.Value;
-                var role = principal.FindFirst(ClaimTypes.Role)?.Value;
-                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(role))
-                    return Unauthorized("Invalid token claims.");
+                var (accessToken, refreshToken) = await _authService.Refresh(principal);
 
-                var (accessToken, refreshToken) = await _authService.Refresh(email);
-
-                Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = DateTimeOffset.UtcNow.AddDays(7)
-                });
+                Response.Cookies.AddRefreshTokenToCookies(refreshToken);
 
                 return Ok(new { AccessToken = accessToken });
             }
@@ -89,7 +66,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception)
         {
-            return StatusCode(500, "Internal server error.");
+            return StatusCode(401, "Failed to refresh");
         }
     }
 }

@@ -20,6 +20,8 @@ public class AuthService : IAuthService
     private readonly GameStoreDbContext _dbContext;
     private readonly string ACCESS_TOKEN_SECRET;
     private readonly string REFRESH_TOKEN_SECRET;
+    private readonly Int32 REFRESH_TOKEN_LIFETIME = 6;
+    private readonly Int32 ACCESS_TOKEN_LIFETIME = 3;
 
     public AuthService(GameStoreDbContext dbContext)
     {
@@ -64,8 +66,13 @@ public class AuthService : IAuthService
         throw new InvalidCredentialsException();
     }
 
-    public async Task<(string, string)> Refresh(string email)
+    public async Task<(string, string)> Refresh(ClaimsPrincipal principal)
     {
+        var email = principal.FindFirst(ClaimTypes.Email)?.Value;
+        var role = principal.FindFirst(ClaimTypes.Role)?.Value;
+        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(role))
+            throw new InvalidRefreshTokenException();
+
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
         if (user is not null)
         {
@@ -90,7 +97,7 @@ public class AuthService : IAuthService
 
         var token = new JwtSecurityToken(
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(6),
+            expires: DateTime.UtcNow.AddMinutes(REFRESH_TOKEN_LIFETIME),
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
@@ -109,7 +116,7 @@ public class AuthService : IAuthService
 
         var token = new JwtSecurityToken(
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(3),
+            expires: DateTime.UtcNow.AddMinutes(ACCESS_TOKEN_LIFETIME),
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);

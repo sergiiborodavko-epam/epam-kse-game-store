@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using EpamGameDistribution.Services;
 using EpamKse.GameStore.Api.DTO.Auth;
 using EpamKse.GameStore.Api.Exceptions.Auth;
@@ -148,8 +149,16 @@ public class AuthServiceTests
         await _dbContext.Users.AddAsync(user);
         await _dbContext.SaveChangesAsync();
 
-        var (accessToken, refreshToken) = await _authService.Refresh(user.Email);
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role.ToString())
+        };
 
+        var identity = new ClaimsIdentity(claims, "RefreshToken");
+        var principal = new ClaimsPrincipal(identity);
+
+        var (accessToken, refreshToken) = await _authService.Refresh(principal);
         Assert.IsFalse(string.IsNullOrEmpty(accessToken));
         Assert.IsFalse(string.IsNullOrEmpty(refreshToken));
     }
@@ -157,7 +166,14 @@ public class AuthServiceTests
     [Test]
     public void Refresh_InvalidEmail_ThrowsInvalidCredentialsException()
     {
-        var ex = Assert.ThrowsAsync<InvalidCredentialsException>(() => _authService.Refresh("nonexistent@example.com"));
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Email, "nonexistent@example.com"),
+            new Claim(ClaimTypes.Role, "Customer")
+        };
+        var identity = new ClaimsIdentity(claims, "RefreshToken");
+        var principal = new ClaimsPrincipal(identity);
+        var ex = Assert.ThrowsAsync<InvalidCredentialsException>(() => _authService.Refresh(principal));
         Assert.That(ex.Message, Is.EqualTo("Invalid email or password."));
     }
 
