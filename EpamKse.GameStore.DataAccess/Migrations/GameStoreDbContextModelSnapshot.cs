@@ -69,6 +69,47 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Platform", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Platforms", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "android"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "ios"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "windows"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "vr"
+                        });
+                });
+
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")

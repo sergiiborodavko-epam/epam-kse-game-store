@@ -30,6 +30,19 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Platforms",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Platforms", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -55,6 +68,17 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                     { 1, "Description for Game 1", 49.99m, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Game 1" },
                     { 2, "Description for Game 2", 59.99m, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Game 2" }
                 });
+
+            migrationBuilder.InsertData(
+                table: "Platforms",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "android" },
+                    { 2, "ios" },
+                    { 3, "windows" },
+                    { 4, "vr" }
+                });
         }
 
         /// <inheritdoc />
@@ -62,6 +86,9 @@ namespace EpamKse.GameStore.DataAccess.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Games");
+
+            migrationBuilder.DropTable(
+                name: "Platforms");
 
             migrationBuilder.DropTable(
                 name: "Users");

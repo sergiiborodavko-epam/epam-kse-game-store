@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EpamKse.GameStore.DataAccess.Migrations
 {
     [DbContext(typeof(GameStoreDbContext))]
-    [Migration("20250520104235_Initial")]
+    [Migration("20250527095115_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -69,6 +69,47 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                             Price = 59.99m,
                             ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Title = "Game 2"
+                        });
+                });
+
+            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Platform", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Platforms", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "android"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "ios"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "windows"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "vr"
                         });
                 });
 

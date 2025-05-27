@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Domain.Entities;
 
-public class UserConfiguration: IEntityTypeConfiguration<User>
+public class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
@@ -15,7 +15,7 @@ public class UserConfiguration: IEntityTypeConfiguration<User>
             .HasConversion<string>()
             .IsRequired();
         builder.Property(c => c.CreatedAt)
-            .HasDefaultValueSql("GETDATE()") 
+            .HasDefaultValueSql("GETDATE()")
             .IsRequired();
     }
 }
