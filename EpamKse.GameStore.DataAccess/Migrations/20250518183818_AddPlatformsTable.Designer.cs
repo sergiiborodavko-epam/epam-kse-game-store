@@ -4,6 +4,7 @@ using EpamKse.GameStore.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EpamKse.GameStore.DataAccess.Migrations
 {
     [DbContext(typeof(GameStoreDbContext))]
-    partial class GameStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250518183818_AddPlatformsTable")]
+    partial class AddPlatformsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,28 +42,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Platforms", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "android"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "ios"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "windows"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "vr"
-                        });
                 });
 
             modelBuilder.Entity("EpamKse.GameStore.DataAccess.Entities.User", b =>
