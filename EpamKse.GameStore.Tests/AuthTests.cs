@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using EpamGameDistribution.Services;
 using EpamKse.GameStore.Api.DTO.Auth;
 using EpamKse.GameStore.Api.Exceptions.Auth;
@@ -14,13 +15,17 @@ public class AuthServiceTests
     private GameStoreDbContext _dbContext;
     private AuthService _authService;
 
-    private const string TestSecret =
+    private const string AccessSecret =
         "1JrdlK1ebzvcEr611SkJBBKgFtWvuEzqD-qC3DYssfj5NwZCqWEmn3fTOQphK-wWYghS5g3T-FQaHEbGzxIeTQ==";
+
+    private const string RefreshSecret =
+        "XWt973tFGfic1gI-MjiSclxa2YyPoAsLIe7E1wWw0BlN-kB5Yj98FwMIufzihrHxT89GY__RnR2PnIzdZKkq-Q==";
 
     [SetUp]
     public void Setup()
     {
-        Environment.SetEnvironmentVariable("ACCESS_TOKEN_SECRET", TestSecret);
+        Environment.SetEnvironmentVariable("ACCESS_TOKEN_SECRET", AccessSecret);
+        Environment.SetEnvironmentVariable("REFRESH_TOKEN_SECRET", RefreshSecret);
 
         var options = new DbContextOptionsBuilder<GameStoreDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -31,7 +36,7 @@ public class AuthServiceTests
     }
 
     [Test]
-    public async Task Register_CreatesUserAndReturnToken()
+    public async Task Register_CreatesUserAndReturnsTokens()
     {
         var dto = new RegisterDTO
         {
@@ -41,9 +46,11 @@ public class AuthServiceTests
             UserName = "UserName"
         };
 
-        var token = await _authService.Register(dto);
+        var (accessToken, refreshToken) = await _authService.Register(dto);
 
-        Assert.IsFalse(string.IsNullOrEmpty(token));
+        Assert.IsFalse(string.IsNullOrEmpty(accessToken));
+        Assert.IsFalse(string.IsNullOrEmpty(refreshToken));
+
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
         Assert.IsNotNull(user);
         Assert.AreEqual("UserName", user.UserName);
@@ -76,7 +83,7 @@ public class AuthServiceTests
     }
 
     [Test]
-    public async Task Login_ValidCredentials_ReturnsToken()
+    public async Task Login_ValidCredentials_ReturnsTokens()
     {
         var hashed = AuthHelper.HashPassword("Test123!");
 
@@ -96,8 +103,11 @@ public class AuthServiceTests
             Email = "login@example.com",
             Password = "Test123!"
         };
-        var token = await _authService.Login(dto);
-        Assert.IsFalse(string.IsNullOrEmpty(token));
+
+        var (accessToken, refreshToken) = await _authService.Login(dto);
+
+        Assert.IsFalse(string.IsNullOrEmpty(accessToken));
+        Assert.IsFalse(string.IsNullOrEmpty(refreshToken));
     }
 
     [Test]
@@ -122,6 +132,48 @@ public class AuthServiceTests
             Password = "wergthntgfd"
         };
         var ex = Assert.ThrowsAsync<InvalidCredentialsException>(() => _authService.Login(dto));
+        Assert.That(ex.Message, Is.EqualTo("Invalid email or password."));
+    }
+
+    [Test]
+    public async Task Refresh_ValidUser_ReturnsNewTokens()
+    {
+        var user = new User
+        {
+            Email = "refresh@example.com",
+            PasswordHash = "331rf",
+            FullName = "FullName",
+            UserName = "UserName",
+            Role = Roles.Customer
+        };
+        await _dbContext.Users.AddAsync(user);
+        await _dbContext.SaveChangesAsync();
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role.ToString())
+        };
+
+        var identity = new ClaimsIdentity(claims, "RefreshToken");
+        var principal = new ClaimsPrincipal(identity);
+
+        var (accessToken, refreshToken) = await _authService.Refresh(principal);
+        Assert.IsFalse(string.IsNullOrEmpty(accessToken));
+        Assert.IsFalse(string.IsNullOrEmpty(refreshToken));
+    }
+
+    [Test]
+    public void Refresh_InvalidEmail_ThrowsInvalidCredentialsException()
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Email, "nonexistent@example.com"),
+            new Claim(ClaimTypes.Role, "Customer")
+        };
+        var identity = new ClaimsIdentity(claims, "RefreshToken");
+        var principal = new ClaimsPrincipal(identity);
+        var ex = Assert.ThrowsAsync<InvalidCredentialsException>(() => _authService.Refresh(principal));
         Assert.That(ex.Message, Is.EqualTo("Invalid email or password."));
     }
 

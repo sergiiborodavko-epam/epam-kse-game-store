@@ -10,6 +10,7 @@ public class GameStoreDbContext : DbContext
         : base(options)
     {
     }
+
     
     public DbSet<User> Users { get; set; }
     
