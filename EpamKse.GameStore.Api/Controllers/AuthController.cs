@@ -1,8 +1,9 @@
 using System.Security.Claims;
-using EpamKse.GameStore.Api.DTO.Auth;
-using EpamKse.GameStore.Api.Exceptions.Auth;
-using EpamKse.GameStore.Api.Helpers.Auth;
-using EpamKse.GameStore.Api.Interfaces;
+using EpamKse.GameStore.Services.Helpers.Auth;
+
+using EpamKse.GameStore.Domain.DTO.Auth;
+using EpamKse.GameStore.Services.Services.Auth;
+using EpamKse.GameStore.Domain.Exceptions.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EpamKse.GameStore.Api.Controllers;

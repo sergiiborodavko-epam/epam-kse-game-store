@@ -1,32 +1,32 @@
-using System.Reflection;
-using EpamKse.GameStore.DataAccess.Entities;
-using Microsoft.EntityFrameworkCore;
-
 namespace EpamKse.GameStore.DataAccess.Context;
 
-public class GameStoreDbContext : DbContext
-{
-    public GameStoreDbContext(DbContextOptions<GameStoreDbContext> options)
-        : base(options)
-    {
+using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+
+using Domain.Entities;
+
+public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : DbContext(options) {
+    public DbSet<Game> Games { get; set; } = null!;
+    public DbSet<User> Users { get; set; }
+    public DbSet<Platform> Platforms { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder) {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        SeedData(modelBuilder);
     }
 
-    
-    public DbSet<User> Users { get; set; }
-    
-    public DbSet<Platform> Platforms { get; set; }
-    
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-        
+    private static void SeedData(ModelBuilder modelBuilder) {
+        modelBuilder.Entity<Game>().HasData(
+            new Game { Id = 1, Title = "Game 1", Description = "Description for Game 1", Price = 49.99m },
+            new Game { Id = 2, Title = "Game 2", Description = "Description for Game 2", Price = 59.99m }
+        );
+
         modelBuilder.Entity<Platform>().HasData(
             new Platform { Id = 1, Name = "android" },
             new Platform { Id = 2, Name = "ios" },
             new Platform { Id = 3, Name = "windows" },
             new Platform { Id = 4, Name = "vr" }
         );
-
-        base.OnModelCreating(modelBuilder);
     }
 }

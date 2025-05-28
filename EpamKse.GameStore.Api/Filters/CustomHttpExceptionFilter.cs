@@ -1,4 +1,4 @@
-using EpamKse.GameStore.Api.Exceptions;
+using EpamKse.GameStore.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 

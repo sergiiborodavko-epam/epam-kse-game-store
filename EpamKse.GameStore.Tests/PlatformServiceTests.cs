@@ -1,10 +1,11 @@
-using EpamKse.GameStore.Api.DTO.Platform;
-using EpamKse.GameStore.Api.Exceptions;
-using EpamKse.GameStore.Api.Services;
-using EpamKse.GameStore.DataAccess.Context;
+namespace EpamKse.GameStore.Tests;
+
 using Microsoft.EntityFrameworkCore;
 
-namespace EpamKse.GameStore.Tests;
+using EpamKse.GameStore.Services.Services.Platform;
+using Domain.DTO.Platform;
+using Domain.Exceptions;
+using DataAccess.Context;
 
 public class PlatformServiceTests
 {

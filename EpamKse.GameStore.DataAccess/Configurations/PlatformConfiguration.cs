@@ -1,4 +1,4 @@
-using EpamKse.GameStore.DataAccess.Entities;
+using EpamKse.GameStore.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

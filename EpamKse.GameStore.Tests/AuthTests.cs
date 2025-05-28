@@ -1,14 +1,15 @@
+namespace EpamKse.GameStore.Tests;
+
 using System.Security.Claims;
-using EpamGameDistribution.Services;
-using EpamKse.GameStore.Api.DTO.Auth;
-using EpamKse.GameStore.Api.Exceptions.Auth;
-using EpamKse.GameStore.Api.Helpers.Auth;
-using EpamKse.GameStore.DataAccess.Context;
-using EpamKse.GameStore.DataAccess.Entities;
-using EpamKse.GameStore.DataAccess.Enums;
 using Microsoft.EntityFrameworkCore;
 
-namespace EpamKse.GameStore.Tests;
+using EpamKse.GameStore.Services.Services.Auth;
+using Domain.DTO.Auth;
+using Domain.Exceptions.Auth;
+using Domain.Enums;
+using Domain.Entities;
+using Services.Helpers.Auth;
+using DataAccess.Context;
 
 public class AuthServiceTests
 {

@@ -1,6 +1,5 @@
-using EpamKse.GameStore.Api.DTO.Platform;
-using EpamKse.GameStore.Api.Filters;
-using EpamKse.GameStore.Api.Interfaces;
+using EpamKse.GameStore.Domain.DTO.Platform;
+using EpamKse.GameStore.Services.Services.Platform;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EpamKse.GameStore.Api.Controllers;

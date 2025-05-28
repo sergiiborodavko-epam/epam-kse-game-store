@@ -1,8 +1,9 @@
-using EpamKse.GameStore.DataAccess.Entities;
+namespace EpamKse.GameStore.DataAccess.Configurations;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EpamKse.GameStore.DataAccess.Configurations;
+using Domain.Entities;
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {
