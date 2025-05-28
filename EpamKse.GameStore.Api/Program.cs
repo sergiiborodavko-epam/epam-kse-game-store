@@ -4,6 +4,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using DotNetEnv;
 
+using EpamKse.GameStore.Api.Infrastructure;
 using EpamKse.GameStore.DataAccess.Repositories;
 using EpamKse.GameStore.Services.Services;
 using EpamKse.GameStore.Api.Filters;
@@ -55,6 +56,7 @@ builder.Services.AddAuthentication()
             ValidateIssuer = false,
             ValidateAudience = false,
             ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("ACCESS_TOKEN_SECRET")!))
@@ -66,7 +68,13 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+app.UseWhen(context => context.Request.Path.StartsWithSegments("/auth/refresh"), 
+    appBuilder => { appBuilder.UseMiddleware<RefreshTokenValidator>(); }
+);
+
 app.UseAuthentication();
+app.UseCors("AllowCredentials");
+
 app.UseHttpsRedirection();
 app.MapControllers();
 
