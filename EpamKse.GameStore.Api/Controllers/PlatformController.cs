@@ -1,5 +1,6 @@
 using EpamKse.GameStore.Domain.DTO.Platform;
 using EpamKse.GameStore.Services.Services.Platform;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EpamKse.GameStore.Api.Controllers;
@@ -36,6 +37,7 @@ public class PlatformController : ControllerBase
         return Ok(platform);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreatePlatform(CreatePlatformDto dto)
     {
@@ -43,6 +45,7 @@ public class PlatformController : ControllerBase
         return Created($"/platforms/{platform.Id}", platform);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPatch("{id:int}")]
     public async Task<IActionResult> UpdatePlatform(int id, UpdatePlatformDto dto)
     {
@@ -50,6 +53,7 @@ public class PlatformController : ControllerBase
         return Ok(platform);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeletePlatform(int id)
     {
