@@ -6,7 +6,7 @@ using Domain.Entities;
 public interface IGameService {
     Task<IEnumerable<Game>> GetAllGamesAsync();
     Task<Game> GetGameByIdAsync(int id);
-    Task<Game> CreateGameAsync(GameDTO gameDto);
-    Task<Game> UpdateGameAsync(int id, GameDTO gameDto);
+    Task<Game> CreateGameAsync(GameDto gameDto);
+    Task<Game> UpdateGameAsync(int id, GameDto gameDto);
     Task DeleteGameAsync(int id);
 }
