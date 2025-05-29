@@ -20,5 +20,12 @@ public class GameConfiguration : IEntityTypeConfiguration<Game> {
         builder.Property(g => g.Price)
             .HasColumnType("decimal(18,2)")
             .IsRequired();
+        
+        builder.Property(g => g.GenreIds)
+            .HasConversion(
+                v => string.Join(',', v),
+                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(int.Parse).ToList()
+            );
     }
 }

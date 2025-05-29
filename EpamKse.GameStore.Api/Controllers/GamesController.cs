@@ -3,7 +3,8 @@
 using Microsoft.AspNetCore.Mvc;
 
 using Services.Services.Game;
-using Domain.Exceptions;
+using Domain.Exceptions.Game;
+using Domain.Exceptions.Genre;
 using Domain.DTO;
 
 [ApiController]
@@ -21,27 +22,29 @@ public class GamesController(IGameService gameService) : ControllerBase {
         try {
             var game = await gameService.GetGameByIdAsync(id);
             return Ok(game);
-        } catch (GameNotFoundException) {
-            return NotFound();
+        } catch (GameNotFoundException ex) {
+            return NotFound(ex.Message);
         }
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateGame(GameDTO gameDto) {
+    public async Task<IActionResult> CreateGame(GameDto gameDto) {
         if (!ModelState.IsValid) {
             return BadRequest(ModelState);
         }
-        
+
         try {
             var createdGame = await gameService.CreateGameAsync(gameDto);
             return CreatedAtAction(nameof(GetGameById), new { id = createdGame.Id }, createdGame);
         } catch (GameAlreadyExistsException ex) {
             return Conflict(ex.Message);
+        } catch (GenreNamesNotFoundException ex) {
+            return NotFound(ex.Message);
         }
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateGame(int id, GameDTO gameDto) {
+    public async Task<IActionResult> UpdateGame(int id, GameDto gameDto) {
         if (!ModelState.IsValid) {
             return BadRequest(ModelState);
         }
@@ -53,6 +56,8 @@ public class GamesController(IGameService gameService) : ControllerBase {
             return NotFound();
         } catch (GameAlreadyExistsException ex) {
             return Conflict(ex.Message);
+        } catch (GenreNamesNotFoundException ex) {
+            return NotFound(ex.Message);
         }
     }
 

@@ -2,7 +2,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-public class GameDTO {
+public class GameDto {
     [Required(ErrorMessage = "Title is required")]
     [StringLength(100, MinimumLength = 1, ErrorMessage = "Title must be between 1 and 100 characters")]
     public string Title { get; set; } = string.Empty;
@@ -16,4 +16,7 @@ public class GameDTO {
     
     [Required(ErrorMessage = "Release date is required")]
     public DateTime ReleaseDate { get; set; }
+    
+    [Required(ErrorMessage = "At least one genre is required")]
+    public List<string> GenreNames { get; set; } = [];
 }
