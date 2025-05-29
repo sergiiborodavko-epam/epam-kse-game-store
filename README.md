@@ -3,7 +3,7 @@
 ## Prerequisites
 
 Before running the project, ensure you have:
-- A **working instance of Microsoft SQL Server**
+- A **Dockerized Microsoft SQL Server instance**, running and accessible
 - .NET 8 SDK
 - Git
 - Python 3 — for secret key generation
@@ -27,6 +27,10 @@ Create a `.env` file inside the `EpamKse.GameStore.Api` directory:
 touch .env
 ```
 
+If you are using Windows:
+```cmd
+echo. > .env
+```
 ### 3. **Configure Environment Variables**
 
 Add the following variables to your `.env` file:
@@ -43,7 +47,7 @@ For `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET`, you need to generate secur
 
 #### **Option A: Using Python Script**
 
-Create and run the following Python script:
+Create secret.py, paste there the following script and run it:
 
 ```python
 import secrets
