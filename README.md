@@ -92,16 +92,22 @@ REFRESH_TOKEN_SECRET=your_different_generated_base64_secret_here
 
 ---
 
-### 7. Restore dependencies and run
-
+### 7. Restore dependencies (if not using Rider)
 
 1. **Restore dependencies:**
    ```bash
    dotnet restore
    ```
 
-2. **Start the application:**
-   ```bash
-   dotnet run
-   ```
+
+### 8. Run project
+
+#### **Option A: Command Line**
+```bash
+dotnet run
+```
+
+#### **Option B: Rider**
+1. Open the project in Rider
+2. Click the green **"Run"** button (▶️) in the toolbar
 
