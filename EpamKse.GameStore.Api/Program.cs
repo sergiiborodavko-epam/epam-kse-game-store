@@ -9,6 +9,7 @@ using EpamKse.GameStore.DataAccess.Repositories;
 using EpamKse.GameStore.Services.Services;
 using EpamKse.GameStore.Api.Filters;
 using EpamKse.GameStore.DataAccess.Context;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 Env.Load();
 
@@ -22,7 +23,9 @@ builder.Services.AddDbContext<GameStoreDbContext>(options =>
 );
 
 builder.Services.AddControllers(options => {
-    options.Filters.Add<CustomHttpExceptionFilter>(); }).ConfigureApiBehaviorOptions(options => {
+    options.Filters.Add<CustomHttpExceptionFilter>();
+    options.Filters.Add(new AuthorizeFilter());
+}).ConfigureApiBehaviorOptions(options => {
     options.SuppressModelStateInvalidFilter = false;
 });
 
@@ -63,6 +66,12 @@ builder.Services.AddAuthentication()
         };
     });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAuth", policy => policy.RequireAuthenticatedUser());
+    options.DefaultPolicy = options.GetPolicy("RequireAuth") ?? throw new InvalidOperationException("RequireAuth policy is not configured");
+});
+
 var app = builder.Build();
 
 app.UseSwagger();
@@ -73,6 +82,7 @@ app.UseWhen(context => context.Request.Path.StartsWithSegments("/auth/refresh"),
 );
 
 app.UseAuthentication();
+app.UseAuthorization();
 app.UseCors("AllowCredentials");
 
 app.UseHttpsRedirection();
