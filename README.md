@@ -104,7 +104,8 @@ REFRESH_TOKEN_SECRET=your_different_generated_base64_secret_here
 
 #### **Option A: Command Line**
 ```bash
-dotnet run
+cd epam-kse-game-store
+dotnet run --project EpamKse.GameStore.Api
 ```
 
 #### **Option B: Rider**
