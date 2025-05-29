@@ -9,6 +9,7 @@ using EpamKse.GameStore.DataAccess.Repositories;
 using EpamKse.GameStore.Services.Services;
 using EpamKse.GameStore.Api.Filters;
 using EpamKse.GameStore.DataAccess.Context;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 
 Env.Load();
@@ -68,8 +69,7 @@ builder.Services.AddAuthentication()
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("RequireAuth", policy => policy.RequireAuthenticatedUser());
-    options.DefaultPolicy = options.GetPolicy("RequireAuth") ?? throw new InvalidOperationException("RequireAuth policy is not configured");
+    options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
 });
 
 var app = builder.Build();
