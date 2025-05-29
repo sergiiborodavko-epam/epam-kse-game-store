@@ -1,3 +1,5 @@
+using EpamKse.GameStore.Domain.Enums;
+
 namespace EpamKse.GameStore.DataAccess.Context;
 
 using System.Reflection;
@@ -27,6 +29,14 @@ public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : 
             new Platform { Id = 2, Name = "ios" },
             new Platform { Id = 3, Name = "windows" },
             new Platform { Id = 4, Name = "vr" }
+        );
+
+        // the safest way of doing this with migration is already hashed password
+        var adminPass =
+            "$argon2id$v=19$m=65536,t=3,p=1$hIWcROP/j0uU/PceT+/jHw$Kn1RHnAoDdMitEPzaT43//MwsEDJMwAjEPr8liXCHrM";
+        
+        modelBuilder.Entity<User>().HasData(
+            new User { Id = 1, Role = Roles.Admin, CreatedAt = DateTime.Now, Email = "admin@example.com", UserName = "admin", FullName = "admin", PasswordHash = adminPass }
         );
     }
 }
