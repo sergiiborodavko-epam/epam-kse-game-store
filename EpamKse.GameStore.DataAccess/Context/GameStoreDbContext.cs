@@ -10,6 +10,7 @@ public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : 
     public DbSet<User> Users { get; set; }
     public DbSet<Platform> Platforms { get; set; }
 
+    public DbSet<Publisher> Publishers { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
