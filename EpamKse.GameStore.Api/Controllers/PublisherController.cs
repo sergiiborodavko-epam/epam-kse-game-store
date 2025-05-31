@@ -20,7 +20,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpPost]
-    //[Authorize(AuthenticationSchemes = "Access")]
+    [Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> CreatePublisher([FromBody] CreatePublisherDTO request)
     {
         try
@@ -39,7 +39,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpPut]
-   // [Authorize(AuthenticationSchemes = "Access")]
+    [Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> UpdatePublisher([FromBody] UpdatePublisherDTO request)
     {
         try
@@ -55,7 +55,7 @@ public class PublisherController : ControllerBase
                 message = e.Message
             });
         }
-        catch (PublisherDuplicationException e) 
+        catch (PublisherDuplicationException e)
         {
             return Conflict(new
             {
@@ -66,7 +66,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-   // [Authorize(AuthenticationSchemes = "Access")]
+    [Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> DeletePublisher(int id)
     {
         try
@@ -85,7 +85,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpGet]
-  //  [Authorize(AuthenticationSchemes = "Access")]
+    [Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> GetPaginatedFullPublishers(int page = 1, int limit = 10)
     {
         if (page < 1 || limit < 1)
@@ -102,7 +102,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpGet("specificPublisher")]
-    //[Authorize(AuthenticationSchemes = "Access")]
+    [Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> GetFullPublisher(int id)
     {
         try
@@ -121,7 +121,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpPatch("addPlatform")]
-   // [Authorize(AuthenticationSchemes = "Access")]
+    [Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> AddPlatform([FromBody] PlatformToPublisherDTO request)
     {
         try
@@ -148,7 +148,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpPatch("removePlatform")]
-   // [Authorize(AuthenticationSchemes = "Access")]
+    [Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> RemovePlatform([FromBody] PlatformToPublisherDTO request)
     {
         try

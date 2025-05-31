@@ -1,6 +1,6 @@
-using EpamKse.GameStore.DataAccess.Migrations;
+using EpamKse.GameStore.DataAccess.Repositories.Platform;
+using EpamKse.GameStore.DataAccess.Repositories.Publisher;
 using EpamKse.GameStore.Domain.DTO.Publisher;
-using EpamKse.GameStore.Domain.Exceptions;
 using EpamKse.GameStore.Domain.Exceptions.Platform;
 using EpamKse.GameStore.Domain.Exceptions.Publisher;
 using Microsoft.Data.SqlClient;
@@ -9,21 +9,20 @@ using Microsoft.EntityFrameworkCore;
 namespace EpamKse.GameStore.Services.Services.Publisher;
 
 using Domain.Entities;
-using EpamKse.GameStore.DataAccess.Context;
 
 public class PublisherService : IPublisherService
 {
-    private readonly GameStoreDbContext _dbContext;
-
-    public PublisherService(GameStoreDbContext dbContext)
+    private readonly IPublisherRepository _publisherRepository;
+    private readonly IPlatformRepository _platformRepository;
+    public PublisherService(IPublisherRepository publisherRepository, IPlatformRepository platformRepository)
     {
-        _dbContext = dbContext;
+        _platformRepository = platformRepository;
+        _publisherRepository = publisherRepository;
     }
 
     public async Task<Publisher> CreatePublisher(CreatePublisherDTO publisherDto)
     {
-        if (await _dbContext.Publishers.FirstOrDefaultAsync(publisher =>
-                publisher.Name.ToLower() == publisherDto.Name.ToLower()) is not null)
+        if (await _publisherRepository.GetByNameAsync(publisherDto.Name) is not null)
         {
             throw new PublisherDuplicationException(publisherDto.Name);
         }
@@ -35,15 +34,12 @@ public class PublisherService : IPublisherService
             HomePageUrl = publisherDto.HomePageUrl
         };
 
-        _dbContext.Publishers.Add(publisher);
-        await _dbContext.SaveChangesAsync();
-        return publisher;
+        return await _publisherRepository.AddAsync(publisher);
     }
 
     public async Task<Publisher> UpdatePublisher(UpdatePublisherDTO updatePublisherDto)
     {
-        var publisherToUpdate =
-            await _dbContext.Publishers.FirstOrDefaultAsync(publisher => publisher.Id == updatePublisherDto.Id);
+        var publisherToUpdate = await _publisherRepository.GetByIdAsync(updatePublisherDto.Id);
         if (publisherToUpdate is null)
         {
             throw new PublisherNotFoundException(updatePublisherDto.Id);
@@ -55,24 +51,21 @@ public class PublisherService : IPublisherService
 
         try
         {
-            await _dbContext.SaveChangesAsync();
+            return await _publisherRepository.UpdateAsync(publisherToUpdate);
         }
         catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlEx &&
                                            sqlEx.Message.Contains("IX_Publishers_Name"))
         {
             throw new PublisherDuplicationException(updatePublisherDto.Name);
         }
-
-        return publisherToUpdate;
     }
 
     public async Task DeletePublisher(int publisherId)
     {
-        var publisher = await _dbContext.Publishers.FindAsync(publisherId);
+        var publisher = await _publisherRepository.GetByIdAsync(publisherId);
         if (publisher != null)
         {
-            _dbContext.Publishers.Remove(publisher);
-            await _dbContext.SaveChangesAsync();
+            await _publisherRepository.RemoveAsync(publisher);
             return;
         }
 
@@ -82,15 +75,7 @@ public class PublisherService : IPublisherService
     public async Task<List<PublisherDTO>> GetPaginatedFullPublishers(int page = 1, int limit = 10)
     {
         var skip = (page - 1) * limit;
-
-        var publishers = await _dbContext.Publishers
-            .Include(p => p.Games)
-            .ThenInclude(g => g.Platforms)
-            .Include(p => p.PublisherPlatforms)
-            .OrderBy(p => p.Id)
-            .Skip(skip)
-            .Take(limit)
-            .ToListAsync();
+        var publishers = await _publisherRepository.GetPaginatedFullAsync(skip, limit);
 
         return publishers.Select(p => new PublisherDTO
         {
@@ -122,11 +107,7 @@ public class PublisherService : IPublisherService
 
     public async Task<PublisherDTO?> GetPublisherByIdWithFullData(int id)
     {
-        var publisher = await _dbContext.Publishers
-            .Include(p => p.Games)
-            .ThenInclude(g => g.Platforms)
-            .Include(p => p.PublisherPlatforms)
-            .FirstOrDefaultAsync(p => p.Id == id);
+        var publisher = await _publisherRepository.GetByIdAsync(id);
 
         if (publisher == null) throw new PublisherNotFoundException(id);
 
@@ -160,54 +141,46 @@ public class PublisherService : IPublisherService
 
     public async Task AddPlatformToPublisher(PlatformToPublisherDTO dto)
     {
-        var publisher = await _dbContext.Publishers
-            .Include(p => p.PublisherPlatforms)
-            .FirstOrDefaultAsync(p => p.Id == dto.Id);
-
-        if (publisher == null)
+        var publisher = await _publisherRepository.GetByIdAsync(dto.Id);
+        if (publisher is null)
         {
             throw new PublisherNotFoundException(dto.Id);
         }
 
-        var platform = await _dbContext.Platforms.FindAsync(dto.platformId);
-        if (platform == null)
+        var platform = await _platformRepository.GetByIdAsync(dto.platformId);
+        if (platform is null)
         {
             throw new PlatformNotFoundException(dto.platformId);
         }
 
-        if (publisher.PublisherPlatforms.Any(p => p.Id == dto.platformId))
+        if (await _platformRepository.IsPlatformLinkedToPublisherAsync(dto.Id, dto.platformId))
         {
             throw new PlatformAlreadyLinkedException(dto.platformId);
         }
 
-        publisher.PublisherPlatforms.Add(platform);
-        await _dbContext.SaveChangesAsync();
+        await _platformRepository.AddPlatformToPublisherAsync(publisher, platform);
     }
 
 
     public async Task RemovePlatformFromPublisher(PlatformToPublisherDTO dto)
     {
-        var publisher = await _dbContext.Publishers
-            .Include(p => p.PublisherPlatforms)
-            .FirstOrDefaultAsync(p => p.Id == dto.Id);
-
-        if (publisher == null)
+        var publisher = await _publisherRepository.GetByIdAsync(dto.Id);
+        if (publisher is null)
         {
             throw new PublisherNotFoundException(dto.Id);
         }
 
-        var platform = await _dbContext.Platforms.FindAsync(dto.platformId);
-        if (platform == null)
+        var platform = await _platformRepository.GetByIdAsync(dto.platformId);
+        if (platform is null)
         {
             throw new PlatformNotFoundException(dto.platformId);
         }
 
-        if (!publisher.PublisherPlatforms.Any(p => p.Id == dto.platformId))
+        if (!await _platformRepository.IsPlatformLinkedToPublisherAsync(dto.Id, dto.platformId))
         {
             throw new PlatformIsNotLinkedException(dto.platformId);
         }
 
-        publisher.PublisherPlatforms.Remove(platform);
-        await _dbContext.SaveChangesAsync();
+        await _platformRepository.RemovePlatformFromPublisherAsync(publisher, platform);
     }
 }

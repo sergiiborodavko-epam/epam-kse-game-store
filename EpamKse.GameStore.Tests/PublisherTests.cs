@@ -1,3 +1,5 @@
+using EpamKse.GameStore.DataAccess.Repositories.Platform;
+using EpamKse.GameStore.DataAccess.Repositories.Publisher;
 using EpamKse.GameStore.Domain.Exceptions.Publisher;
 
 namespace EpamKse.GameStore.Tests;
@@ -24,7 +26,9 @@ public class PublisherServiceTests
             .Options;
 
         _dbContext = new GameStoreDbContext(options);
-        _service = new PublisherService(_dbContext);
+        var publisherRepository = new PublisherRepository(_dbContext);
+        var platformRepository = new PlatformRepository(_dbContext);
+        _service = new PublisherService(publisherRepository, platformRepository);
     }
 
     [Fact]
@@ -130,9 +134,8 @@ public class PublisherServiceTests
 
         Assert.DoesNotContain(updated.PublisherPlatforms, p => p.Id == platform.Id);
     }
-    
-    
-    
+
+
     [Fact]
     public async Task UpdatePublisher_ValidUpdate_Succeeds()
     {
@@ -174,15 +177,21 @@ public class PublisherServiceTests
 
         await Assert.ThrowsAsync<PublisherNotFoundException>(() => _service.UpdatePublisher(dto));
     }
-    
-    
+
+
     [Fact]
     public async Task GetPaginatedFullPublishers_ReturnsPaginatedList()
     {
-        var publisher1 = new Publisher { Name = "A", Description = "desc",
-            HomePageUrl = "https://url.com" };
-        var publisher2 = new Publisher { Name = "B", Description = "desc",
-            HomePageUrl = "https://url.com" };
+        var publisher1 = new Publisher
+        {
+            Name = "A", Description = "desc",
+            HomePageUrl = "https://url.com"
+        };
+        var publisher2 = new Publisher
+        {
+            Name = "B", Description = "desc",
+            HomePageUrl = "https://url.com"
+        };
         await _dbContext.Publishers.AddRangeAsync(publisher1, publisher2);
         await _dbContext.SaveChangesAsync();
 
@@ -191,11 +200,13 @@ public class PublisherServiceTests
         Assert.Single(result);
         Assert.Equal("B", result[0].Name);
     }
+
     [Fact]
     public async Task GetPublisherByIdWithFullData_NotFound_Throws()
     {
         await Assert.ThrowsAsync<PublisherNotFoundException>(() => _service.GetPublisherByIdWithFullData(123456));
     }
+
     [Fact]
     public async Task GetPublisherByIdWithFullData_ReturnsBasicPublisher()
     {
