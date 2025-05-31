@@ -20,5 +20,15 @@ public class GameConfiguration : IEntityTypeConfiguration<Game> {
         builder.Property(g => g.Price)
             .HasColumnType("decimal(18,2)")
             .IsRequired();
+        
+        builder
+            .HasMany(g => g.Platforms)
+            .WithMany(p => p.Games)
+            .UsingEntity(j => j.ToTable("GamePlatforms"));
+        builder
+            .HasOne(g => g.Publisher)
+            .WithMany(p => p.Games)
+            .HasForeignKey(g => g.PublisherId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -7,7 +7,8 @@ public class Game {
     public decimal Price { get; set; }
     public DateTime ReleaseDate { get; set; }
     
+    public int? PublisherId { get; set; }
+    public Publisher Publisher { get; set; }
+    public ICollection<Platform> Platforms { get; set; } = new List<Platform>();
     // Genres
-    // Platforms
-    // Publisher
 }

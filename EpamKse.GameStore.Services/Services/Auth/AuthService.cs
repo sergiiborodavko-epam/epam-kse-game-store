@@ -19,8 +19,8 @@ public class AuthService : IAuthService
     private readonly GameStoreDbContext _dbContext;
     private readonly string ACCESS_TOKEN_SECRET;
     private readonly string REFRESH_TOKEN_SECRET;
-    private readonly Int32 REFRESH_TOKEN_LIFETIME = 6;
-    private readonly Int32 ACCESS_TOKEN_LIFETIME = 3;
+    private readonly int REFRESH_TOKEN_LIFETIME = 6;
+    private readonly int ACCESS_TOKEN_LIFETIME = 3;
 
     public AuthService(GameStoreDbContext dbContext)
     {
