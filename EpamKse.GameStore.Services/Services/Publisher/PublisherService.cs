@@ -177,7 +177,7 @@ public class PublisherService : IPublisherService
 
         if (publisher.PublisherPlatforms.Any(p => p.Id == dto.platformId))
         {
-            throw new ConflictException($"Platform with ID {dto.platformId} is already linked to this publisher.");
+            throw new PlatformAlreadyLinkedException(dto.platformId);
         }
 
         publisher.PublisherPlatforms.Add(platform);
@@ -204,7 +204,7 @@ public class PublisherService : IPublisherService
 
         if (!publisher.PublisherPlatforms.Any(p => p.Id == dto.platformId))
         {
-            throw new ConflictException($"Platform with ID {dto.platformId} is not linked to this publisher.");
+            throw new PlatformIsNotLinkedException(dto.platformId);
         }
 
         publisher.PublisherPlatforms.Remove(platform);
