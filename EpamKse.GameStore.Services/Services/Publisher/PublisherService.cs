@@ -1,6 +1,8 @@
 using EpamKse.GameStore.DataAccess.Migrations;
 using EpamKse.GameStore.Domain.DTO.Publisher;
 using EpamKse.GameStore.Domain.Exceptions;
+using EpamKse.GameStore.Domain.Exceptions.Platform;
+using EpamKse.GameStore.Domain.Exceptions.Publisher;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,7 +25,7 @@ public class PublisherService : IPublisherService
         if (await _dbContext.Publishers.FirstOrDefaultAsync(publisher =>
                 publisher.Name.ToLower() == publisherDto.Name.ToLower()) is not null)
         {
-            throw new ConflictException($"Publisher with name {publisherDto.Name} already exists");
+            throw new PublisherDuplicationException(publisherDto.Name);
         }
 
         var publisher = new Publisher
@@ -44,7 +46,7 @@ public class PublisherService : IPublisherService
             await _dbContext.Publishers.FirstOrDefaultAsync(publisher => publisher.Id == updatePublisherDto.Id);
         if (publisherToUpdate is null)
         {
-            throw new NotFoundException($"Publisher with id {updatePublisherDto.Id} not found");
+            throw new PublisherNotFoundException(updatePublisherDto.Id);
         }
 
         publisherToUpdate.Name = updatePublisherDto.Name;
@@ -58,7 +60,7 @@ public class PublisherService : IPublisherService
         catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlEx &&
                                            sqlEx.Message.Contains("IX_Publishers_Name"))
         {
-            throw new ConflictException("Publisher with this name already exists.");
+            throw new PublisherDuplicationException(updatePublisherDto.Name);
         }
 
         return publisherToUpdate;
@@ -74,7 +76,7 @@ public class PublisherService : IPublisherService
             return;
         }
 
-        throw new NotFoundException($"Publisher with id {publisherId} not found");
+        throw new PublisherNotFoundException(publisherId);
     }
 
     public async Task<List<PublisherDTO>> GetPaginatedFullPublishers(int page = 1, int limit = 10)
@@ -126,7 +128,7 @@ public class PublisherService : IPublisherService
             .Include(p => p.PublisherPlatforms)
             .FirstOrDefaultAsync(p => p.Id == id);
 
-        if (publisher == null) throw new NotFoundException($"Publisher with id {id} not found");
+        if (publisher == null) throw new PublisherNotFoundException(id);
 
         return new PublisherDTO
         {
@@ -164,13 +166,13 @@ public class PublisherService : IPublisherService
 
         if (publisher == null)
         {
-            throw new NotFoundException($"Publisher with ID {dto.Id} not found.");
+            throw new PublisherNotFoundException(dto.Id);
         }
 
         var platform = await _dbContext.Platforms.FindAsync(dto.platformId);
         if (platform == null)
         {
-            throw new NotFoundException($"Platform with ID {dto.platformId} not found.");
+            throw new PlatformNotFoundException(dto.platformId);
         }
 
         if (publisher.PublisherPlatforms.Any(p => p.Id == dto.platformId))
@@ -191,13 +193,13 @@ public class PublisherService : IPublisherService
 
         if (publisher == null)
         {
-            throw new NotFoundException($"Publisher with ID {dto.Id} not found.");
+            throw new PublisherNotFoundException(dto.Id);
         }
 
         var platform = await _dbContext.Platforms.FindAsync(dto.platformId);
         if (platform == null)
         {
-            throw new NotFoundException($"Platform with ID {dto.platformId} not found.");
+            throw new PlatformNotFoundException(dto.platformId);
         }
 
         if (!publisher.PublisherPlatforms.Any(p => p.Id == dto.platformId))

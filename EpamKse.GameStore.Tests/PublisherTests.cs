@@ -1,3 +1,5 @@
+using EpamKse.GameStore.Domain.Exceptions.Publisher;
+
 namespace EpamKse.GameStore.Tests;
 
 using System;
@@ -54,7 +56,7 @@ public class PublisherServiceTests
             HomePageUrl = "https://example.com"
         };
 
-        await Assert.ThrowsAsync<ConflictException>(() => _service.CreatePublisher(dto));
+        await Assert.ThrowsAsync<PublisherDuplicationException>(() => _service.CreatePublisher(dto));
     }
 
     [Fact]
@@ -74,7 +76,7 @@ public class PublisherServiceTests
     [Fact]
     public async Task DeletePublisher_ThrowsNotFound()
     {
-        await Assert.ThrowsAsync<NotFoundException>(() => _service.DeletePublisher(999));
+        await Assert.ThrowsAsync<PublisherNotFoundException>(() => _service.DeletePublisher(999));
     }
 
     [Fact]
@@ -170,7 +172,7 @@ public class PublisherServiceTests
             HomePageUrl = "https://url.com"
         };
 
-        await Assert.ThrowsAsync<NotFoundException>(() => _service.UpdatePublisher(dto));
+        await Assert.ThrowsAsync<PublisherNotFoundException>(() => _service.UpdatePublisher(dto));
     }
     
     
@@ -192,7 +194,7 @@ public class PublisherServiceTests
     [Fact]
     public async Task GetPublisherByIdWithFullData_NotFound_Throws()
     {
-        await Assert.ThrowsAsync<NotFoundException>(() => _service.GetPublisherByIdWithFullData(123456));
+        await Assert.ThrowsAsync<PublisherNotFoundException>(() => _service.GetPublisherByIdWithFullData(123456));
     }
     [Fact]
     public async Task GetPublisherByIdWithFullData_ReturnsBasicPublisher()

@@ -1,5 +1,6 @@
 using EpamKse.GameStore.Domain.DTO.Publisher;
 using EpamKse.GameStore.Domain.Exceptions;
+using EpamKse.GameStore.Domain.Exceptions.Publisher;
 using EpamKse.GameStore.Services.Services.Publisher;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(AuthenticationSchemes = "Access")]
+    //[Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> CreatePublisher([FromBody] CreatePublisherDTO request)
     {
         try
@@ -27,7 +28,7 @@ public class PublisherController : ControllerBase
             var platform = await _publisherService.CreatePublisher(request);
             return Ok(platform);
         }
-        catch (ConflictException e)
+        catch (PublisherDuplicationException e)
         {
             return Conflict(new
             {
@@ -38,7 +39,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpPut]
-    [Authorize(AuthenticationSchemes = "Access")]
+   // [Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> UpdatePublisher([FromBody] UpdatePublisherDTO request)
     {
         try
@@ -46,7 +47,7 @@ public class PublisherController : ControllerBase
             var platform = await _publisherService.UpdatePublisher(request);
             return Ok(platform);
         }
-        catch (NotFoundException e)
+        catch (PublisherNotFoundException e)
         {
             return NotFound(new
             {
@@ -54,8 +55,7 @@ public class PublisherController : ControllerBase
                 message = e.Message
             });
         }
-        catch (DbUpdateException e) when (e.InnerException != null &&
-                                          e.InnerException.Message.Contains("IX_Publishers_Name"))
+        catch (PublisherDuplicationException e) 
         {
             return Conflict(new
             {
@@ -66,7 +66,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(AuthenticationSchemes = "Access")]
+   // [Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> DeletePublisher(int id)
     {
         try
@@ -74,7 +74,7 @@ public class PublisherController : ControllerBase
             await _publisherService.DeletePublisher(id);
             return Ok("publisher deleted");
         }
-        catch (NotFoundException e)
+        catch (PublisherNotFoundException e)
         {
             return NotFound(new
             {
@@ -85,7 +85,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(AuthenticationSchemes = "Access")]
+  //  [Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> GetPaginatedFullPublishers(int page = 1, int limit = 10)
     {
         if (page < 1 || limit < 1)
@@ -98,12 +98,11 @@ public class PublisherController : ControllerBase
         }
 
         var publishers = await _publisherService.GetPaginatedFullPublishers(page, limit);
-        Console.WriteLine(publishers);
         return Ok(publishers);
     }
 
     [HttpGet("specificPublisher")]
-    [Authorize(AuthenticationSchemes = "Access")]
+    //[Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> GetFullPublisher(int id)
     {
         try
@@ -122,7 +121,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpPatch("addPlatform")]
-    [Authorize(AuthenticationSchemes = "Access")]
+   // [Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> AddPlatform([FromBody] PlatformToPublisherDTO request)
     {
         try
@@ -149,7 +148,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpPatch("removePlatform")]
-    [Authorize(AuthenticationSchemes = "Access")]
+   // [Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> RemovePlatform([FromBody] PlatformToPublisherDTO request)
     {
         try
