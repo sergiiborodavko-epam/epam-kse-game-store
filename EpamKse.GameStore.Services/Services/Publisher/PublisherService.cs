@@ -53,8 +53,9 @@ public class PublisherService : IPublisherService
         {
             return await _publisherRepository.UpdateAsync(publisherToUpdate);
         }
-        catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlEx &&
-                                           sqlEx.Message.Contains("IX_Publishers_Name"))
+        catch (DbUpdateException ex) when (
+            ex.InnerException is SqlException sqlEx &&
+            (sqlEx.Number == 2627 || sqlEx.Number == 2601))
         {
             throw new PublisherDuplicationException(updatePublisherDto.Name);
         }
