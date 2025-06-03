@@ -75,6 +75,11 @@ public class PublisherService : IPublisherService
 
     public async Task<List<PublisherDTO>> GetPaginatedFullPublishers(int page = 1, int limit = 10)
     {
+        if (page < 1 || limit < 1)
+        {
+            throw new InvalidPaginationException("Page and limit must be greater than zero.");
+        }
+
         var skip = (page - 1) * limit;
         var publishers = await _publisherRepository.GetPaginatedFullAsync(skip, limit);
 
