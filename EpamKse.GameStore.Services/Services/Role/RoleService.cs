@@ -19,7 +19,7 @@ public class RoleService : IRoleService
     public async Task<User> UpdateRole(UpdateRoleDto dto)
     {
         var user = await _userRepository.GetByIdAsync(dto.UserId!.Value);
-        if (user == null) throw new UserNotFoundException($"User with id {dto.UserId} was not found");
+        if (user == null) throw new UserNotFoundException(dto.UserId!.Value);
         user.Role = dto.Role!.Value;
         await _userRepository.UpdateAsync(user);
         return user;
