@@ -14,6 +14,8 @@ public class PublisherService : IPublisherService
 {
     private readonly IPublisherRepository _publisherRepository;
     private readonly IPlatformRepository _platformRepository;
+    private readonly int DUPLICATE_INDEX_CODE = 2601;
+    private readonly int UNIQUE_CONSTRAINT_VIOLATION_CODE = 2627;
     public PublisherService(IPublisherRepository publisherRepository, IPlatformRepository platformRepository)
     {
         _platformRepository = platformRepository;
@@ -55,7 +57,7 @@ public class PublisherService : IPublisherService
         }
         catch (DbUpdateException ex) when (
             ex.InnerException is SqlException sqlEx &&
-            (sqlEx.Number == 2627 || sqlEx.Number == 2601))
+            (sqlEx.Number == DUPLICATE_INDEX_CODE || sqlEx.Number == UNIQUE_CONSTRAINT_VIOLATION_CODE))
         {
             throw new PublisherDuplicationException(updatePublisherDto.Name);
         }
@@ -77,7 +79,7 @@ public class PublisherService : IPublisherService
     {
         if (page < 1 || limit < 1)
         {
-            throw new InvalidPaginationException("Page and limit must be greater than zero.");
+            throw new InvalidPaginationException();
         }
 
         var skip = (page - 1) * limit;

@@ -2,8 +2,8 @@ namespace EpamKse.GameStore.Domain.Exceptions.Publisher;
 
 public class InvalidPaginationException : CustomHttpException
 {
-    public InvalidPaginationException(string message)
-        : base(400, message)
+    public InvalidPaginationException()
+        : base(400, "Page and limit must be greater than zero.")
     {
     }
 }
