@@ -4,6 +4,7 @@ using EpamKse.GameStore.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EpamKse.GameStore.DataAccess.Migrations
 {
     [DbContext(typeof(GameStoreDbContext))]
-    partial class GameStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250529172116_AddPredefinedAdmin")]
+    partial class AddPredefinedAdmin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,9 +41,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("PublisherId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
 
@@ -50,8 +50,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PublisherId");
 
                     b.ToTable("Games");
 
@@ -115,41 +113,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                         });
                 });
 
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Publisher", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("Id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HomePageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("Name");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Publishers", (string)null);
-                });
-
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -198,81 +161,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                             Role = "Admin",
                             UserName = "admin"
                         });
-                });
-
-            modelBuilder.Entity("GamePlatform", b =>
-                {
-                    b.Property<int>("GamesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PlatformsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("GamesId", "PlatformsId");
-
-                    b.HasIndex("PlatformsId");
-
-                    b.ToTable("GamePlatforms", (string)null);
-                });
-
-            modelBuilder.Entity("PlatformPublisher", b =>
-                {
-                    b.Property<int>("PublisherPlatformsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PublishersId")
-                        .HasColumnType("int");
-
-                    b.HasKey("PublisherPlatformsId", "PublishersId");
-
-                    b.HasIndex("PublishersId");
-
-                    b.ToTable("PublisherPlatforms", (string)null);
-                });
-
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Game", b =>
-                {
-                    b.HasOne("EpamKse.GameStore.Domain.Entities.Publisher", "Publisher")
-                        .WithMany("Games")
-                        .HasForeignKey("PublisherId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Publisher");
-                });
-
-            modelBuilder.Entity("GamePlatform", b =>
-                {
-                    b.HasOne("EpamKse.GameStore.Domain.Entities.Game", null)
-                        .WithMany()
-                        .HasForeignKey("GamesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EpamKse.GameStore.Domain.Entities.Platform", null)
-                        .WithMany()
-                        .HasForeignKey("PlatformsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("PlatformPublisher", b =>
-                {
-                    b.HasOne("EpamKse.GameStore.Domain.Entities.Platform", null)
-                        .WithMany()
-                        .HasForeignKey("PublisherPlatformsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EpamKse.GameStore.Domain.Entities.Publisher", null)
-                        .WithMany()
-                        .HasForeignKey("PublishersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Publisher", b =>
-                {
-                    b.Navigation("Games");
                 });
 #pragma warning restore 612, 618
         }

@@ -4,10 +4,12 @@ using EpamKse.GameStore.Services.Helpers.Auth;
 using EpamKse.GameStore.Domain.DTO.Auth;
 using EpamKse.GameStore.Services.Services.Auth;
 using EpamKse.GameStore.Domain.Exceptions.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EpamKse.GameStore.Api.Controllers;
 
+[AllowAnonymous]
 [ApiController]
 [Route("auth")]
 public class AuthController : ControllerBase
