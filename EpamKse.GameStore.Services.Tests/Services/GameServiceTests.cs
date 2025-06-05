@@ -1,4 +1,6 @@
-﻿namespace EpamKse.GameStore.Services.Tests.Services;
+﻿using EpamKse.GameStore.DataAccess.Repositories.HistoricalPrice;
+
+namespace EpamKse.GameStore.Services.Tests.Services;
 
 using Xunit;
 using Moq;
@@ -11,11 +13,13 @@ using EpamKse.GameStore.Services.Services.Game;
 
 public class GameServiceTests {
     private readonly Mock<IGameRepository> _mockGameRepository;
+    private readonly Mock<IHistoricalPriceRepository> _mockHistoricalRepository;
     private readonly GameService _gameService;
 
     public GameServiceTests() {
         _mockGameRepository = new Mock<IGameRepository>();
-        _gameService = new GameService(_mockGameRepository.Object);
+        _mockHistoricalRepository = new Mock<IHistoricalPriceRepository>();
+        _gameService = new GameService(_mockGameRepository.Object, _mockHistoricalRepository.Object);
     }
 
     [Fact]

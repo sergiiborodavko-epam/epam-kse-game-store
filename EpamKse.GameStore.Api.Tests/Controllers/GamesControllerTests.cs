@@ -1,4 +1,6 @@
-﻿namespace EpamKse.GameStore.Api.Tests.Controllers;
+﻿using EpamKse.GameStore.Domain.DTO.Game;
+
+namespace EpamKse.GameStore.Api.Tests.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
@@ -77,7 +79,7 @@ public class GamesControllerTests {
             Description = "New Description",
             Price = 39.99m
         };
-        var createdGame = new Game {
+        var createdGame = new ReturnGameDTO() {
             Id = 3,
             Title = gameDto.Title,
             Description = gameDto.Description,
@@ -91,7 +93,7 @@ public class GamesControllerTests {
 
         // Assert
         var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result);
-        var returnedGame = Assert.IsType<Game>(createdAtActionResult.Value);
+        var returnedGame = Assert.IsType<ReturnGameDTO>(createdAtActionResult.Value);
         Assert.Equal(createdGame.Id, returnedGame.Id);
         Assert.Equal(gameDto.Title, returnedGame.Title);
     }
@@ -124,7 +126,8 @@ public class GamesControllerTests {
             Description = "Updated Description",
             Price = 49.99m
         };
-        var updatedGame = new Game {
+        var updatedGame = new ReturnGameDTO
+        {
             Id = gameId,
             Title = gameDto.Title,
             Description = gameDto.Description,
@@ -138,7 +141,7 @@ public class GamesControllerTests {
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var returnedGame = Assert.IsType<Game>(okResult.Value);
+        var returnedGame = Assert.IsType<ReturnGameDTO>(okResult.Value);
         Assert.Equal(gameId, returnedGame.Id);
         Assert.Equal(gameDto.Title, returnedGame.Title);
     }

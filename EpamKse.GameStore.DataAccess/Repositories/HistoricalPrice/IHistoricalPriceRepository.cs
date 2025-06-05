@@ -1,6 +1,6 @@
 namespace EpamKse.GameStore.DataAccess.Repositories.HistoricalPrice;
-
-public class IHistoricalPriceRepository
+using Domain.Entities;
+public interface IHistoricalPriceRepository
 {
-    
+    Task CreateHistoricalPrice(decimal price, int gameId);
 }

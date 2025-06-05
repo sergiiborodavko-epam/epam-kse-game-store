@@ -1,10 +1,14 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AActionMethodExecutor_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003F_002E_002E_003FLibrary_003FApplication_0020Support_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003Fdb7395f4add94e6d10e515b3e55373f2821f8323de7dc8e314d78feefacf5584_003FActionMethodExecutor_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AEntityFrameworkQueryableExtensions_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FDecompilerCache_003Fdecompiler_003F13782b42c130409992230346c1947d51291438_003F51_003F56e3fd0b_003FEntityFrameworkQueryableExtensions_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8cf01150_002D6a37_002D4703_002Db19f_002Dec6f7a534e74/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="PublisherServiceTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
     &lt;TestId&gt;xUnit::795447C4-A313-4CA8-8A98-A54B95A9F4B6::net8.0::EpamKse.GameStore.Tests.PublisherServiceTests&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::795447C4-A313-4CA8-8A98-A54B95A9F4B6::net8.0::EpamKse.GameStore.Tests.AuthServiceTests&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::795447C4-A313-4CA8-8A98-A54B95A9F4B6::net8.0::EpamKse.GameStore.Tests.PlatformServiceTests&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::0A476C2F-6D0D-43E1-B133-E6340784A223::net8.0::EpamKse.GameStore.Api.Tests.Controllers.GamesControllerTests&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::4613822C-5006-442D-9D8A-AC90C146751C::net8.0::EpamKse.GameStore.DataAccess.Tests.Repositories.GameRepositoryTests&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::ADDC5C26-2B1E-409A-BD13-0FC423DB1EB9::net8.0::EpamKse.GameStore.Services.Tests.Services.GameServiceTests&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
 	

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace EpamKse.GameStore.DataAccess.Configurations;
 
-public class PriceConfiguration: IEntityTypeConfiguration<HistoricalPrice>
+public class HistoricalPriceConfiguration: IEntityTypeConfiguration<HistoricalPrice>
 {
     public void Configure(EntityTypeBuilder<HistoricalPrice> builder)
     {
