@@ -10,5 +10,6 @@ public class Game {
     public int? PublisherId { get; set; }
     public Publisher Publisher { get; set; }
     public ICollection<Platform> Platforms { get; set; } = new List<Platform>();
+    public ICollection<HistoricalPrice> HistoricalPrices { get; set; } = new List<HistoricalPrice>();
     // Genres
 }
