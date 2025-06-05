@@ -24,7 +24,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\EpamKse.GameStore.Api\EpamKse.GameStore.Api.csproj" />
+        <ProjectReference Include="..\EpamKse.GameStore.Api\EpamKse.GameStore.Api.csproj" />
+        <ProjectReference Include="..\EpamKse.GameStore.DataAccess\EpamKse.GameStore.DataAccess.csproj" />
+        <ProjectReference Include="..\EpamKse.GameStore.Services\EpamKse.GameStore.Services.csproj" />
     </ItemGroup>
 
 </Project>
