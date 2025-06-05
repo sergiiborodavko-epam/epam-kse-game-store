@@ -1,4 +1,6 @@
 ﻿
+using EpamKse.GameStore.Services.Services.HistoricalPrice;
+
 namespace EpamKse.GameStore.Services.Services;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -14,5 +16,6 @@ public static class ServiceRegistry {
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IPlatformService, PlatformService>();
         services.AddScoped<IPublisherService, PublisherService>();
+        services.AddScoped<IHistoricalPriceService, HistoricalPriceService>();
     }
 }

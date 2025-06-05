@@ -9,6 +9,7 @@
     &lt;TestId&gt;xUnit::0A476C2F-6D0D-43E1-B133-E6340784A223::net8.0::EpamKse.GameStore.Api.Tests.Controllers.GamesControllerTests&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::4613822C-5006-442D-9D8A-AC90C146751C::net8.0::EpamKse.GameStore.DataAccess.Tests.Repositories.GameRepositoryTests&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::ADDC5C26-2B1E-409A-BD13-0FC423DB1EB9::net8.0::EpamKse.GameStore.Services.Tests.Services.GameServiceTests&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::795447C4-A313-4CA8-8A98-A54B95A9F4B6::net8.0::EpamKse.GameStore.Tests.HistoricalPriceTest&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
 	

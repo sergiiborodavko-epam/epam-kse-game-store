@@ -29,4 +29,14 @@ public class HistoricalPriceRepository : IHistoricalPriceRepository
         });
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task<List<HistoricalPrice>> GetPaginatedHistoricalPrices(int id, int skip, int take)
+    {
+        return await _dbContext.HistoricalPrices
+            .Where(p => p.GameId == id)
+            .OrderBy(p => p.Id)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync();
+    }
 }
