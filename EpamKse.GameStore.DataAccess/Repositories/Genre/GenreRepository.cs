@@ -8,20 +8,44 @@ using Domain.Entities;
 public class GenreRepository(GameStoreDbContext context) : IGenreRepository {
 
     public async Task<IEnumerable<Genre>> GetAllAsync() {
-        return await context.Genres.ToListAsync();
+        return await context.Genres
+            .Include(g => g.ParentGenre)
+            .Include(g => g.SubGenres)
+            .ToListAsync();
     }
 
     public async Task<Genre?> GetByIdAsync(int id) {
-        return await context.Genres.FindAsync(id);
+        return await context.Genres
+            .Include(g => g.ParentGenre)
+            .Include(g => g.SubGenres)
+            .FirstOrDefaultAsync(g => g.Id == id);
     }
     
     public async Task<Genre?> GetByNameAsync(string name) {
-        return await context.Genres.FirstOrDefaultAsync(g => g.Name == name);
+        return await context.Genres
+            .Include(g => g.ParentGenre)
+            .Include(g => g.SubGenres)
+            .FirstOrDefaultAsync(g => g.Name == name);
     }
 
     public async Task<List<Genre>> GetByNamesAsync(List<string> names) {
         return await context.Genres
+            .Include(g => g.ParentGenre)
             .Where(g => names.Contains(g.Name))
+            .ToListAsync();
+    }
+
+    public async Task<List<Genre>> GetMainGenresAsync() {
+        return await context.Genres
+            .Where(g => g.ParentGenreId == null)
+            .Include(g => g.SubGenres)
+            .ToListAsync();
+    }
+
+    public async Task<List<Genre>> GetSubGenresByParentNameAsync(string parentName) {
+        return await context.Genres
+            .Include(g => g.ParentGenre)
+            .Where(g => g.ParentGenre != null && g.ParentGenre.Name == parentName)
             .ToListAsync();
     }
 

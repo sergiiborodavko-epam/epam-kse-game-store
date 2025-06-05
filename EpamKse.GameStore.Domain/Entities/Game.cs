@@ -8,6 +8,7 @@ public class Game {
     public DateTime ReleaseDate { get; set; }
     public List<int> GenreIds { get; set; } = [];
     
-    // Platforms
-    // Publisher
+    public int? PublisherId { get; set; }
+    public Publisher Publisher { get; set; }
+    public ICollection<Platform> Platforms { get; set; } = new List<Platform>();
 }

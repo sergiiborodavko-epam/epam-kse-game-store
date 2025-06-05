@@ -3,9 +3,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 using Services.Services.Game;
-using Domain.Exceptions.Game;
-using Domain.Exceptions.Genre;
-using Domain.DTO;
+using Domain.DTO.Game;
 
 [ApiController]
 [Route("api/games")]
@@ -19,12 +17,8 @@ public class GamesController(IGameService gameService) : ControllerBase {
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetGameById(int id) {
-        try {
-            var game = await gameService.GetGameByIdAsync(id);
-            return Ok(game);
-        } catch (GameNotFoundException ex) {
-            return NotFound(ex.Message);
-        }
+        var game = await gameService.GetGameByIdAsync(id);
+        return Ok(game);
     }
 
     [HttpPost]
@@ -33,14 +27,8 @@ public class GamesController(IGameService gameService) : ControllerBase {
             return BadRequest(ModelState);
         }
 
-        try {
-            var createdGame = await gameService.CreateGameAsync(gameDto);
-            return CreatedAtAction(nameof(GetGameById), new { id = createdGame.Id }, createdGame);
-        } catch (GameAlreadyExistsException ex) {
-            return Conflict(ex.Message);
-        } catch (GenreNamesNotFoundException ex) {
-            return NotFound(ex.Message);
-        }
+        var createdGame = await gameService.CreateGameAsync(gameDto);
+        return CreatedAtAction(nameof(GetGameById), new { id = createdGame.Id }, createdGame);
     }
 
     [HttpPut("{id:int}")]
@@ -49,25 +37,13 @@ public class GamesController(IGameService gameService) : ControllerBase {
             return BadRequest(ModelState);
         }
 
-        try {
-            var updatedGame = await gameService.UpdateGameAsync(id, gameDto);
-            return Ok(updatedGame);
-        } catch (GameNotFoundException) {
-            return NotFound();
-        } catch (GameAlreadyExistsException ex) {
-            return Conflict(ex.Message);
-        } catch (GenreNamesNotFoundException ex) {
-            return NotFound(ex.Message);
-        }
+        var updatedGame = await gameService.UpdateGameAsync(id, gameDto);
+        return Ok(updatedGame);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteGame(int id) {
-        try {
-            await gameService.DeleteGameAsync(id);
-            return NoContent();
-        } catch (GameNotFoundException) {
-            return NotFound();
-        }
+        await gameService.DeleteGameAsync(id);
+        return NoContent();
     }
 }

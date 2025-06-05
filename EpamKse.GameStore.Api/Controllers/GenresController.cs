@@ -3,7 +3,6 @@
 using Microsoft.AspNetCore.Mvc;
 
 using Services.Services.Genre;
-using Domain.Exceptions.Genre;
 using Domain.DTO.Genre;
 
 [ApiController]
@@ -18,12 +17,8 @@ public class GenresController(IGenreService genreService) : ControllerBase {
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetGenreById(int id) {
-        try {
-            var genre = await genreService.GetGenreByIdAsync(id);
-            return Ok(genre);
-        } catch (GenreIdNotFoundException ex) {
-            return NotFound(ex.Message);
-        }
+        var genre = await genreService.GetGenreByIdAsync(id);
+        return Ok(genre);
     }
 
     [HttpPost]
@@ -32,12 +27,8 @@ public class GenresController(IGenreService genreService) : ControllerBase {
             return BadRequest(ModelState);
         }
         
-        try {
-            var createdGenre = await genreService.CreateGenreAsync(genreDto);
-            return CreatedAtAction(nameof(GetGenreById), new { id = createdGenre.Id }, createdGenre);
-        } catch (GenreAlreadyExistsException ex) {
-            return Conflict(ex.Message);
-        }
+        var createdGenre = await genreService.CreateGenreAsync(genreDto);
+        return CreatedAtAction(nameof(GetGenreById), new { id = createdGenre.Id }, createdGenre);
     }
 
     [HttpPut("{id:int}")]
@@ -46,23 +37,13 @@ public class GenresController(IGenreService genreService) : ControllerBase {
             return BadRequest(ModelState);
         }
         
-        try {
-            var updatedGenre = await genreService.UpdateGenreAsync(id, genreDto);
-            return Ok(updatedGenre);
-        } catch (GenreIdNotFoundException ex) {
-            return NotFound(ex.Message);
-        } catch (GenreAlreadyExistsException ex) {
-            return Conflict(ex.Message);
-        }
+        var updatedGenre = await genreService.UpdateGenreAsync(id, genreDto);
+        return Ok(updatedGenre);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteGenre(int id) {
-        try {
-            await genreService.DeleteGenreAsync(id);
-            return NoContent();
-        } catch (GenreIdNotFoundException ex) {
-            return NotFound(ex.Message);
-        }
+        await genreService.DeleteGenreAsync(id);
+        return NoContent();
     }
 }

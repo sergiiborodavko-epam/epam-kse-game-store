@@ -5,10 +5,8 @@ using Xunit;
 using Moq;
 
 using Api.Controllers;
-using Domain.DTO;
+using Domain.DTO.Game;
 using Domain.Entities;
-using Domain.Exceptions.Game;
-using Domain.Exceptions.Genre;
 using Services.Services.Game;
 
 public class GamesControllerTests {
@@ -21,165 +19,96 @@ public class GamesControllerTests {
     }
 
     [Fact]
-    public async Task GetAllGames_ReturnsOkResult_WithListOfGames() {
+    public async Task GetAllGames_ReturnsOkWithGamesList() {
         var games = new List<Game> {
-            new() { Id = 1, Title = "Test Game 1", Description = "Test Description 1", Price = 19.99m },
-            new() { Id = 2, Title = "Test Game 2", Description = "Test Description 2", Price = 29.99m }
+            new() { Id = 1, Title = "Strategy Game", GenreIds = [1, 2] },
+            new() { Id = 2, Title = "Action Game", GenreIds = [4, 5] }
         };
-        _mockGameService.Setup(service => service.GetAllGamesAsync())
-            .ReturnsAsync(games);
+        _mockGameService.Setup(s => s.GetAllGamesAsync()).ReturnsAsync(games);
 
         var result = await _controller.GetAllGames();
 
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var returnedGames = Assert.IsType<IEnumerable<Game>>(okResult.Value, exactMatch: false);
+        var returnedGames = Assert.IsAssignableFrom<IEnumerable<Game>>(okResult.Value);
         Assert.Equal(2, returnedGames.Count());
     }
 
     [Fact]
-    public async Task GetGameById_ReturnsOkResult_WithGame_WhenGameExists() {
-        const int gameId = 1;
-        var game = new Game { Id = gameId, Title = "Test Game", Description = "Test Description", Price = 19.99m };
-        _mockGameService.Setup(service => service.GetGameByIdAsync(gameId))
-            .ReturnsAsync(game);
+    public async Task GetGameById_ReturnsGameWithGenres() {
+        var game = new Game { Id = 1, Title = "Test Game", GenreIds = [1, 2, 4] };
+        _mockGameService.Setup(s => s.GetGameByIdAsync(1)).ReturnsAsync(game);
 
-        var result = await _controller.GetGameById(gameId);
+        var result = await _controller.GetGameById(1);
 
         var okResult = Assert.IsType<OkObjectResult>(result);
         var returnedGame = Assert.IsType<Game>(okResult.Value);
-        Assert.Equal(gameId, returnedGame.Id);
+        Assert.Equal(1, returnedGame.Id);
+        Assert.Equal(3, returnedGame.GenreIds.Count);
     }
 
     [Fact]
-    public async Task GetGameById_ReturnsNotFound_WhenGameDoesNotExist() {
-        const int gameId = 99;
-        _mockGameService.Setup(service => service.GetGameByIdAsync(gameId))
-            .ThrowsAsync(new GameNotFoundException(gameId));
-
-        var result = await _controller.GetGameById(gameId);
-
-        Assert.IsType<NotFoundObjectResult>(result);
-    }
-
-    [Fact]
-    public async Task CreateGame_ReturnsCreatedAtAction_WithNewGame() {
-        var gameDto = new GameDto{ Title = "New Game", Description = "New Description",
-            Price = 39.99m, GenreNames = ["Strategy", "RPG"]
-        };
-        var createdGame = new Game { Id = 3, Title = gameDto.Title,
-            Description = gameDto.Description, Price = gameDto.Price,
-            GenreIds = [1, 4]
-        };
-        _mockGameService.Setup(service => service.CreateGameAsync(gameDto))
-            .ReturnsAsync(createdGame);
-
-        var result = await _controller.CreateGame(gameDto);
-
-        var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result);
-        var returnedGame = Assert.IsType<Game>(createdAtActionResult.Value);
-        Assert.Equal(createdGame.Id, returnedGame.Id);
-        Assert.Equal(gameDto.Title, returnedGame.Title);
-    }
-
-    [Fact]
-    public async Task CreateGame_ReturnsConflict_WhenGameAlreadyExists() {
-        var gameDto = new GameDto { Title = "Existing Game", Description = "New Description",
-            Price = 39.99m, GenreNames = ["Strategy"]
-        };
-        _mockGameService.Setup(service => service.CreateGameAsync(gameDto))
-            .ThrowsAsync(new GameAlreadyExistsException(gameDto.Title));
-
-        var result = await _controller.CreateGame(gameDto);
-
-        Assert.IsType<ConflictObjectResult>(result);
-    }
-
-    [Fact]
-    public async Task CreateGame_ReturnsNotFound_WhenGenreDoesNotExist() {
-        var gameDto = new GameDto { Title = "New Game", Description = "New Description", 
-            Price = 39.99m, GenreNames = ["UnknownGenre", "AnotherUnknownGenre"]
-        };
-        _mockGameService.Setup(service => service.CreateGameAsync(gameDto))
-            .ThrowsAsync(new GenreNamesNotFoundException(["UnknownGenre", "AnotherUnknownGenre"]));
-
-        var result = await _controller.CreateGame(gameDto);
-
-        Assert.IsType<NotFoundObjectResult>(result);
-    }
-
-    [Fact]
-    public async Task UpdateGame_ReturnsOkResult_WithUpdatedGame_WhenGameExists()
-    {
-        const int gameId = 1;
-        var gameDto = new GameDto { Title = "Updated Game", Description = "Updated Description",
-            Price = 49.99m, GenreNames = ["Action"]
-        };
-        var updatedGame = new Game { Id = gameId, Title = gameDto.Title,
-            Description = gameDto.Description, Price = gameDto.Price,
-            GenreIds = [11]
-        };
-        _mockGameService.Setup(service => service.UpdateGameAsync(gameId, gameDto))
-            .ReturnsAsync(updatedGame);
-
-        var result = await _controller.UpdateGame(gameId, gameDto);
-
-        var okResult = Assert.IsType<OkObjectResult>(result);
-        var returnedGame = Assert.IsType<Game>(okResult.Value);
-        Assert.Equal(gameId, returnedGame.Id);
-        Assert.Equal(gameDto.Title, returnedGame.Title);
-    }
-
-    [Fact]
-    public async Task UpdateGame_ReturnsNotFound_WhenGameDoesNotExist() {
-        const int gameId = 99;
-        var gameDto = new GameDto { Title = "Updated Game",
-            Description = "Updated Description", Price = 49.99m,
-            GenreNames = ["Strategy"]
-        };
-        _mockGameService.Setup(service => service.UpdateGameAsync(gameId, gameDto))
-            .ThrowsAsync(new GameNotFoundException(gameId));
-
-        var result = await _controller.UpdateGame(gameId, gameDto);
-
-        Assert.IsType<NotFoundResult>(result);
-    }
-
-    [Fact]
-    public async Task UpdateGame_ReturnsNotFound_WhenGenreDoesNotExist() {
-        const int gameId = 1;
+    public async Task CreateGame_WithGenresAndSubgenres_ReturnsCreated() {
         var gameDto = new GameDto {
-            Title = "Updated Game",
-            Description = "Updated Description",
-            Price = 49.99m,
-            GenreNames = ["UnknownGenre"]
+            Title = "New Game", Description = "Description", Price = 39.99m, ReleaseDate = DateTime.Now,
+            GenreNames = ["Strategy", "Action"], SubGenreNames = ["RTS", "FPS"]
         };
-        _mockGameService.Setup(service => service.UpdateGameAsync(gameId, gameDto))
-            .ThrowsAsync(new GenreNamesNotFoundException(["UnknownGenre"]));
+        var createdGame = new Game { 
+            Id = 3, Title = gameDto.Title, GenreIds = [1, 2, 4, 5] 
+        };
+        _mockGameService.Setup(s => s.CreateGameAsync(gameDto)).ReturnsAsync(createdGame);
 
-        var result = await _controller.UpdateGame(gameId, gameDto);
+        var result = await _controller.CreateGame(gameDto);
 
-        Assert.IsType<NotFoundObjectResult>(result);
+        var createdResult = Assert.IsType<CreatedAtActionResult>(result);
+        var returnedGame = Assert.IsType<Game>(createdResult.Value);
+        Assert.Equal("New Game", returnedGame.Title);
+        Assert.Equal(4, returnedGame.GenreIds.Count);
     }
 
     [Fact]
-    public async Task DeleteGame_ReturnsNoContent_WhenGameExists() {
-        var gameId = 1;
-        _mockGameService.Setup(service => service.DeleteGameAsync(gameId))
-            .Returns(Task.CompletedTask);
+    public async Task CreateGame_OnlyMainGenres_ReturnsCreated() {
+        var gameDto = new GameDto {
+            Title = "Simple Game", Description = "Description", Price = 19.99m, ReleaseDate = DateTime.Now,
+            GenreNames = ["Sports"], SubGenreNames = []
+        };
+        var createdGame = new Game { 
+            Id = 4, Title = gameDto.Title, GenreIds = [6] 
+        };
+        _mockGameService.Setup(s => s.CreateGameAsync(gameDto)).ReturnsAsync(createdGame);
 
-        var result = await _controller.DeleteGame(gameId);
+        var result = await _controller.CreateGame(gameDto);
+
+        var createdResult = Assert.IsType<CreatedAtActionResult>(result);
+        var returnedGame = Assert.IsType<Game>(createdResult.Value);
+        Assert.Single(returnedGame.GenreIds);
+    }
+
+    [Fact]
+    public async Task UpdateGame_ChangeGenres_ReturnsUpdated() {
+        var gameDto = new GameDto {
+            Title = "Updated Game", Description = "Updated", Price = 49.99m, ReleaseDate = DateTime.Now,
+            GenreNames = ["Action"], SubGenreNames = ["FPS"]
+        };
+        var updatedGame = new Game { 
+            Id = 1, Title = gameDto.Title, GenreIds = [4, 5] 
+        };
+        _mockGameService.Setup(s => s.UpdateGameAsync(1, gameDto)).ReturnsAsync(updatedGame);
+
+        var result = await _controller.UpdateGame(1, gameDto);
+
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var returnedGame = Assert.IsType<Game>(okResult.Value);
+        Assert.Equal("Updated Game", returnedGame.Title);
+        Assert.Equal(2, returnedGame.GenreIds.Count);
+    }
+
+    [Fact]
+    public async Task DeleteGame_ValidId_ReturnsNoContent() {
+        _mockGameService.Setup(s => s.DeleteGameAsync(1)).Returns(Task.CompletedTask);
+
+        var result = await _controller.DeleteGame(1);
 
         Assert.IsType<NoContentResult>(result);
-    }
-
-    [Fact]
-    public async Task DeleteGame_ReturnsNotFound_WhenGameDoesNotExist() {
-        const int gameId = 99;
-        _mockGameService.Setup(service => service.DeleteGameAsync(gameId))
-            .ThrowsAsync(new GameNotFoundException(gameId));
-
-        var result = await _controller.DeleteGame(gameId);
-
-        Assert.IsType<NotFoundResult>(result);
+        _mockGameService.Verify(s => s.DeleteGameAsync(1), Times.Once);
     }
 }

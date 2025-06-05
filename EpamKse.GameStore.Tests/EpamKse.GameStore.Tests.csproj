@@ -16,6 +16,7 @@
         <PackageReference Include="NUnit" Version="3.14.0"/>
         <PackageReference Include="NUnit.Analyzers" Version="3.9.0"/>
         <PackageReference Include="NUnit3TestAdapter" Version="4.5.0"/>
+        <PackageReference Include="xunit" Version="2.9.3" />
     </ItemGroup>
 
     <ItemGroup>
@@ -23,7 +24,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\EpamKse.GameStore.Api\EpamKse.GameStore.Api.csproj" />
+        <ProjectReference Include="..\EpamKse.GameStore.Api\EpamKse.GameStore.Api.csproj" />
+        <ProjectReference Include="..\EpamKse.GameStore.DataAccess\EpamKse.GameStore.DataAccess.csproj" />
+        <ProjectReference Include="..\EpamKse.GameStore.Services\EpamKse.GameStore.Services.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 ﻿namespace EpamKse.GameStore.Services.Services.Game;
 
-using Domain.DTO;
+using Domain.DTO.Game;
 using Domain.Entities;
 
 public interface IGameService {

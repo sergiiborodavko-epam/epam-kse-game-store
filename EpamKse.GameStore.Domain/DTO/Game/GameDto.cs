@@ -1,4 +1,4 @@
-﻿namespace EpamKse.GameStore.Domain.DTO;
+﻿namespace EpamKse.GameStore.Domain.DTO.Game;
 
 using System.ComponentModel.DataAnnotations;
 
@@ -19,4 +19,6 @@ public class GameDto {
     
     [Required(ErrorMessage = "At least one genre is required")]
     public List<string> GenreNames { get; set; } = [];
+    
+    public List<string> SubGenreNames { get; set; } = [];
 }

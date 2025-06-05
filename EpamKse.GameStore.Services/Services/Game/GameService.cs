@@ -1,6 +1,6 @@
 ﻿namespace EpamKse.GameStore.Services.Services.Game;
 
-using Domain.DTO;
+using Domain.DTO.Game;
 using Domain.Entities;
 using Domain.Exceptions.Game;
 using Domain.Exceptions.Genre;
@@ -22,12 +22,11 @@ public class GameService(IGameRepository gameRepository, IGenreRepository genreR
         if (existingGame != null) {
             throw new GameAlreadyExistsException(gameDto.Title);
         }
-        
-        var genres = await genreRepository.GetByNamesAsync(gameDto.GenreNames);
-        if (genres.Count != gameDto.GenreNames.Count) {
-            var missingGenres = gameDto.GenreNames.Except(genres.Select(g => g.Name));
-            throw new GenreNamesNotFoundException(missingGenres);
-        }
+
+        await ValidateGenresAsync(gameDto.GenreNames, gameDto.SubGenreNames);
+
+        var allGenreNames = gameDto.GenreNames.Concat(gameDto.SubGenreNames).ToList();
+        var genres = await genreRepository.GetByNamesAsync(allGenreNames);
 
         var game = new Game {
             Title = gameDto.Title,
@@ -50,11 +49,10 @@ public class GameService(IGameRepository gameRepository, IGenreRepository genreR
             throw new GameAlreadyExistsException(gameDto.Title);
         }
 
-        var genres = await genreRepository.GetByNamesAsync(gameDto.GenreNames);
-        if (genres.Count != gameDto.GenreNames.Count) {
-            var missingGenres = gameDto.GenreNames.Except(genres.Select(g => g.Name));
-            throw new GenreNamesNotFoundException(missingGenres);
-        }
+        await ValidateGenresAsync(gameDto.GenreNames, gameDto.SubGenreNames);
+
+        var allGenreNames = gameDto.GenreNames.Concat(gameDto.SubGenreNames).ToList();
+        var genres = await genreRepository.GetByNamesAsync(allGenreNames);
 
         existingGame.Title = gameDto.Title;
         existingGame.Description = gameDto.Description;
@@ -71,5 +69,34 @@ public class GameService(IGameRepository gameRepository, IGenreRepository genreR
         }
 
         await gameRepository.DeleteAsync(existingGame);
+    }
+
+    private async Task ValidateGenresAsync(List<string> genreNames, List<string> subGenreNames) {
+        var allRequestedGenres = genreNames.Concat(subGenreNames).ToList();
+        var foundGenres = await genreRepository.GetByNamesAsync(allRequestedGenres);
+
+        if (foundGenres.Count != allRequestedGenres.Count) {
+            var missingGenres = allRequestedGenres.Except(foundGenres.Select(g => g.Name));
+            throw new GenresNotFoundException(missingGenres);
+        }
+
+        var mainGenres = foundGenres.Where(g => g.ParentGenreId == null).ToList();
+        var subGenres = foundGenres.Where(g => g.ParentGenreId != null).ToList();
+
+        foreach (var subGenre in subGenres) {
+            var parentGenre = mainGenres.FirstOrDefault(g => g.Id == subGenre.ParentGenreId);
+            if (parentGenre == null) {
+                throw new SubgenreWithoutParentException(subGenre.Name);
+            }
+        }
+
+        foreach (var subGenreName in subGenreNames) {
+            var subGenre = foundGenres.FirstOrDefault(g => g.Name == subGenreName);
+            if (subGenre?.ParentGenre == null) continue;
+            var parentInRequest = genreNames.Contains(subGenre.ParentGenre.Name);
+            if (!parentInRequest) {
+                throw new SubgenreWithoutParentException(subGenreName);
+            }
+        }
     }
 }
