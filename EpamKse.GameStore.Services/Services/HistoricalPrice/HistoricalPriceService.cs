@@ -3,7 +3,9 @@ using EpamKse.GameStore.Domain.DTO.HistoricalPrice;
 using EpamKse.GameStore.Domain.Exceptions;
 
 namespace EpamKse.GameStore.Services.Services.HistoricalPrice;
+
 using Domain.Entities;
+
 public class HistoricalPriceService : IHistoricalPriceService
 {
     private readonly IHistoricalPriceRepository _historicalPriceRepository;
