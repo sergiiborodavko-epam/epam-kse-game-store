@@ -19,7 +19,7 @@ public class HistoricalPriceRepository : IHistoricalPriceRepository
     {
         if (price <= 0)
         {
-            throw new PriceMustBeGreaterThenZeroException();
+            throw new InvalidPriceException();
         }
 
         _dbContext.HistoricalPrices.Add(new HistoricalPrice

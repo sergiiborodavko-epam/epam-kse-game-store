@@ -17,20 +17,12 @@ public class HistoricalPriceService : IHistoricalPriceService
 
     public async Task<List<ReturnHistoricalPricesDTO>> GetPricesForGame(int id, int? page, int? limit)
     {
-        if ((page.HasValue && !limit.HasValue) || (!page.HasValue && limit.HasValue))
-        {
-            throw new InvalidPaginationException();
-        }
+        ThrowIfPaginationInvalid(page, limit);
 
         List<HistoricalPrice> prices;
 
         if (page.HasValue && limit.HasValue)
         {
-            if (page < 1 || limit < 1)
-            {
-                throw new InvalidPaginationException();
-            }
-
             var skip = (page.Value - 1) * limit.Value;
             prices = await _historicalPriceRepository.GetPaginatedHistoricalPrices(id, skip, limit.Value);
         }
@@ -46,5 +38,20 @@ public class HistoricalPriceService : IHistoricalPriceService
             GameId = p.GameId,
             CreatedAt = p.CreatedAt
         }).ToList();
+    }
+    private void ThrowIfPaginationInvalid(int? page, int? limit)
+    {
+        if ((page.HasValue && !limit.HasValue) || (!page.HasValue && limit.HasValue))
+        {
+            throw new InvalidPaginationException();
+        }
+
+        if (page.HasValue && limit.HasValue)
+        {
+            if (page < 1 || limit < 1)
+            {
+                throw new InvalidPaginationException();
+            }
+        }
     }
 }
