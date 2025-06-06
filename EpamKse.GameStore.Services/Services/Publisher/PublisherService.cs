@@ -1,6 +1,7 @@
 using EpamKse.GameStore.DataAccess.Repositories.Platform;
 using EpamKse.GameStore.DataAccess.Repositories.Publisher;
 using EpamKse.GameStore.Domain.DTO.Publisher;
+using EpamKse.GameStore.Domain.Exceptions;
 using EpamKse.GameStore.Domain.Exceptions.Platform;
 using EpamKse.GameStore.Domain.Exceptions.Publisher;
 using Microsoft.Data.SqlClient;

@@ -1,4 +1,6 @@
-﻿namespace EpamKse.GameStore.Tests;
+﻿using EpamKse.GameStore.DataAccess.Repositories.HistoricalPrice;
+
+namespace EpamKse.GameStore.Tests;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -27,7 +29,8 @@ public class GenreValidationTests {
         
         var gameRepository = new GameRepository(_context);
         var genreRepository = new GenreRepository(_context);
-        _gameService = new GameService(gameRepository, genreRepository);
+        var historicalPriceRepository = new HistoricalPriceRepository(_context);
+        _gameService = new GameService(gameRepository, genreRepository, historicalPriceRepository);
     }
 
     private void SeedGenres()
