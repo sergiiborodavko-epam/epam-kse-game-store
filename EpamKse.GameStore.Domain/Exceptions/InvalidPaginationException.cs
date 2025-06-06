@@ -1,4 +1,4 @@
-namespace EpamKse.GameStore.Domain.Exceptions.Publisher;
+namespace EpamKse.GameStore.Domain.Exceptions;
 
 public class InvalidPaginationException : CustomHttpException
 {

@@ -1,4 +1,6 @@
-﻿namespace EpamKse.GameStore.Services.Services.Game;
+﻿using EpamKse.GameStore.DataAccess.Repositories.HistoricalPrice;
+
+namespace EpamKse.GameStore.Services.Services.Game;
 
 using Domain.DTO.Game;
 using Domain.Entities;
@@ -7,7 +9,7 @@ using Domain.Exceptions.Genre;
 using DataAccess.Repositories.Game;
 using DataAccess.Repositories.Genre;
 
-public class GameService(IGameRepository gameRepository, IGenreRepository genreRepository) : IGameService {
+public class GameService(IGameRepository gameRepository, IGenreRepository genreRepository, IHistoricalPriceRepository historicalPriceRepository) : IGameService {
     public async Task<IEnumerable<Game>> GetAllGamesAsync() {
         return await gameRepository.GetAllAsync();
     }
@@ -17,7 +19,7 @@ public class GameService(IGameRepository gameRepository, IGenreRepository genreR
         return game ?? throw new GameNotFoundException(id);
     }
 
-    public async Task<Game> CreateGameAsync(GameDto gameDto) {
+    public async Task<ReturnGameDTO> CreateGameAsync(GameDto gameDto) {
         var existingGame = await gameRepository.GetByTitleAsync(gameDto.Title);
         if (existingGame != null) {
             throw new GameAlreadyExistsException(gameDto.Title);
@@ -35,10 +37,20 @@ public class GameService(IGameRepository gameRepository, IGenreRepository genreR
             ReleaseDate = gameDto.ReleaseDate,
             GenreIds = genres.Select(g => g.Id).ToList()
         };
-        return await gameRepository.CreateAsync(game);
+        var returnGame = await gameRepository.CreateAsync(game);
+        await historicalPriceRepository.CreateHistoricalPrice(returnGame.Price, returnGame.Id);
+        return new ReturnGameDTO
+        {
+            Id = returnGame.Id,
+            Title = returnGame.Title,
+            Description = returnGame.Description,
+            Price = returnGame.Price,
+            ReleaseDate = returnGame.ReleaseDate,
+            GenreIds= returnGame.GenreIds,
+        };
     }
 
-    public async Task<Game> UpdateGameAsync(int id, GameDto gameDto) {
+    public async Task<ReturnGameDTO> UpdateGameAsync(int id, GameDto gameDto) {
         var existingGame = await gameRepository.GetByIdAsync(id);
         if (existingGame == null) {
             throw new GameNotFoundException(id);
@@ -53,13 +65,25 @@ public class GameService(IGameRepository gameRepository, IGenreRepository genreR
 
         var allGenreNames = gameDto.GenreNames.Concat(gameDto.SubGenreNames).ToList();
         var genres = await genreRepository.GetByNamesAsync(allGenreNames);
-
+        if (existingGame.Price!=gameDto.Price)
+        {
+            await historicalPriceRepository.CreateHistoricalPrice(gameDto.Price, id);
+        }
         existingGame.Title = gameDto.Title;
         existingGame.Description = gameDto.Description;
         existingGame.Price = gameDto.Price;
         existingGame.ReleaseDate = gameDto.ReleaseDate;
         existingGame.GenreIds = genres.Select(g => g.Id).ToList();
-        return await gameRepository.UpdateAsync(existingGame);
+        var updatedGame= await gameRepository.UpdateAsync(existingGame);
+        return new ReturnGameDTO
+        {
+            Id = updatedGame.Id,
+            Title = updatedGame.Title,
+            Description = updatedGame.Description,
+            Price = updatedGame.Price,
+            ReleaseDate = updatedGame.ReleaseDate,
+            GenreIds= updatedGame.GenreIds,
+        };
     }
 
     public async Task DeleteGameAsync(int id) {
