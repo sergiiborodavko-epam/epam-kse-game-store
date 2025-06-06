@@ -4,7 +4,7 @@ using EpamKse.GameStore.Domain.Exceptions;
 
 namespace EpamKse.GameStore.Services.Services.HistoricalPrice;
 
-public class HistoricalPriceService: IHistoricalPriceService
+public class HistoricalPriceService : IHistoricalPriceService
 {
     private readonly IHistoricalPriceRepository _historicalPriceRepository;
 

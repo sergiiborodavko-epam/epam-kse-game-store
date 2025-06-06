@@ -9,14 +9,15 @@ using EpamKse.GameStore.Services.Services.HistoricalPrice;
 
 
 namespace EpamKse.GameStore.Tests;
+
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
+
 public class HistoricalPriceTest
 {
-    
     private readonly GameStoreDbContext _context;
     private readonly GameService _gameService;
     private readonly HistoricalPriceService _historicalPriceService;
@@ -31,7 +32,7 @@ public class HistoricalPriceTest
         var gameRepo = new GameRepository(_context);
         var priceRepo = new HistoricalPriceRepository(_context);
         var genreRepository = new GenreRepository(_context);
-        _gameService = new GameService(gameRepo,genreRepository, priceRepo);
+        _gameService = new GameService(gameRepo, genreRepository, priceRepo);
         _historicalPriceService = new HistoricalPriceService(priceRepo);
     }
 

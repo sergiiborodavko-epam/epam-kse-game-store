@@ -52,7 +52,7 @@ public class GamesControllerTests {
             Title = "New Game", Description = "Description", Price = 39.99m, ReleaseDate = DateTime.Now,
             GenreNames = ["Strategy", "Action"], SubGenreNames = ["RTS", "FPS"]
         };
-        var createdGame = new ReturnGameDTO { 
+        var createdGame = new GameViewDto { 
             Id = 3, Title = gameDto.Title, GenreIds = [1, 2, 4, 5] 
         };
         _mockGameService.Setup(s => s.CreateGameAsync(gameDto)).ReturnsAsync(createdGame);
@@ -60,7 +60,7 @@ public class GamesControllerTests {
         var result = await _controller.CreateGame(gameDto);
 
         var createdResult = Assert.IsType<CreatedAtActionResult>(result);
-        var returnedGame = Assert.IsType<ReturnGameDTO>(createdResult.Value);
+        var returnedGame = Assert.IsType<GameViewDto>(createdResult.Value);
         Assert.Equal("New Game", returnedGame.Title);
         Assert.Equal(4, returnedGame.GenreIds.Count);
     }
@@ -71,7 +71,7 @@ public class GamesControllerTests {
             Title = "Simple Game", Description = "Description", Price = 19.99m, ReleaseDate = DateTime.Now,
             GenreNames = ["Sports"], SubGenreNames = []
         };
-        var createdGame = new ReturnGameDTO { 
+        var createdGame = new GameViewDto { 
             Id = 4, Title = gameDto.Title, GenreIds = [6] 
         };
         _mockGameService.Setup(s => s.CreateGameAsync(gameDto)).ReturnsAsync(createdGame);
@@ -79,7 +79,7 @@ public class GamesControllerTests {
         var result = await _controller.CreateGame(gameDto);
 
         var createdResult = Assert.IsType<CreatedAtActionResult>(result);
-        var returnedGame = Assert.IsType<ReturnGameDTO>(createdResult.Value);
+        var returnedGame = Assert.IsType<GameViewDto>(createdResult.Value);
         Assert.Single(returnedGame.GenreIds);
     }
 
@@ -89,7 +89,7 @@ public class GamesControllerTests {
             Title = "Updated Game", Description = "Updated", Price = 49.99m, ReleaseDate = DateTime.Now,
             GenreNames = ["Action"], SubGenreNames = ["FPS"]
         };
-        var updatedGame = new ReturnGameDTO { 
+        var updatedGame = new GameViewDto { 
             Id = 1, Title = gameDto.Title, GenreIds = [4, 5] 
         };
         _mockGameService.Setup(s => s.UpdateGameAsync(1, gameDto)).ReturnsAsync(updatedGame);
@@ -97,7 +97,7 @@ public class GamesControllerTests {
         var result = await _controller.UpdateGame(1, gameDto);
 
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var returnedGame = Assert.IsType<ReturnGameDTO>(okResult.Value);
+        var returnedGame = Assert.IsType<GameViewDto>(okResult.Value);
         Assert.Equal("Updated Game", returnedGame.Title);
         Assert.Equal(2, returnedGame.GenreIds.Count);
     }

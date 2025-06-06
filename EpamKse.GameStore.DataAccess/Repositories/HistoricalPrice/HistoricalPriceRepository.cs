@@ -1,14 +1,13 @@
-
-
 using EpamKse.GameStore.Domain.Exceptions.HistoricalPrice;
 using Microsoft.EntityFrameworkCore;
 
 namespace EpamKse.GameStore.DataAccess.Repositories.HistoricalPrice;
+
 using EpamKse.GameStore.DataAccess.Context;
 using Domain.Entities;
-public class HistoricalPriceRepository: IHistoricalPriceRepository
+
+public class HistoricalPriceRepository : IHistoricalPriceRepository
 {
-    
     private readonly GameStoreDbContext _dbContext;
 
     public HistoricalPriceRepository(GameStoreDbContext dbContext)

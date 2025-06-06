@@ -19,7 +19,7 @@ public class GameService(IGameRepository gameRepository, IGenreRepository genreR
         return game ?? throw new GameNotFoundException(id);
     }
 
-    public async Task<ReturnGameDTO> CreateGameAsync(GameDto gameDto) {
+    public async Task<GameViewDto> CreateGameAsync(GameDto gameDto) {
         var existingGame = await gameRepository.GetByTitleAsync(gameDto.Title);
         if (existingGame != null) {
             throw new GameAlreadyExistsException(gameDto.Title);
@@ -39,7 +39,7 @@ public class GameService(IGameRepository gameRepository, IGenreRepository genreR
         };
         var returnGame = await gameRepository.CreateAsync(game);
         await historicalPriceRepository.CreateHistoricalPrice(returnGame.Price, returnGame.Id);
-        return new ReturnGameDTO
+        return new GameViewDto
         {
             Id = returnGame.Id,
             Title = returnGame.Title,
@@ -50,7 +50,7 @@ public class GameService(IGameRepository gameRepository, IGenreRepository genreR
         };
     }
 
-    public async Task<ReturnGameDTO> UpdateGameAsync(int id, GameDto gameDto) {
+    public async Task<GameViewDto> UpdateGameAsync(int id, GameDto gameDto) {
         var existingGame = await gameRepository.GetByIdAsync(id);
         if (existingGame == null) {
             throw new GameNotFoundException(id);
@@ -75,7 +75,7 @@ public class GameService(IGameRepository gameRepository, IGenreRepository genreR
         existingGame.ReleaseDate = gameDto.ReleaseDate;
         existingGame.GenreIds = genres.Select(g => g.Id).ToList();
         var updatedGame= await gameRepository.UpdateAsync(existingGame);
-        return new ReturnGameDTO
+        return new GameViewDto
         {
             Id = updatedGame.Id,
             Title = updatedGame.Title,

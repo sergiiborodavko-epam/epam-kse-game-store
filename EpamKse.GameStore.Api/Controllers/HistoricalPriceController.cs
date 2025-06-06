@@ -16,7 +16,7 @@ public class HistoricalPriceController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-   // [Authorize(AuthenticationSchemes = "Access")]
+    [Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> GetPricesForGame(int id, int page = 1, int limit = 10)
     {
         var prices = await _historicalPriceService.GetPricesForGame(id, page, limit);
