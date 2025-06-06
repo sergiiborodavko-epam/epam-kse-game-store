@@ -39,4 +39,11 @@ public class HistoricalPriceRepository : IHistoricalPriceRepository
             .Take(take)
             .ToListAsync();
     }
+    public async Task<List<HistoricalPrice>> GetAllHistoricalPrices(int id)
+    {
+        return await _dbContext.HistoricalPrices
+            .Where(p => p.GameId == id)
+            .OrderBy(p => p.Id)
+            .ToListAsync();
+    }
 }

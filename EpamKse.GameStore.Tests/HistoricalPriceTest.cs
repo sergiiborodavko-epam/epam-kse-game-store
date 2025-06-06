@@ -5,6 +5,7 @@ using EpamKse.GameStore.DataAccess.Context;
 using EpamKse.GameStore.DataAccess.Repositories.Genre;
 using EpamKse.GameStore.Domain.DTO.Game;
 using EpamKse.GameStore.Domain.Entities;
+using EpamKse.GameStore.Domain.Exceptions;
 using EpamKse.GameStore.Services.Services.HistoricalPrice;
 
 
@@ -141,5 +142,48 @@ public class HistoricalPriceTest
         Assert.Single(result);
         Assert.Equal(200, result[0].Price);
         Assert.Equal(gameId, result[0].GameId);
+    }
+    
+    [Fact]
+    public async Task GetPricesForGame_WithoutPagination_ReturnsAllPrices()
+    {
+        var gameId = 2;
+        var price1 = new HistoricalPrice
+        {
+            GameId = gameId,
+            Price = 150,
+            CreatedAt = DateTime.UtcNow.AddDays(-3)
+        };
+        var price2 = new HistoricalPrice
+        {
+            GameId = gameId,
+            Price = 180,
+            CreatedAt = DateTime.UtcNow.AddDays(-2)
+        };
+        var price3 = new HistoricalPrice
+        {
+            GameId = gameId,
+            Price = 210,
+            CreatedAt = DateTime.UtcNow.AddDays(-1)
+        };
+
+        await _context.HistoricalPrices.AddRangeAsync(price1, price2, price3);
+        await _context.SaveChangesAsync();
+
+        var result = await _historicalPriceService.GetPricesForGame(id: gameId, page: null, limit: null);
+
+        Assert.Equal(3, result.Count);
+        Assert.All(result, r => Assert.Equal(gameId, r.GameId));
+    }
+    
+    [Fact]
+    public async Task GetPricesForGame_PageOnly_ThrowsInvalidPaginationException()
+    {
+        var gameId = 3;
+
+        var ex = await Assert.ThrowsAsync<InvalidPaginationException>(() =>
+            _historicalPriceService.GetPricesForGame(id: gameId, page: 1, limit: null));
+
+        Assert.Equal("Page and limit must be present and greater than zero.", ex.Message);
     }
 }
