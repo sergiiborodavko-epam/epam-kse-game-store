@@ -14,115 +14,89 @@ public class GameRepositoryTests : BaseRepositoryTests {
 
     [Fact]
     public async Task GetAllAsync_ReturnsAllGames() {
-        // Act
         var games = await _repository.GetAllAsync();
 
-        // Assert
-        var gamesList = Assert.IsType<IEnumerable<Game>>(games, exactMatch: false);
+        var gamesList = Assert.IsAssignableFrom<IEnumerable<Game>>(games);
         Assert.Equal(2, gamesList.Count());
     }
 
     [Fact]
-    public async Task GetByIdAsync_ReturnsGame_WhenGameExists() {
-        // Arrange
-        const int gameId = 1;
+    public async Task GetByIdAsync_ExistingId_ReturnsGame() {
+        var result = await _repository.GetByIdAsync(1);
 
-        // Act
-        var result = await _repository.GetByIdAsync(gameId);
-
-        // Assert
         Assert.NotNull(result);
-        Assert.Equal(gameId, result.Id);
+        Assert.Equal(1, result.Id);
         Assert.Equal("Test Game 1", result.Title);
+        Assert.Equal(2, result.GenreIds.Count);
     }
 
     [Fact]
-    public async Task GetByIdAsync_ReturnsNull_WhenGameDoesNotExist() {
-        // Arrange
-        const int nonExistentId = 99;
-
-        // Act
-        var result = await _repository.GetByIdAsync(nonExistentId);
-
-        // Assert
+    public async Task GetByIdAsync_NonExistentId_ReturnsNull() {
+        var result = await _repository.GetByIdAsync(99);
         Assert.Null(result);
     }
 
     [Fact]
-    public async Task GetByTitleAsync_ReturnsGame_WhenGameExists() {
-        // Arrange
-        const string title = "Test Game 1";
+    public async Task GetByTitleAsync_ExistingTitle_ReturnsGame() {
+        var result = await _repository.GetByTitleAsync("Test Game 1");
 
-        // Act
-        var result = await _repository.GetByTitleAsync(title);
-
-        // Assert
         Assert.NotNull(result);
-        Assert.Equal(title, result.Title);
+        Assert.Equal("Test Game 1", result.Title);
+        Assert.Contains(1, result.GenreIds);
+        Assert.Contains(2, result.GenreIds);
     }
 
     [Fact]
-    public async Task GetByTitleAsync_ReturnsNull_WhenGameDoesNotExist() {
-        // Arrange
-        const string nonExistentTitle = "Non Existent Game";
-
-        // Act
-        var result = await _repository.GetByTitleAsync(nonExistentTitle);
-
-        // Assert
+    public async Task GetByTitleAsync_NonExistentTitle_ReturnsNull() {
+        var result = await _repository.GetByTitleAsync("Non Existent Game");
         Assert.Null(result);
     }
 
     [Fact]
-    public async Task CreateAsync_CreatesAndReturnsGame() {
-        // Arrange
+    public async Task CreateAsync_WithMultipleGenres_Success() {
         var game = new Game {
             Title = "New Game",
             Description = "New Description",
             Price = 39.99m,
-            ReleaseDate = new DateTime(2023, 3, 1)
+            ReleaseDate = new DateTime(2023, 3, 1),
+            GenreIds = [1, 3] // Strategy and Action
         };
 
-        // Act
         var result = await _repository.CreateAsync(game);
 
-        // Assert
         Assert.NotEqual(0, result.Id);
         Assert.Equal("New Game", result.Title);
+        Assert.Equal(2, result.GenreIds.Count);
+        Assert.Contains(1, result.GenreIds);
+        Assert.Contains(3, result.GenreIds);
     }
 
     [Fact]
-    public async Task UpdateAsync_UpdatesAndReturnsGame() {
-        // Arrange
-        const int gameId = 1;
-        var game = await DbContext.Games.FindAsync(gameId);
+    public async Task UpdateAsync_ChangeGenres_Success() {
+        var game = await DbContext.Games.FindAsync(1);
         Assert.NotNull(game);
         
-        // Update the game
         game.Title = "Updated Game";
         game.Price = 49.99m;
+        game.GenreIds = [3]; // Change from Strategy+RTS to Action only
 
-        // Act
         var result = await _repository.UpdateAsync(game);
 
-        // Assert
-        Assert.Equal(gameId, result.Id);
+        Assert.Equal(1, result.Id);
         Assert.Equal("Updated Game", result.Title);
         Assert.Equal(49.99m, result.Price);
+        Assert.Single(result.GenreIds);
+        Assert.Contains(3, result.GenreIds);
     }
 
     [Fact]
     public async Task DeleteAsync_RemovesGameFromDatabase() {
-        // Arrange
-        const int gameId = 1;
-        var game = await DbContext.Games.FindAsync(gameId);
+        var game = await DbContext.Games.FindAsync(1);
         Assert.NotNull(game);
 
-        // Act
         await _repository.DeleteAsync(game);
 
-        // Assert
-        var dbGame = await DbContext.Games.FindAsync(gameId);
+        var dbGame = await DbContext.Games.FindAsync(1);
         Assert.Null(dbGame);
     }
 }
