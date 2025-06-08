@@ -1,4 +1,6 @@
-﻿namespace EpamKse.GameStore.Services.Services;
+﻿using EpamKse.GameStore.Services.Services.Role;
+
+namespace EpamKse.GameStore.Services.Services;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,6 +17,7 @@ public static class ServiceRegistry {
         services.AddScoped<IGameService, GameService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IPlatformService, PlatformService>();
+        services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<IPublisherService, PublisherService>();
     }
 }
