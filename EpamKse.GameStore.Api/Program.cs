@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json.Serialization;
 using DotNetEnv;
 
 using EpamKse.GameStore.Api.Infrastructure;
@@ -26,6 +27,9 @@ builder.Services.AddDbContext<GameStoreDbContext>(options =>
 builder.Services.AddControllers(options => {
     options.Filters.Add<CustomHttpExceptionFilter>();
     options.Filters.Add(new AuthorizeFilter());
+}).AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 }).ConfigureApiBehaviorOptions(options => {
     options.SuppressModelStateInvalidFilter = false;
 });

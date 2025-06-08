@@ -35,8 +35,15 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
+                    b.Property<string>("GenreIds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("PublisherId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
@@ -48,6 +55,8 @@ namespace EpamKse.GameStore.DataAccess.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("PublisherId");
+
                     b.ToTable("Games");
 
                     b.HasData(
@@ -55,6 +64,7 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                         {
                             Id = 1,
                             Description = "Description for Game 1",
+                            GenreIds = "1,2,4",
                             Price = 49.99m,
                             ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Title = "Game 1"
@@ -63,9 +73,120 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                         {
                             Id = 2,
                             Description = "Description for Game 2",
+                            GenreIds = "11,13",
                             Price = 59.99m,
                             ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Title = "Game 2"
+                        });
+                });
+
+            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Genre", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("ParentGenreId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentGenreId");
+
+                    b.ToTable("Genres");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Strategy"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "RTS",
+                            ParentGenreId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "TBS",
+                            ParentGenreId = 1
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "RPG"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Sports"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Races",
+                            ParentGenreId = 5
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Rally",
+                            ParentGenreId = 5
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "Arcade",
+                            ParentGenreId = 5
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Name = "Formula",
+                            ParentGenreId = 5
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Name = "Off-road",
+                            ParentGenreId = 5
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Name = "Action"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Name = "FPS",
+                            ParentGenreId = 11
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Name = "TPS",
+                            ParentGenreId = 11
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Name = "Adventure",
+                            ParentGenreId = 11
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Name = "Puzzle & Skill"
                         });
                 });
 
@@ -108,6 +229,41 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                             Id = 4,
                             Name = "vr"
                         });
+                });
+
+            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Publisher", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HomePageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)")
+                        .HasColumnName("Name");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Publishers", (string)null);
                 });
 
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.User", b =>
@@ -158,6 +314,96 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                             Role = "Admin",
                             UserName = "admin"
                         });
+                });
+
+            modelBuilder.Entity("GamePlatform", b =>
+                {
+                    b.Property<int>("GamesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PlatformsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("GamesId", "PlatformsId");
+
+                    b.HasIndex("PlatformsId");
+
+                    b.ToTable("GamePlatforms", (string)null);
+                });
+
+            modelBuilder.Entity("PlatformPublisher", b =>
+                {
+                    b.Property<int>("PublisherPlatformsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PublishersId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PublisherPlatformsId", "PublishersId");
+
+                    b.HasIndex("PublishersId");
+
+                    b.ToTable("PublisherPlatforms", (string)null);
+                });
+
+            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Game", b =>
+                {
+                    b.HasOne("EpamKse.GameStore.Domain.Entities.Publisher", "Publisher")
+                        .WithMany("Games")
+                        .HasForeignKey("PublisherId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Publisher");
+                });
+
+            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Genre", b =>
+                {
+                    b.HasOne("EpamKse.GameStore.Domain.Entities.Genre", "ParentGenre")
+                        .WithMany("SubGenres")
+                        .HasForeignKey("ParentGenreId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ParentGenre");
+                });
+
+            modelBuilder.Entity("GamePlatform", b =>
+                {
+                    b.HasOne("EpamKse.GameStore.Domain.Entities.Game", null)
+                        .WithMany()
+                        .HasForeignKey("GamesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EpamKse.GameStore.Domain.Entities.Platform", null)
+                        .WithMany()
+                        .HasForeignKey("PlatformsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PlatformPublisher", b =>
+                {
+                    b.HasOne("EpamKse.GameStore.Domain.Entities.Platform", null)
+                        .WithMany()
+                        .HasForeignKey("PublisherPlatformsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EpamKse.GameStore.Domain.Entities.Publisher", null)
+                        .WithMany()
+                        .HasForeignKey("PublishersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Genre", b =>
+                {
+                    b.Navigation("SubGenres");
+                });
+
+            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Publisher", b =>
+                {
+                    b.Navigation("Games");
                 });
 #pragma warning restore 612, 618
         }
