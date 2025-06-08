@@ -1,4 +1,6 @@
-﻿namespace EpamKse.GameStore.Api.Controllers;
+﻿using Microsoft.AspNetCore.Authorization;
+
+namespace EpamKse.GameStore.Api.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +23,7 @@ public class GamesController(IGameService gameService) : ControllerBase {
         return Ok(game);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateGame(GameDto gameDto) {
         if (!ModelState.IsValid) {
@@ -31,6 +34,7 @@ public class GamesController(IGameService gameService) : ControllerBase {
         return CreatedAtAction(nameof(GetGameById), new { id = createdGame.Id }, createdGame);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateGame(int id, GameDto gameDto) {
         if (!ModelState.IsValid) {
@@ -41,6 +45,7 @@ public class GamesController(IGameService gameService) : ControllerBase {
         return Ok(updatedGame);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteGame(int id) {
         await gameService.DeleteGameAsync(id);

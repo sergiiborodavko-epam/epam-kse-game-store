@@ -20,7 +20,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(AuthenticationSchemes = "Access")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreatePublisher([FromBody] CreatePublisherDTO request)
     {
             var platform = await _publisherService.CreatePublisher(request);
@@ -28,7 +28,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpPut]
-    [Authorize(AuthenticationSchemes = "Access")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdatePublisher([FromBody] UpdatePublisherDTO request)
     {
             var platform = await _publisherService.UpdatePublisher(request);
@@ -36,7 +36,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(AuthenticationSchemes = "Access")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeletePublisher(int id)
     {
             await _publisherService.DeletePublisher(id);
@@ -44,15 +44,13 @@ public class PublisherController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> GetPaginatedFullPublishers(int page = 1, int limit = 10)
     {
         var publishers = await _publisherService.GetPaginatedFullPublishers(page, limit);
         return Ok(publishers);
     }
-
+    
     [HttpGet("specificPublisher")]
-   [Authorize(AuthenticationSchemes = "Access")]
     public async Task<IActionResult> GetFullPublisher(int id)
     {
             var publisher = await _publisherService.GetPublisherByIdWithFullData(id);
@@ -60,7 +58,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpPatch("addPlatform")]
-    [Authorize(AuthenticationSchemes = "Access")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddPlatform([FromBody] PlatformToPublisherDTO request)
     {
             await _publisherService.AddPlatformToPublisher(request);
@@ -68,7 +66,7 @@ public class PublisherController : ControllerBase
     }
 
     [HttpPatch("removePlatform")]
-    [Authorize(AuthenticationSchemes = "Access")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> RemovePlatform([FromBody] PlatformToPublisherDTO request)
     {
             await _publisherService.RemovePlatformFromPublisher(request);
