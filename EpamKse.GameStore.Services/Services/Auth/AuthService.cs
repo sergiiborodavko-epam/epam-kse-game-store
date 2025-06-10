@@ -19,8 +19,8 @@ public class AuthService : IAuthService
     private readonly GameStoreDbContext _dbContext;
     private readonly string ACCESS_TOKEN_SECRET;
     private readonly string REFRESH_TOKEN_SECRET;
-    private readonly int REFRESH_TOKEN_LIFETIME = 6;
-    private readonly int ACCESS_TOKEN_LIFETIME = 3;
+    private readonly int REFRESH_TOKEN_LIFETIME = 60;
+    private readonly int ACCESS_TOKEN_LIFETIME = 30;
 
     public AuthService(GameStoreDbContext dbContext)
     {
@@ -37,17 +37,19 @@ public class AuthService : IAuthService
         }
 
         var hashedPassword = AuthHelper.HashPassword(registerDto.Password);
-        var accessToken = GenerateAccessToken(registerDto.Email, Roles.Customer.ToString());
-        var refreshToken = GenerateRefreshToken(registerDto.Email, Roles.Customer.ToString());
-        await _dbContext.Users.AddAsync(new User
+        var newUser = new User
         {
             UserName = registerDto.UserName,
             Email = registerDto.Email,
             PasswordHash = hashedPassword,
             FullName = registerDto.FullName,
             Role = Roles.Customer,
-        });
+        };
+        
+        await _dbContext.Users.AddAsync(newUser);
         await _dbContext.SaveChangesAsync();
+        var accessToken = GenerateAccessToken(newUser.Id, newUser.Email, newUser.Role.ToString());
+        var refreshToken = GenerateRefreshToken(newUser.Id, newUser.Email, newUser.Role.ToString());
 
         return (accessToken, refreshToken);
     }
@@ -57,8 +59,8 @@ public class AuthService : IAuthService
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email);
         if (user is not null && VerifyPassword(loginDto.Password, user.PasswordHash))
         {
-            var accessToken = GenerateAccessToken(user.Email, user.Role.ToString());
-            var refreshToken = GenerateRefreshToken(user.Email, user.Role.ToString());
+            var accessToken = GenerateAccessToken(user.Id, user.Email, user.Role.ToString());
+            var refreshToken = GenerateRefreshToken(user.Id, user.Email, user.Role.ToString());
             return (accessToken, refreshToken);
         }
 
@@ -75,21 +77,22 @@ public class AuthService : IAuthService
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
         if (user is not null)
         {
-            var accessToken = GenerateAccessToken(user.Email, user.Role.ToString());
-            var refreshToken = GenerateRefreshToken(user.Email, user.Role.ToString());
+            var accessToken = GenerateAccessToken(user.Id, user.Email, user.Role.ToString());
+            var refreshToken = GenerateRefreshToken(user.Id, user.Email, user.Role.ToString());
             return (accessToken, refreshToken);
         }
 
         throw new InvalidCredentialsException();
     }
 
-    private string GenerateRefreshToken(string userEmail, string role)
+    private string GenerateRefreshToken(int userId, string userEmail, string role)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(REFRESH_TOKEN_SECRET));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
         {
+            new Claim("id", userId.ToString()),
             new Claim(ClaimTypes.Email, userEmail),
             new Claim(ClaimTypes.Role, role)
         };
@@ -102,13 +105,14 @@ public class AuthService : IAuthService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    private string GenerateAccessToken(string userEmail, string role)
+    private string GenerateAccessToken(int userId, string userEmail, string role)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ACCESS_TOKEN_SECRET));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
         {
+            new Claim("id", userId.ToString()),
             new Claim(ClaimTypes.Email, userEmail),
             new Claim(ClaimTypes.Role, role)
         };
