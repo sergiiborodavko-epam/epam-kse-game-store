@@ -1,15 +1,14 @@
+using EpamKse.GameStore.Domain.DTO.Game;
 using EpamKse.GameStore.Domain.Enums;
 
-namespace EpamKse.GameStore.Domain.Entities;
+namespace EpamKse.GameStore.Domain.DTO.Order;
 
-public class Order
+public class OrderDto
 {
     public int Id { get; set; }
     public int UserId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public OrderStatus Status { get; set; }
     public decimal Price { get; set; }
-    
-    public User User { get; set; }
-    public ICollection<Game> Games { get; set; } = new List<Game>();
+    public List<GameViewDto> Games { get; set; }
 }
