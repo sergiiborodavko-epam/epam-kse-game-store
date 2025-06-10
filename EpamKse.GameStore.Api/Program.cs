@@ -4,6 +4,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
 using DotNetEnv;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 using EpamKse.GameStore.Api.Infrastructure;
 using EpamKse.GameStore.DataAccess.Repositories;
@@ -24,11 +25,18 @@ builder.Services.AddDbContext<GameStoreDbContext>(options =>
     options.UseSqlServer(connectionString)
 );
 
+builder.Services.Configure<IISServerOptions>(options => {
+    options.MaxRequestBodySize = 100 * 1024 * 1024;
+});
+
+builder.Services.Configure<KestrelServerOptions>(options => {
+    options.Limits.MaxRequestBodySize = 100 * 1024 * 1024;
+});
+
 builder.Services.AddControllers(options => {
     options.Filters.Add<CustomHttpExceptionFilter>();
     options.Filters.Add(new AuthorizeFilter());
-}).AddJsonOptions(options =>
-{
+}).AddJsonOptions(options => {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 }).ConfigureApiBehaviorOptions(options => {
     options.SuppressModelStateInvalidFilter = false;
@@ -58,6 +66,7 @@ builder.Services.AddSwaggerGen(options => {
         }
     });
 });
+
 builder.Services.AddAuthentication()
     .AddJwtBearer("Access", options => {
         options.TokenValidationParameters = new TokenValidationParameters {
@@ -71,8 +80,7 @@ builder.Services.AddAuthentication()
         };
     });
 
-builder.Services.AddAuthorization(options =>
-{
+builder.Services.AddAuthorization(options => {
     options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
 });
 
