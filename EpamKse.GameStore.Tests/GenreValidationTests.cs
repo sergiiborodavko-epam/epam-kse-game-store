@@ -1,4 +1,5 @@
 ﻿using EpamKse.GameStore.DataAccess.Repositories.HistoricalPrice;
+using EpamKse.GameStore.DataAccess.Repositories.Publisher;
 
 namespace EpamKse.GameStore.Tests;
 
@@ -30,7 +31,8 @@ public class GenreValidationTests {
         var gameRepository = new GameRepository(_context);
         var genreRepository = new GenreRepository(_context);
         var historicalPriceRepository = new HistoricalPriceRepository(_context);
-        _gameService = new GameService(gameRepository, genreRepository, historicalPriceRepository);
+        var publisherRepository = new PublisherRepository(_context);
+        _gameService = new GameService(gameRepository, genreRepository, historicalPriceRepository,publisherRepository);
     }
 
     private void SeedGenres()

@@ -3,6 +3,7 @@ using EpamKse.GameStore.DataAccess.Repositories.HistoricalPrice;
 using EpamKse.GameStore.Services.Services.Game;
 using EpamKse.GameStore.DataAccess.Context;
 using EpamKse.GameStore.DataAccess.Repositories.Genre;
+using EpamKse.GameStore.DataAccess.Repositories.Publisher;
 using EpamKse.GameStore.Domain.DTO.Game;
 using EpamKse.GameStore.Domain.Entities;
 using EpamKse.GameStore.Domain.Exceptions;
@@ -33,7 +34,8 @@ public class HistoricalPriceTest
         var gameRepo = new GameRepository(_context);
         var priceRepo = new HistoricalPriceRepository(_context);
         var genreRepository = new GenreRepository(_context);
-        _gameService = new GameService(gameRepo, genreRepository, priceRepo);
+        var publisherRepository = new PublisherRepository(_context);
+        _gameService = new GameService(gameRepo, genreRepository, priceRepo, publisherRepository);
         _historicalPriceService = new HistoricalPriceService(priceRepo);
     }
 
