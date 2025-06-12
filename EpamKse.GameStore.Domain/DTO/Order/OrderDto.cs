@@ -9,6 +9,6 @@ public class OrderDto
     public int UserId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public OrderStatus Status { get; set; }
-    public decimal Price { get; set; }
+    public decimal TotalSum { get; set; }
     public List<GameViewDto> Games { get; set; }
 }

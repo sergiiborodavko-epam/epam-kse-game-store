@@ -37,7 +37,7 @@ public class OrdersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateOrder(CreateOrderDto createOrderDto)
     {
-        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id")!.Value;
         if (userIdClaim == null)
         {
             throw new UnauthorizedAccessException();
