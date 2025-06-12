@@ -53,7 +53,14 @@ public class OrderService : IOrderService
             Status = OrderStatus.Created
         };
 
-        await AddGamesToOrder(order, dto.GameIds);
+        var games = await ValidateGames(dto.GameIds);
+        
+        foreach (var game in games)
+        {
+            order.Games.Add(game);
+        }
+        
+        order.TotalSum = CalcTotalSum(games);
         
         await _orderRepository.CreateAsync(order);
         return order;
@@ -70,9 +77,15 @@ public class OrderService : IOrderService
         order.Status = dto.Status ?? order.Status;
         if (dto.GameIds != null)
         {
-            order.TotalSum = 0;
             order.Games = new List<Game>();
-            await AddGamesToOrder(order, dto.GameIds);
+            var games = await ValidateGames(dto.GameIds);
+            
+            foreach (var game in games)
+            {
+                order.Games.Add(game);
+            }
+        
+            order.TotalSum = CalcTotalSum(games);
         }
 
         await _orderRepository.UpdateAsync(order);
@@ -90,8 +103,9 @@ public class OrderService : IOrderService
         return order;
     }
 
-    private async Task AddGamesToOrder(Order order, List<int> gameIds)
+    private async Task<List<Game>> ValidateGames(List<int> gameIds)
     {
+        var games = new List<Game>();
         foreach (var gameId in gameIds)
         {
             var game = await _gameRepository.GetByIdAsync(gameId);
@@ -99,8 +113,12 @@ public class OrderService : IOrderService
             {
                 throw new GameNotFoundException(gameId);
             }
-            order.TotalSum += game.Price;
-            order.Games.Add(game);
+            games.Add(game);
         }
+        return games;
+    } 
+    private decimal CalcTotalSum(IEnumerable<Game> games)
+    {
+        return games.Sum(game => game.Price);
     }
 }
