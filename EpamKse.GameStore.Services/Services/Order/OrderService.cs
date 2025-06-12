@@ -50,8 +50,7 @@ public class OrderService : IOrderService
         {
             UserId = userId, 
             CreatedAt = DateTime.Now, 
-            Status = OrderStatus.Created, 
-            Price = 0
+            Status = OrderStatus.Created
         };
 
         await AddGamesToOrder(order, dto.GameIds);
@@ -71,7 +70,7 @@ public class OrderService : IOrderService
         order.Status = dto.Status ?? order.Status;
         if (dto.GameIds != null)
         {
-            order.Price = 0;
+            order.TotalSum = 0;
             order.Games = new List<Game>();
             await AddGamesToOrder(order, dto.GameIds);
         }
@@ -100,7 +99,7 @@ public class OrderService : IOrderService
             {
                 throw new GameNotFoundException(gameId);
             }
-            order.Price += game.Price;
+            order.TotalSum += game.Price;
             order.Games.Add(game);
         }
     }

@@ -108,7 +108,7 @@ public class OrderServiceTests
 
         Assert.Equal(userId, result.UserId);
         Assert.Equal(OrderStatus.Created, result.Status);
-        Assert.Equal(30, result.Price);
+        Assert.Equal(30, result.TotalSum);
         Assert.Equal(2, result.Games.Count);
         _orderRepositoryMock.Verify(r => r.CreateAsync(It.IsAny<Order>()), Times.Once);
     }

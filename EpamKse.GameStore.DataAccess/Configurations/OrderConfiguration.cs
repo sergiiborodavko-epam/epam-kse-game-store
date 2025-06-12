@@ -15,7 +15,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.Id)
             .ValueGeneratedOnAdd();
         
-        builder.Property(x => x.Price)
+        builder.Property(x => x.TotalSum)
             .HasColumnType("decimal(18,2)")
             .IsRequired();
         
