@@ -26,17 +26,31 @@ public class OrderServiceTests
     }
 
     [Fact]
-    public async Task GetOrders_ReturnsAllOrders()
+    public async Task GetOrders_ReturnsAllOrders_WhenLimitIsInvalid()
     {
-        var queryDto = new OrdersQueryDto { Limit = 10, Offset = 0 };
+        var queryDto = new OrdersQueryDto { Limit = 0, Offset = 0 };
         var expectedOrders = new List<Order> { new Order() };
-        _orderRepositoryMock.Setup(r => r.GetAllAsync(queryDto.Limit, queryDto.Offset))
+        _orderRepositoryMock.Setup(r => r.GetAllAsync())
             .ReturnsAsync(expectedOrders);
 
         var result = await _orderService.GetOrders(queryDto);
 
         Assert.Equal(expectedOrders, result);
-        _orderRepositoryMock.Verify(r => r.GetAllAsync(queryDto.Limit, queryDto.Offset), Times.Once);
+        _orderRepositoryMock.Verify(r => r.GetAllAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetOrders_ReturnsAllOrders_WhenLimitIsValid()
+    {
+        var queryDto = new OrdersQueryDto { Limit = 10, Offset = 0 };
+        var expectedOrders = new List<Order> { new Order() };
+        _orderRepositoryMock.Setup(r => r.GetAllAsync(10, 0))
+            .ReturnsAsync(expectedOrders);
+
+        var result = await _orderService.GetOrders(queryDto);
+
+        Assert.Equal(expectedOrders, result);
+        _orderRepositoryMock.Verify(r => r.GetAllAsync(10, 0), Times.Once);
     }
 
     [Fact]
@@ -45,13 +59,13 @@ public class OrderServiceTests
         var status = OrderStatus.Created;
         var queryDto = new OrdersQueryDto { Status = status, Limit = 10, Offset = 0 };
         var expectedOrders = new List<Order> { new Order() };
-        _orderRepositoryMock.Setup(r => r.GetByStatusAsync(status, queryDto.Limit, queryDto.Offset))
+        _orderRepositoryMock.Setup(r => r.GetByStatusAsync(status))
             .ReturnsAsync(expectedOrders);
 
         var result = await _orderService.GetOrders(queryDto);
 
         Assert.Equal(expectedOrders, result);
-        _orderRepositoryMock.Verify(r => r.GetByStatusAsync(status, queryDto.Limit, queryDto.Offset), Times.Once);
+        _orderRepositoryMock.Verify(r => r.GetByStatusAsync(status), Times.Once);
     }
 
     [Fact]

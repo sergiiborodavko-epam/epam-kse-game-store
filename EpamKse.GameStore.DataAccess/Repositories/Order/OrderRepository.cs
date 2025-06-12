@@ -14,14 +14,18 @@ public class OrderRepository : IOrderRepository
         _context = context;
     }
 
+    public async Task<IEnumerable<Order>> GetAllAsync()
+    {
+        return await _context.Orders.Include(o => o.Games).ToListAsync();
+    }
     public async Task<IEnumerable<Order>> GetAllAsync(int limit, int offset)
     {
         return await _context.Orders.Include(o => o.Games).Skip(offset).Take(limit).ToListAsync();
     }
 
-    public async Task<IEnumerable<Order>> GetByStatusAsync(OrderStatus status, int limit, int offset)
+    public async Task<IEnumerable<Order>> GetByStatusAsync(OrderStatus status)
     {
-        return await _context.Orders.Include(o => o.Games).Where(o => o.Status == status).Skip(offset).Take(limit).ToListAsync();
+        return await _context.Orders.Include(o => o.Games).Where(o => o.Status == status).ToListAsync();
     }
 
     public async Task<Order?> GetByIdAsync(int id)

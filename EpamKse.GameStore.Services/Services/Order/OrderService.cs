@@ -21,12 +21,17 @@ public class OrderService : IOrderService
 
     public async Task<IEnumerable<Order>> GetOrders(OrdersQueryDto ordersQueryDto)
     {
-        if (ordersQueryDto.Status == null)
+        if (ordersQueryDto.Status != null)
         {
-            return await _orderRepository.GetAllAsync(ordersQueryDto.Limit, ordersQueryDto.Offset);
+            return await _orderRepository.GetByStatusAsync(ordersQueryDto.Status!.Value);
+        }
+
+        if (ordersQueryDto.Limit != null && ordersQueryDto.Limit > 0)
+        {
+            return await _orderRepository.GetAllAsync(ordersQueryDto.Limit!.Value, ordersQueryDto.Offset);
         }
         
-        return await _orderRepository.GetByStatusAsync(ordersQueryDto.Status!.Value, ordersQueryDto.Limit, ordersQueryDto.Offset);
+        return await _orderRepository.GetAllAsync();
     }
 
     public async Task<Order> GetOrderById(int id)
