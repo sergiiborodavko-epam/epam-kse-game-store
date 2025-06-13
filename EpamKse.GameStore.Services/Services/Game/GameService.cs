@@ -36,6 +36,12 @@ public class GameService(
             throw new GameAlreadyExistsException(gameDto.Title);
         }
 
+        var publisher = await publisherRepository.GetByIdAsync(gameDto.PublisherId);
+        if (publisher == null)
+        {
+            throw new PublisherNotFoundException(gameDto.PublisherId);
+        }
+
         await ValidateGenresAsync(gameDto.GenreNames, gameDto.SubGenreNames);
 
         var allGenreNames = gameDto.GenreNames.Concat(gameDto.SubGenreNames).ToList();
@@ -47,7 +53,8 @@ public class GameService(
             Description = gameDto.Description,
             Price = gameDto.Price,
             ReleaseDate = gameDto.ReleaseDate,
-            GenreIds = genres.Select(g => g.Id).ToList()
+            GenreIds = genres.Select(g => g.Id).ToList(),
+            PublisherId = publisher.Id
         };
         var returnGame = await gameRepository.CreateAsync(game);
         await historicalPriceRepository.CreateHistoricalPrice(returnGame.Price, returnGame.Id);
@@ -85,11 +92,18 @@ public class GameService(
             await historicalPriceRepository.CreateHistoricalPrice(gameDto.Price, id);
         }
 
+        var publisher = await publisherRepository.GetByIdAsync(gameDto.PublisherId);
+        if (publisher == null)
+        {
+            throw new PublisherNotFoundException(gameDto.PublisherId);
+        }
+
         existingGame.Title = gameDto.Title;
         existingGame.Description = gameDto.Description;
         existingGame.Price = gameDto.Price;
         existingGame.ReleaseDate = gameDto.ReleaseDate;
         existingGame.GenreIds = genres.Select(g => g.Id).ToList();
+        existingGame.PublisherId = publisher.Id;
         var updatedGame = await gameRepository.UpdateAsync(existingGame);
         return new GameViewDto
         {
@@ -121,6 +135,7 @@ public class GameService(
         {
             throw new GameNotFoundException(setPublisherDto.gameId);
         }
+
         if (publisher is null)
         {
             throw new PublisherNotFoundException(setPublisherDto.publisherId);

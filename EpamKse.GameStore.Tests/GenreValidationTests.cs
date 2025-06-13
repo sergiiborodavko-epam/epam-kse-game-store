@@ -1,5 +1,8 @@
 ﻿using EpamKse.GameStore.DataAccess.Repositories.HistoricalPrice;
+using EpamKse.GameStore.DataAccess.Repositories.Platform;
 using EpamKse.GameStore.DataAccess.Repositories.Publisher;
+using EpamKse.GameStore.Domain.DTO.Publisher;
+using EpamKse.GameStore.Services.Services.Publisher;
 
 namespace EpamKse.GameStore.Tests;
 
@@ -18,7 +21,7 @@ using Domain.Entities;
 public class GenreValidationTests {
     private GameStoreDbContext _context;
     private GameService _gameService;
-
+    private PublisherService _pubService;
     [SetUp]
     public void Setup() {
         var options = new DbContextOptionsBuilder<GameStoreDbContext>()
@@ -32,6 +35,8 @@ public class GenreValidationTests {
         var genreRepository = new GenreRepository(_context);
         var historicalPriceRepository = new HistoricalPriceRepository(_context);
         var publisherRepository = new PublisherRepository(_context);
+        var platformRepository = new PlatformRepository(_context);
+        _pubService = new PublisherService(publisherRepository,platformRepository);
         _gameService = new GameService(gameRepository, genreRepository, historicalPriceRepository,publisherRepository);
     }
 
@@ -50,8 +55,15 @@ public class GenreValidationTests {
 
     [Test]
     public async Task CreateGame_ValidGenresWithSubgenres_Success() {
+        var createPublisher = new CreatePublisherDTO
+        {
+            Name = "Initial Publisher",
+            Description = "Publisher for game",
+            HomePageUrl = "https://old.com"
+        };
+        var publisher = await _pubService.CreatePublisher(createPublisher);
         var gameDto = new GameDto {
-            Title = "Test Game", Description = "Test", Price = 19.99m, ReleaseDate = DateTime.Now,
+            Title = "Test Game", Description = "Test", Price = 19.99m, ReleaseDate = DateTime.Now, PublisherId = publisher.Id,
             GenreNames = ["Strategy", "Action"], SubGenreNames = ["RTS", "FPS"]
         };
 
@@ -66,8 +78,15 @@ public class GenreValidationTests {
 
     [Test]
     public async Task CreateGame_OnlyMainGenres_Success() {
+        var createPublisher = new CreatePublisherDTO
+        {
+            Name = "Initial Publisher",
+            Description = "Publisher for game",
+            HomePageUrl = "https://old.com"
+        };
+        var publisher = await _pubService.CreatePublisher(createPublisher);
         var gameDto = new GameDto {
-            Title = "Test Game", Description = "Test", Price = 19.99m, ReleaseDate = DateTime.Now,
+            Title = "Test Game", Description = "Test", Price = 19.99m, ReleaseDate = DateTime.Now, PublisherId = publisher.Id,
             GenreNames = ["Strategy", "Sports"], SubGenreNames = []
         };
 
@@ -79,9 +98,16 @@ public class GenreValidationTests {
     }
 
     [Test]
-    public void CreateGame_SubgenreWithoutParent_ThrowsException() {
+    public async Task CreateGame_SubgenreWithoutParent_ThrowsException() {
+        var createPublisher = new CreatePublisherDTO
+        {
+            Name = "Initial Publisher",
+            Description = "Publisher for game",
+            HomePageUrl = "https://old.com"
+        };
+        var publisher = await _pubService.CreatePublisher(createPublisher);
         var gameDto = new GameDto {
-            Title = "Test Game", Description = "Test", Price = 19.99m, ReleaseDate = DateTime.Now,
+            Title = "Test Game", Description = "Test", Price = 19.99m, ReleaseDate = DateTime.Now, PublisherId = publisher.Id,
             GenreNames = ["Sports"], SubGenreNames = ["RTS"] // RTS belongs to Strategy, not Sports
         };
 
@@ -89,9 +115,16 @@ public class GenreValidationTests {
     }
 
     [Test]
-    public void CreateGame_NonExistentGenre_ThrowsException() {
+    public async Task CreateGame_NonExistentGenre_ThrowsException() {
+        var createPublisher = new CreatePublisherDTO
+        {
+            Name = "Initial Publisher",
+            Description = "Publisher for game",
+            HomePageUrl = "https://old.com"
+        };
+        var publisher = await _pubService.CreatePublisher(createPublisher);
         var gameDto = new GameDto {
-            Title = "Test Game", Description = "Test", Price = 19.99m, ReleaseDate = DateTime.Now,
+            Title = "Test Game", Description = "Test", Price = 19.99m, ReleaseDate = DateTime.Now, PublisherId = publisher.Id,
             GenreNames = ["NonExistent"], SubGenreNames = []
         };
 
@@ -99,9 +132,16 @@ public class GenreValidationTests {
     }
 
     [Test]
-    public void CreateGame_NonExistentSubgenre_ThrowsException() {
+    public async Task CreateGame_NonExistentSubgenre_ThrowsException() {
+        var createPublisher = new CreatePublisherDTO
+        {
+            Name = "Initial Publisher",
+            Description = "Publisher for game",
+            HomePageUrl = "https://old.com"
+        };
+        var publisher = await _pubService.CreatePublisher(createPublisher);
         var gameDto = new GameDto {
-            Title = "Test Game", Description = "Test", Price = 19.99m, ReleaseDate = DateTime.Now,
+            Title = "Test Game", Description = "Test", Price = 19.99m, ReleaseDate = DateTime.Now, PublisherId = publisher.Id,
             GenreNames = ["Strategy"], SubGenreNames = ["NonExistentSub"]
         };
 
@@ -110,8 +150,15 @@ public class GenreValidationTests {
 
     [Test]
     public async Task UpdateGame_ChangeGenres_Success() {
+        var createPublisher = new CreatePublisherDTO
+        {
+            Name = "Initial Publisher",
+            Description = "Publisher for game",
+            HomePageUrl = "https://old.com"
+        };
+        var publisher = await _pubService.CreatePublisher(createPublisher);
         var existingGame = new Game {
-            Title = "Existing Game", Description = "Test", Price = 29.99m, 
+            Title = "Existing Game", Description = "Test", Price = 29.99m, PublisherId = publisher.Id,
             ReleaseDate = DateTime.Now, GenreIds = [1]
         };
         _context.Games.Add(existingGame);
@@ -119,7 +166,7 @@ public class GenreValidationTests {
 
         var updateDto = new GameDto {
             Title = "Existing Game", Description = "Test", Price = 29.99m, ReleaseDate = DateTime.Now,
-            GenreNames = ["Action"], SubGenreNames = ["FPS"]
+            GenreNames = ["Action"], SubGenreNames = ["FPS"],PublisherId = publisher.Id
         };
 
         var result = await _gameService.UpdateGameAsync(existingGame.Id, updateDto);
