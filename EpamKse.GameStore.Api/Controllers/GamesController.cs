@@ -46,6 +46,14 @@ public class GamesController(IGameService gameService) : ControllerBase {
     }
 
     [Authorize(Roles = "Admin")]
+    [HttpPatch("setPublisher")]
+    public async Task<IActionResult> SetPublisher(SetPublisherDto setPublisherDto) {
+
+        var status = await gameService.SetPublisherToGame(setPublisherDto);
+        return Ok(status);
+    }
+    
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteGame(int id) {
         await gameService.DeleteGameAsync(id);
