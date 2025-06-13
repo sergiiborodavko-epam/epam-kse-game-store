@@ -1,4 +1,5 @@
 using EpamKse.GameStore.Services.Services.HistoricalPrice;
+using EpamKse.GameStore.Services.Services.Order;
 using EpamKse.GameStore.Services.Services.Role;
 
 namespace EpamKse.GameStore.Services.Services;
@@ -21,5 +22,6 @@ public static class ServiceRegistry {
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<IPublisherService, PublisherService>();
         services.AddScoped<IHistoricalPriceService, HistoricalPriceService>();
+        services.AddScoped<IOrderService, OrderService>();
     }
 }

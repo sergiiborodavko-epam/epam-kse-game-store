@@ -14,4 +14,5 @@ public class Game
     public ICollection<Platform> Platforms { get; set; } = new List<Platform>();
 
     public ICollection<HistoricalPrice> HistoricalPrices { get; set; } = new List<HistoricalPrice>();
+    public ICollection<Order> Orders { get; set; } = new List<Order>();
 }

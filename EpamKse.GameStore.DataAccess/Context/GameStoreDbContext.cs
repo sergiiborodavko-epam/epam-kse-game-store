@@ -15,7 +15,7 @@ public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : 
     public DbSet<Publisher> Publishers { get; set; }
 
     public DbSet<HistoricalPrice> HistoricalPrices { get; set; }
-
+    public DbSet<Order> Orders { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -66,7 +66,7 @@ public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : 
             "$argon2id$v=19$m=65536,t=3,p=1$hIWcROP/j0uU/PceT+/jHw$Kn1RHnAoDdMitEPzaT43//MwsEDJMwAjEPr8liXCHrM";
         
         modelBuilder.Entity<User>().HasData(
-            new User { Id = 1, Role = Roles.Admin, CreatedAt = DateTime.Now, Email = "admin@example.com", UserName = "admin", FullName = "admin", PasswordHash = adminPass }
+            new User { Id = 1, Role = Roles.Admin, CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc), Email = "admin@example.com", UserName = "admin", FullName = "admin", PasswordHash = adminPass }
         );
     }
 }

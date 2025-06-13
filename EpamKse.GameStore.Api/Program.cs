@@ -10,6 +10,7 @@ using EpamKse.GameStore.DataAccess.Repositories;
 using EpamKse.GameStore.Services.Services;
 using EpamKse.GameStore.Api.Filters;
 using EpamKse.GameStore.DataAccess.Context;
+using EpamKse.GameStore.Domain.Profiles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 
@@ -23,7 +24,7 @@ var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
 builder.Services.AddDbContext<GameStoreDbContext>(options => 
     options.UseSqlServer(connectionString)
 );
-
+builder.Services.AddAutoMapper(typeof(OrderProfile).Assembly);
 builder.Services.AddControllers(options => {
     options.Filters.Add<CustomHttpExceptionFilter>();
     options.Filters.Add(new AuthorizeFilter());
