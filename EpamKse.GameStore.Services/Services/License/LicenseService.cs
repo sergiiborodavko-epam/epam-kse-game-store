@@ -6,6 +6,7 @@ using EpamKse.GameStore.DataAccess.Repositories.Order;
 using EpamKse.GameStore.Domain.DTO.License;
 using EpamKse.GameStore.Domain.Exceptions.License;
 using EpamKse.GameStore.Domain.Exceptions.Order;
+using EpamKse.GameStore.Services.Helpers.License;
 using EpamKse.GameStore.Services.Services.Encryption;
 
 namespace EpamKse.GameStore.Services.Services.License;
@@ -50,8 +51,7 @@ public class LicenseService : ILicenseService
             throw new LicenseNotFoundException($"No license for order id {orderId}");
         }
 
-        var txt = LicenceTxtBuilder(license);
-        return Encoding.UTF8.GetBytes(txt);
+        return new LicenseBuilder(license).Build();
     }
     
     public async Task<byte[]> GenerateLicenseFileByGameId(int userId, int gameId)
@@ -64,8 +64,7 @@ public class LicenseService : ILicenseService
             throw new LicenseNotFoundException($"No license for game id {gameId}");
         }
 
-        var txt = LicenceTxtBuilder(license);
-        return Encoding.UTF8.GetBytes(txt);
+        return new LicenseBuilder(license).Build();   
     }
 
     public async Task<License> CreateLicense(CreateLicenseDto dto)
@@ -100,36 +99,5 @@ public class LicenseService : ILicenseService
         
         await _licenseRepository.CreateAsync(license);
         return license;
-    }
-
-    private string LicenceTxtBuilder(License license)
-    {
-        var order = license.Order;
-        var user = order.User;
-
-        var games = order.Games;
-
-        var gamesTxt = new List<string>();
-        var index = 1;
-        foreach (var game in games)
-        {
-            var line = $"{index}. {game.Title}; Price: {game.Price}";
-            index++;
-            gamesTxt.Add(line);
-        }
-        
-        var txt = $"""
-                   License №{license.Id} for order №{order.Id}
-                   Owner: {user.FullName}
-                   Email: {user.Email}
-
-                   Contents:
-                   {string.Join("\n", gamesTxt)}
-                   Total sum: {order.TotalSum}
-                   
-                   License key: {license.Key}
-                   """;
-        
-        return txt;
     }
 }
