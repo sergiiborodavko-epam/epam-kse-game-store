@@ -24,25 +24,21 @@ public class LicensesController : ControllerBase
         return NoContent();
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetLicenses([FromQuery] GetLicenseQueryDto query)
+    [HttpGet("order/{id:int}")]
+    public async Task<IActionResult> GetLicensesByOrderId(int id)
     {
-        if (query.OrderId != null)
-        {
-            var txt = await _licenseService.GenerateLicenseFileByOrderId(query.OrderId.Value);
-            return File(txt, "text/plain", "license.txt");
-        }
+        var txt = await _licenseService.GenerateLicenseFileByOrderId(id);
+        return File(txt, "text/plain", "license.txt");
+    }
 
-        if (query.GameId != null)
-        {
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id")!.Value;
-            var userId = int.Parse(userIdClaim);
-            
-            var txt = await _licenseService.GenerateLicenseFileByGameId(userId, query.GameId.Value);
-            return File(txt, "text/plain", "license.txt");
-        }
+    [HttpGet("game/{id:int}")]
+    public async Task<IActionResult> GetLicensesByGameId(int id)
+    {
+        var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id")!.Value;
+        var userId = int.Parse(userIdClaim);
         
-        return BadRequest("Invalid query");
+        var txt = await _licenseService.GenerateLicenseFileByGameId(userId, id);
+        return File(txt, "text/plain", "license.txt");   
     }
     
     [Authorize(Roles = "Admin")]
