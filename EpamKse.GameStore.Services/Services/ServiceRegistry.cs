@@ -1,4 +1,6 @@
+using EpamKse.GameStore.Services.Services.Encryption;
 using EpamKse.GameStore.Services.Services.HistoricalPrice;
+using EpamKse.GameStore.Services.Services.License;
 using EpamKse.GameStore.Services.Services.Order;
 using EpamKse.GameStore.Services.Services.Role;
 
@@ -23,5 +25,7 @@ public static class ServiceRegistry {
         services.AddScoped<IPublisherService, PublisherService>();
         services.AddScoped<IHistoricalPriceService, HistoricalPriceService>();
         services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IEncryptionService, EncryptionService>();
+        services.AddScoped<ILicenseService, LicenseService>();
     }
 }
