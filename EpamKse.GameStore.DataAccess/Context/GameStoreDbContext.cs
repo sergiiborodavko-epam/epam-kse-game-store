@@ -16,6 +16,7 @@ public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : 
 
     public DbSet<HistoricalPrice> HistoricalPrices { get; set; }
     public DbSet<Order> Orders { get; set; }
+    public DbSet<License> Licenses { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
