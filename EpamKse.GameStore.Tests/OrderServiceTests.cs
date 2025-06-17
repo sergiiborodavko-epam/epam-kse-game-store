@@ -97,8 +97,8 @@ public class OrderServiceTests
         var createOrderDto = new CreateOrderDto { GameIds = gameIds };
         var games = new List<Game>
         {
-            new Game { Id = 1, Price = 10 },
-            new Game { Id = 2, Price = 20 }
+            new Game { Id = 1, Price = 10,Stock = 12 },
+            new Game { Id = 2, Price = 20,Stock = 12 }
         };
 
         _gameRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(games[0]);
