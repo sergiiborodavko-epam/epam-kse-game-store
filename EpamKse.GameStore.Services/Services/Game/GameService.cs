@@ -54,7 +54,8 @@ public class GameService(
             Price = gameDto.Price,
             ReleaseDate = gameDto.ReleaseDate,
             GenreIds = genres.Select(g => g.Id).ToList(),
-            PublisherId = publisher.Id
+            PublisherId = publisher.Id,
+            Stock = gameDto.Stock
         };
         var returnGame = await gameRepository.CreateAsync(game);
         await historicalPriceRepository.CreateHistoricalPrice(returnGame.Price, returnGame.Id);
@@ -66,6 +67,7 @@ public class GameService(
             Price = returnGame.Price,
             ReleaseDate = returnGame.ReleaseDate,
             GenreIds = returnGame.GenreIds,
+            Stock = returnGame.Stock
         };
     }
 
@@ -104,6 +106,7 @@ public class GameService(
         existingGame.ReleaseDate = gameDto.ReleaseDate;
         existingGame.GenreIds = genres.Select(g => g.Id).ToList();
         existingGame.PublisherId = publisher.Id;
+        existingGame.Stock = gameDto.Stock;
         var updatedGame = await gameRepository.UpdateAsync(existingGame);
         return new GameViewDto
         {
@@ -113,6 +116,7 @@ public class GameService(
             Price = updatedGame.Price,
             ReleaseDate = updatedGame.ReleaseDate,
             GenreIds = updatedGame.GenreIds,
+            Stock = updatedGame.Stock
         };
     }
 
@@ -127,6 +131,23 @@ public class GameService(
         await gameRepository.DeleteAsync(existingGame);
     }
 
+    public async Task<int> SetGameStock(SetStockDto setStockDto)
+    {
+        var game = await gameRepository.GetByIdAsync(setStockDto.GameId);
+        if (game is null)
+        {
+            throw new GameNotFoundException(setStockDto.GameId);
+        }
+
+        if (setStockDto.NewStock <= 0)
+        {
+            throw new InvalidStockException();
+        }
+
+        game.Stock = setStockDto.NewStock;
+        await gameRepository.UpdateAsync(game);
+        return setStockDto.NewStock;
+    }
     public async Task<bool> SetPublisherToGame(SetPublisherDto setPublisherDto)
     {
         var game = await gameRepository.GetByIdAsync(setPublisherDto.gameId);

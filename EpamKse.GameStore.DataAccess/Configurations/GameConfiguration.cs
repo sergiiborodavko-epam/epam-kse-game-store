@@ -21,6 +21,9 @@ public class GameConfiguration : IEntityTypeConfiguration<Game> {
         builder.Property(g => g.Price)
             .HasColumnType("decimal(18,2)")
             .IsRequired();
+        builder.Property(g => g.Stock)
+            .HasColumnType("int")
+            .IsRequired();
         builder
             .HasMany(g => g.HistoricalPrices)
             .WithOne(hs => hs.Game);
