@@ -1,4 +1,5 @@
 using EpamKse.GameStore.DataAccess.Repositories.HistoricalPrice;
+using EpamKse.GameStore.DataAccess.Repositories.Order;
 using EpamKse.GameStore.DataAccess.Repositories.User;
 using EpamKse.GameStore.DataAccess.Repositories.Platform;
 using EpamKse.GameStore.DataAccess.Repositories.Publisher;
@@ -20,5 +21,6 @@ public static class RepositoryRegistry {
         services.AddScoped<IPlatformRepository, PlatformRepository>();
         services.AddScoped<IHistoricalPriceRepository, HistoricalPriceRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
     }
 }

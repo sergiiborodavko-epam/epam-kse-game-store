@@ -4,6 +4,7 @@ using EpamKse.GameStore.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EpamKse.GameStore.DataAccess.Migrations
 {
     [DbContext(typeof(GameStoreDbContext))]
-    partial class GameStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250610180111_AddOrders")]
+    partial class AddOrders
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,51 +81,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                             ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Title = "Game 2"
                         });
-                });
-
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.GameFile", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FileExtension")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("GameId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PlatformId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UploadedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GameId", "PlatformId")
-                        .IsUnique();
-
-                    b.ToTable("GameFiles", (string)null);
                 });
 
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Genre", b =>
@@ -274,12 +232,12 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
 
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("TotalSum")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -408,7 +366,7 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2025, 6, 10, 21, 1, 10, 572, DateTimeKind.Local).AddTicks(4272),
                             Email = "admin@example.com",
                             FullName = "admin",
                             PasswordHash = "$argon2id$v=19$m=65536,t=3,p=1$hIWcROP/j0uU/PceT+/jHw$Kn1RHnAoDdMitEPzaT43//MwsEDJMwAjEPr8liXCHrM",
@@ -470,15 +428,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Publisher");
-                });
-
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.GameFile", b =>
-                {
-                    b.HasOne("EpamKse.GameStore.Domain.Entities.Game", null)
-                        .WithMany("GameFiles")
-                        .HasForeignKey("GameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Genre", b =>
@@ -560,8 +509,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
 
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Game", b =>
                 {
-                    b.Navigation("GameFiles");
-
                     b.Navigation("HistoricalPrices");
                 });
 

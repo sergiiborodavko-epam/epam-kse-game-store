@@ -15,4 +15,5 @@ public class Game
 
     public ICollection<HistoricalPrice> HistoricalPrices { get; set; } = new List<HistoricalPrice>();
     public ICollection<GameFile> GameFiles { get; set; } = new List<GameFile>();
+    public ICollection<Order> Orders { get; set; } = new List<Order>();
 }

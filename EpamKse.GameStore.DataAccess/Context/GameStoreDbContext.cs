@@ -14,6 +14,7 @@ public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : 
     public DbSet<Genre> Genres { get; set; }
     public DbSet<Publisher> Publishers { get; set; }
     public DbSet<HistoricalPrice> HistoricalPrices { get; set; }
+    public DbSet<Order> Orders { get; set; }
     public DbSet<GameFile> GameFiles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
