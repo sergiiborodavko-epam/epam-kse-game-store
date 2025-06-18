@@ -27,6 +27,7 @@ public class GameConfiguration : IEntityTypeConfiguration<Game> {
         builder
             .HasMany(g => g.HistoricalPrices)
             .WithOne(hs => hs.Game);
+            
         builder
             .HasMany(g => g.Platforms)
             .WithMany(p => p.Games)
@@ -36,6 +37,12 @@ public class GameConfiguration : IEntityTypeConfiguration<Game> {
             .HasOne(g => g.Publisher)
             .WithMany(p => p.Games)
             .HasForeignKey(g => g.PublisherId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder
+            .HasMany(g => g.GameFiles)
+            .WithOne()
+            .HasForeignKey(gf => gf.GameId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(g => g.GenreIds)

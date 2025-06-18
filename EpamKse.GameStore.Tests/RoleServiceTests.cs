@@ -7,8 +7,9 @@ using EpamKse.GameStore.Domain.Exceptions.User;
 using EpamKse.GameStore.Services.Services.Role;
 using Moq;
 using Xunit;
+using Assert = Xunit.Assert;
 
-namespace EpamKse.GameStore.Services.Tests.Services;
+namespace EpamKse.GameStore.Tests;
 
 public class RoleServiceTests
 {

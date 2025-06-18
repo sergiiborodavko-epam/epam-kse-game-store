@@ -4,27 +4,26 @@ namespace EpamKse.GameStore.DataAccess.Context;
 
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+
 using Domain.Entities;
 
-public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : DbContext(options)
-{
+public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : DbContext(options) {
     public DbSet<Game> Games { get; set; } = null!;
     public DbSet<User> Users { get; set; }
     public DbSet<Platform> Platforms { get; set; }
     public DbSet<Genre> Genres { get; set; }
     public DbSet<Publisher> Publishers { get; set; }
-
     public DbSet<HistoricalPrice> HistoricalPrices { get; set; }
     public DbSet<Order> Orders { get; set; }
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
+    public DbSet<GameFile> GameFiles { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         SeedData(modelBuilder);
     }
 
-    private static void SeedData(ModelBuilder modelBuilder)
-    {
+    private static void SeedData(ModelBuilder modelBuilder) {
         modelBuilder.Entity<Game>().HasData(
             new Game
             {
@@ -66,7 +65,15 @@ public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : 
             "$argon2id$v=19$m=65536,t=3,p=1$hIWcROP/j0uU/PceT+/jHw$Kn1RHnAoDdMitEPzaT43//MwsEDJMwAjEPr8liXCHrM";
         
         modelBuilder.Entity<User>().HasData(
-            new User { Id = 1, Role = Roles.Admin, CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc), Email = "admin@example.com", UserName = "admin", FullName = "admin", PasswordHash = adminPass }
+            new User { 
+                Id = 1, 
+                Role = Roles.Admin, 
+                CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc), 
+                Email = "admin@example.com", 
+                UserName = "admin", 
+                FullName = "admin", 
+                PasswordHash = adminPass 
+            }
         );
     }
 }
