@@ -12,17 +12,25 @@ using Assert = Xunit.Assert;
 
 namespace EpamKse.GameStore.Tests;
 
+using DataAccess.Repositories.GameBan;
+using DataAccess.Repositories.User;
+
 public class OrderServiceTests
 {
     private readonly Mock<IOrderRepository> _orderRepositoryMock;
     private readonly Mock<IGameRepository> _gameRepositoryMock;
+    private readonly Mock<IGameBanRepository> _gameBanRepositoryMock;
+    private readonly Mock<IUserRepository> _userRepositoryMock;
     private readonly OrderService _orderService;
 
     public OrderServiceTests()
     {
         _orderRepositoryMock = new Mock<IOrderRepository>();
         _gameRepositoryMock = new Mock<IGameRepository>();
-        _orderService = new OrderService(_orderRepositoryMock.Object, _gameRepositoryMock.Object);
+        _userRepositoryMock = new Mock<IUserRepository>();
+        _gameBanRepositoryMock = new Mock<IGameBanRepository>();
+        _orderService = new OrderService(_orderRepositoryMock.Object, _gameRepositoryMock.Object, 
+            _userRepositoryMock.Object, _gameBanRepositoryMock.Object);
     }
 
     [Fact]

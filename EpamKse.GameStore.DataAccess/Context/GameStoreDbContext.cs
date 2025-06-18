@@ -1,13 +1,13 @@
-using EpamKse.GameStore.Domain.Enums;
-
 namespace EpamKse.GameStore.DataAccess.Context;
 
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 
 using Domain.Entities;
+using Domain.Enums;
 
-public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : DbContext(options) {
+public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : DbContext(options)
+{
     public DbSet<Game> Games { get; set; } = null!;
     public DbSet<User> Users { get; set; }
     public DbSet<Platform> Platforms { get; set; }
@@ -16,6 +16,7 @@ public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : 
     public DbSet<HistoricalPrice> HistoricalPrices { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<GameFile> GameFiles { get; set; }
+    public DbSet<GameBan> GameBans { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
@@ -66,7 +67,8 @@ public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : 
                 Email = "admin@example.com", 
                 UserName = "admin", 
                 FullName = "admin", 
-                PasswordHash = adminPass 
+                PasswordHash = adminPass,
+                Country = Countries.UA
             }
         );
     }

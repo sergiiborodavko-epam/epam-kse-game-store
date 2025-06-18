@@ -11,11 +11,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Game;
 using Genre;
 using GameFile;
+using GameBan;
 
 public static class RepositoryRegistry {
     public static void AddRepositories(this IServiceCollection services) {
         services.AddScoped<IGenreRepository, GenreRepository>();
         services.AddScoped<IGameFileRepository, GameFileRepository>();
+        services.AddScoped<IGameBanRepository, GameBanRepository>();
         services.AddScoped<IGameRepository, GameRepository>();
         services.AddScoped<IPublisherRepository, PublisherRepository>();
         services.AddScoped<IPlatformRepository, PlatformRepository>();

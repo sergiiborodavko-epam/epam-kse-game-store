@@ -1,6 +1,7 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace EpamKse.GameStore.Domain.DTO.Auth;
+
+using System.ComponentModel.DataAnnotations;
+using Enums;
 
 public class RegisterDTO
 {
@@ -24,4 +25,7 @@ public class RegisterDTO
     [MinLength(3, ErrorMessage = "FullName must be at least 3 characters.")]
     [MaxLength(30, ErrorMessage = "FullName can't be longer than 30 characters.")]
     public string FullName { get; set; }
+    
+    [Required(ErrorMessage = "Country is required.")]
+    public Countries Country { get; set; }
 }

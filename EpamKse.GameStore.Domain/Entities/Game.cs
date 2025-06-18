@@ -1,7 +1,6 @@
 ﻿namespace EpamKse.GameStore.Domain.Entities;
 
-public class Game
-{
+public class Game {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
@@ -16,4 +15,5 @@ public class Game
     public ICollection<HistoricalPrice> HistoricalPrices { get; set; } = new List<HistoricalPrice>();
     public ICollection<GameFile> GameFiles { get; set; } = new List<GameFile>();
     public ICollection<Order> Orders { get; set; } = new List<Order>();
+    public ICollection<GameBan> GameBans { get; set; } = new List<GameBan>();
 }
