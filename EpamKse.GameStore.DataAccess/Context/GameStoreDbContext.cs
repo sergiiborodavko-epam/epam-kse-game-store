@@ -26,8 +26,14 @@ public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : 
 
     private static void SeedData(ModelBuilder modelBuilder) {
         modelBuilder.Entity<Game>().HasData(
-            new Game { Id = 1, Title = "Game 1", Description = "Description for Game 1", Price = 49.99m, GenreIds = [1, 2, 4] },
-            new Game { Id = 2, Title = "Game 2", Description = "Description for Game 2", Price = 59.99m, GenreIds = [11, 13] }
+            new Game
+            {
+                Id = 1, Title = "Game 1", Description = "Description for Game 1", Price = 49.99m, GenreIds = [1, 2, 4], Stock = 12
+            },
+            new Game
+            {
+                Id = 2, Title = "Game 2", Description = "Description for Game 2", Price = 59.99m, GenreIds = [11, 13], Stock = 12
+            }
         );
 
         modelBuilder.Entity<Platform>().HasData(

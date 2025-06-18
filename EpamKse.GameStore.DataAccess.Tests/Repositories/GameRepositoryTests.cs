@@ -58,6 +58,7 @@ public class GameRepositoryTests : BaseRepositoryTests {
             Title = "New Game",
             Description = "New Description",
             Price = 39.99m,
+            Stock = 12,
             ReleaseDate = new DateTime(2023, 3, 1),
             GenreIds = [1, 3] // Strategy and Action
         };

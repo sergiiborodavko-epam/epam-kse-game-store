@@ -72,6 +72,7 @@ public class OrderService : IOrderService {
         foreach (var game in games)
         {
             order.Games.Add(game);
+            game.Stock--;
         }
         
         order.TotalSum = CalcTotalSum(games);
@@ -87,7 +88,10 @@ public class OrderService : IOrderService {
         {
             throw new OrderNotFoundException(id);
         }
-
+        foreach (var oldGame in order.Games)
+        {
+            oldGame.Stock++;
+        }
         order.Status = dto.Status ?? order.Status;
         if (dto.GameIds != null)
         {
@@ -99,6 +103,7 @@ public class OrderService : IOrderService {
             foreach (var game in games)
             {
                 order.Games.Add(game);
+                game.Stock--;
             }
         
             order.TotalSum = CalcTotalSum(games);
@@ -115,6 +120,11 @@ public class OrderService : IOrderService {
         {
             throw new OrderNotFoundException(id);
         }
+        foreach (var game in order.Games)
+        {
+            game.Stock++;
+        }
+
         await _orderRepository.DeleteAsync(order);
         return order;
     }
@@ -128,6 +138,10 @@ public class OrderService : IOrderService {
             if (game == null)
             {
                 throw new GameNotFoundException(gameId);
+            }
+            if (game.Stock<=0)
+            {
+                throw new NoGamesLeftException(game.Id);
             }
             games.Add(game);
         }

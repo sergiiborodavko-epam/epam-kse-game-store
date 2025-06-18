@@ -59,6 +59,7 @@ public class HistoricalPriceTest
             Title = "Game A",
             Price = 100,
             Description = "A",
+            Stock = 12,
             PublisherId = publisher.Id,
             ReleaseDate = DateTime.UtcNow
         };
@@ -87,6 +88,7 @@ public class HistoricalPriceTest
             Title = "Game B",
             Price = 200,
             Description = "start",
+            Stock = 12,
             PublisherId = publisher.Id,
             ReleaseDate = DateTime.UtcNow
         };
@@ -97,6 +99,7 @@ public class HistoricalPriceTest
         {
             Title = "Game B",
             Price = 250,
+            Stock = 12,
             Description = "Updated",
             PublisherId = publisher.Id,
             ReleaseDate = DateTime.UtcNow
@@ -126,6 +129,7 @@ public class HistoricalPriceTest
         {
             Title = "Game C",
             Price = 300,
+            Stock = 12,
             Description = "original",
             PublisherId = publisher.Id,
             ReleaseDate = DateTime.UtcNow
@@ -136,6 +140,7 @@ public class HistoricalPriceTest
         {
             Title = "Game C",
             Price = 300,
+            Stock = 12,
             Description = "still original",
             PublisherId = publisher.Id,
             ReleaseDate = DateTime.UtcNow

@@ -8,4 +8,5 @@ public class GameViewDto
     public decimal Price { get; set; }
     public DateTime ReleaseDate { get; set; }
     public List<int> GenreIds { get; set; }
+    public int Stock { get; set; }
 }

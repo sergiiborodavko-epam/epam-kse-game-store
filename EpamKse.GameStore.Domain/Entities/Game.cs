@@ -11,7 +11,7 @@ public class Game {
     public int? PublisherId { get; set; }
     public Publisher Publisher { get; set; }
     public ICollection<Platform> Platforms { get; set; } = new List<Platform>();
-
+    public int Stock { get; set; }
     public ICollection<HistoricalPrice> HistoricalPrices { get; set; } = new List<HistoricalPrice>();
     public ICollection<GameFile> GameFiles { get; set; } = new List<GameFile>();
     public ICollection<Order> Orders { get; set; } = new List<Order>();

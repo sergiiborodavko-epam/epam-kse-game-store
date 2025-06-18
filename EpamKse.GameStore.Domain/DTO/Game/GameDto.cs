@@ -25,4 +25,7 @@ public class GameDto
 
     [Range(1, int.MaxValue, ErrorMessage = "Publisher ID must be greater than 0")]
     public int PublisherId { get; set; }
+    
+    [Range(1, int.MaxValue, ErrorMessage = "Stock must be at least 1")]
+    public int Stock { get; set; }
 }

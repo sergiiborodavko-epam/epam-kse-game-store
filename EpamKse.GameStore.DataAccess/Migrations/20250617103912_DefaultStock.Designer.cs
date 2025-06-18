@@ -4,6 +4,7 @@ using EpamKse.GameStore.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EpamKse.GameStore.DataAccess.Migrations
 {
     [DbContext(typeof(GameStoreDbContext))]
-    partial class GameStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250617103912_DefaultStock")]
+    partial class DefaultStock
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,79 +86,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                             Stock = 12,
                             Title = "Game 2"
                         });
-                });
-
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.GameBan", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<int>("GameId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GameId", "Country")
-                        .IsUnique();
-
-                    b.ToTable("GameCountryBans", (string)null);
-                });
-
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.GameFile", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FileExtension")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("GameId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PlatformId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UploadedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GameId", "PlatformId")
-                        .IsUnique();
-
-                    b.ToTable("GameFiles", (string)null);
                 });
 
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Genre", b =>
@@ -408,9 +338,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Country")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -444,7 +371,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                         new
                         {
                             Id = 1,
-                            Country = 0,
                             CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@example.com",
                             FullName = "admin",
@@ -507,26 +433,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Publisher");
-                });
-
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.GameBan", b =>
-                {
-                    b.HasOne("EpamKse.GameStore.Domain.Entities.Game", "Game")
-                        .WithMany("GameBans")
-                        .HasForeignKey("GameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Game");
-                });
-
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.GameFile", b =>
-                {
-                    b.HasOne("EpamKse.GameStore.Domain.Entities.Game", null)
-                        .WithMany("GameFiles")
-                        .HasForeignKey("GameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Genre", b =>
@@ -608,10 +514,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
 
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Game", b =>
                 {
-                    b.Navigation("GameBans");
-
-                    b.Navigation("GameFiles");
-
                     b.Navigation("HistoricalPrices");
                 });
 
