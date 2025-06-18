@@ -11,7 +11,7 @@ using Domain.Entities;
 using Services.Helpers.Auth;
 using DataAccess.Context;
 
-
+using Domain.Exceptions.GameBan;
 
 public class AuthServiceTests
 {
@@ -46,7 +46,8 @@ public class AuthServiceTests
             Email = "test@example.com",
             Password = "Test123!",
             FullName = "FullName",
-            UserName = "UserName"
+            UserName = "UserName",
+            Country = "UA"
         };
 
         var (accessToken, refreshToken) = await _authService.Register(dto);
@@ -56,7 +57,8 @@ public class AuthServiceTests
 
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
         Assert.IsNotNull(user);
-        Assert.AreEqual("UserName", user.UserName);
+        Assert.That(user.UserName, Is.EqualTo("UserName"));
+        Assert.That(user.Country, Is.EqualTo(Countries.UA));
     }
 
     [Test]
@@ -68,7 +70,8 @@ public class AuthServiceTests
             PasswordHash = "hashed",
             FullName = "FullName",
             UserName = "UserName",
-            Role = Roles.Customer
+            Role = Roles.Customer,
+            Country = Countries.UA
         };
         await _dbContext.Users.AddAsync(existingUser);
         await _dbContext.SaveChangesAsync();
@@ -78,11 +81,29 @@ public class AuthServiceTests
             Email = "test@example.com",
             Password = "Test123!",
             FullName = "FullName",
-            UserName = "UserName"
+            UserName = "UserName",
+            Country = "UA"
         };
 
         var ex = Assert.ThrowsAsync<UserAlreadyExistsException>(() => _authService.Register(dto));
         Assert.That(ex.Message, Is.EqualTo("User already exists."));
+    }
+
+    [Test]
+    public Task Register_InvalidCountry_ThrowsInvalidCountryException()
+    {
+        var dto = new RegisterDTO
+        {
+            Email = "test@example.com",
+            Password = "Test123!",
+            FullName = "FullName",
+            UserName = "UserName",
+            Country = "INVALID"
+        };
+
+        var ex = Assert.ThrowsAsync<InvalidCountryException>(() => _authService.Register(dto));
+        Assert.That(ex.Message, Contains.Substring("Invalid country: INVALID"));
+        return Task.CompletedTask;
     }
 
     [Test]
@@ -96,7 +117,8 @@ public class AuthServiceTests
             PasswordHash = hashed,
             FullName = "FullName",
             UserName = "UserName",
-            Role = Roles.Customer
+            Role = Roles.Customer,
+            Country = Countries.US
         };
         await _dbContext.Users.AddAsync(user);
         await _dbContext.SaveChangesAsync();
@@ -124,7 +146,8 @@ public class AuthServiceTests
             PasswordHash = hashed,
             FullName = "FullName",
             UserName = "UserName",
-            Role = Roles.Customer
+            Role = Roles.Customer,
+            Country = Countries.UA
         };
         await _dbContext.Users.AddAsync(user);
         await _dbContext.SaveChangesAsync();
@@ -147,7 +170,8 @@ public class AuthServiceTests
             PasswordHash = "331rf",
             FullName = "FullName",
             UserName = "UserName",
-            Role = Roles.Customer
+            Role = Roles.Customer,
+            Country = Countries.GB
         };
         await _dbContext.Users.AddAsync(user);
         await _dbContext.SaveChangesAsync();

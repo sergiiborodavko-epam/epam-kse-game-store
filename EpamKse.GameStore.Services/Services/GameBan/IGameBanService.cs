@@ -6,7 +6,7 @@ using Domain.Enums;
 public interface IGameBanService {
     Task<IEnumerable<GameBanDto>> GetAllBansAsync();
     Task<GameBanDto> GetBanByIdAsync(int id);
-    Task<IEnumerable<GameBanDto>> GetBansByCountryAsync(Countries country);
+    Task<IEnumerable<GameBanDto>> GetBansByCountryAsync(string country);
     Task<GameBanDto> CreateBanAsync(CreateGameBanDto dto);
     Task DeleteBanAsync(int id);
 }

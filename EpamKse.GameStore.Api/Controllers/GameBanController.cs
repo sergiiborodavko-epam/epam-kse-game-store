@@ -24,7 +24,7 @@ public class GameBanController(IGameBanService banService) : ControllerBase {
     }
 
     [HttpGet("country/{country}")]
-    public async Task<IActionResult> GetBansByCountry(Countries country) {
+    public async Task<IActionResult> GetBansByCountry(string country) {
         var bans = await banService.GetBansByCountryAsync(country);
         return Ok(bans);
     }

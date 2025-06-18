@@ -7,7 +7,11 @@ public static class CountryHelper {
         return string.Join(", ", Enum.GetNames<Countries>());
     }
 
-    public static bool IsValidCountry(Countries country) {
-        return Enum.IsDefined(typeof(Countries), country);
+    public static bool IsValidCountry(string country) {
+        return Enum.TryParse<Countries>(country, true, out _);
+    }
+
+    public static Countries ParseCountry(string country) {
+        return Enum.Parse<Countries>(country, true);
     }
 }

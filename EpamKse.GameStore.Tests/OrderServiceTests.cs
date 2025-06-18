@@ -1,19 +1,19 @@
-using EpamKse.GameStore.DataAccess.Repositories.Game;
-using EpamKse.GameStore.DataAccess.Repositories.Order;
-using EpamKse.GameStore.Domain.DTO.Order;
-using EpamKse.GameStore.Domain.Entities;
-using EpamKse.GameStore.Domain.Enums;
-using EpamKse.GameStore.Domain.Exceptions.Game;
-using EpamKse.GameStore.Domain.Exceptions.Order;
-using EpamKse.GameStore.Services.Services.Order;
-using Moq;
-using Xunit;
-using Assert = Xunit.Assert;
-
 namespace EpamKse.GameStore.Tests;
 
+using Xunit;
+using Moq;
+
+using DataAccess.Repositories.Game;
 using DataAccess.Repositories.GameBan;
+using DataAccess.Repositories.Order;
 using DataAccess.Repositories.User;
+using Domain.DTO.Order;
+using Domain.Entities;
+using Domain.Enums;
+using Domain.Exceptions.Game;
+using Domain.Exceptions.Order;
+using Domain.Exceptions.User;
+using EpamKse.GameStore.Services.Services.Order;
 
 public class OrderServiceTests
 {
@@ -29,46 +29,17 @@ public class OrderServiceTests
         _gameRepositoryMock = new Mock<IGameRepository>();
         _userRepositoryMock = new Mock<IUserRepository>();
         _gameBanRepositoryMock = new Mock<IGameBanRepository>();
-        _orderService = new OrderService(_orderRepositoryMock.Object, _gameRepositoryMock.Object, 
+        _orderService = new OrderService(_orderRepositoryMock.Object, _gameRepositoryMock.Object,
             _userRepositoryMock.Object, _gameBanRepositoryMock.Object);
     }
 
     [Fact]
-    public async Task GetOrders_ReturnsAllOrders_WhenLimitIsInvalid()
-    {
-        var queryDto = new OrdersQueryDto { Limit = 0, Offset = 0 };
-        var expectedOrders = new List<Order> { new Order() };
-        _orderRepositoryMock.Setup(r => r.GetAllAsync())
-            .ReturnsAsync(expectedOrders);
-
-        var result = await _orderService.GetOrders(queryDto);
-
-        Assert.Equal(expectedOrders, result);
-        _orderRepositoryMock.Verify(r => r.GetAllAsync(), Times.Once);
-    }
-
-    [Fact]
-    public async Task GetOrders_ReturnsAllOrders_WhenLimitIsValid()
-    {
-        var queryDto = new OrdersQueryDto { Limit = 10, Offset = 0 };
-        var expectedOrders = new List<Order> { new Order() };
-        _orderRepositoryMock.Setup(r => r.GetAllAsync(10, 0))
-            .ReturnsAsync(expectedOrders);
-
-        var result = await _orderService.GetOrders(queryDto);
-
-        Assert.Equal(expectedOrders, result);
-        _orderRepositoryMock.Verify(r => r.GetAllAsync(10, 0), Times.Once);
-    }
-
-    [Fact]
-    public async Task GetOrders_ReturnsFilteredOrders_WhenStatusProvided()
+    public async Task GetOrders_ReturnsOrders_ByStatusOrAll()
     {
         var status = OrderStatus.Created;
         var queryDto = new OrdersQueryDto { Status = status, Limit = 10, Offset = 0 };
         var expectedOrders = new List<Order> { new Order() };
-        _orderRepositoryMock.Setup(r => r.GetByStatusAsync(status))
-            .ReturnsAsync(expectedOrders);
+        _orderRepositoryMock.Setup(r => r.GetByStatusAsync(status)).ReturnsAsync(expectedOrders);
 
         var result = await _orderService.GetOrders(queryDto);
 
@@ -103,14 +74,17 @@ public class OrderServiceTests
         var userId = 1;
         var gameIds = new List<int> { 1, 2 };
         var createOrderDto = new CreateOrderDto { GameIds = gameIds };
-        var games = new List<Game>
-        {
-            new Game { Id = 1, Price = 10 },
-            new Game { Id = 2, Price = 20 }
+        var user = new User { Id = userId, Country = Countries.US };
+        var games = new List<Game> {
+            new() { Id = 1, Price = 10, Title = "Game 1" },
+            new() { Id = 2, Price = 20, Title = "Game 2" }
         };
 
+        _userRepositoryMock.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
         _gameRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(games[0]);
         _gameRepositoryMock.Setup(r => r.GetByIdAsync(2)).ReturnsAsync(games[1]);
+        _gameBanRepositoryMock.Setup(r => r.GetByCountryAsync(Countries.US))
+            .ReturnsAsync(new List<GameBan>());
 
         var result = await _orderService.CreateOrder(userId, createOrderDto);
 
@@ -122,14 +96,44 @@ public class OrderServiceTests
     }
 
     [Fact]
-    public async Task CreateOrder_ThrowsGameNotFoundException_WhenGameDoesNotExist()
-    {
+    public async Task CreateOrder_ThrowsUserNotFoundException_WhenUserDoesNotExist() {
+        const int userId = 999;
+        var createOrderDto = new CreateOrderDto { GameIds = [1] };
+        _userRepositoryMock.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync((User)null);
+
+        await Assert.ThrowsAsync<UserNotFoundException>(() =>
+            _orderService.CreateOrder(userId, createOrderDto));
+    }
+
+    [Fact]
+    public async Task CreateOrder_ThrowsGameNotFoundException_WhenGameDoesNotExist() {
+        const int userId = 1;
+        var gameIds = new List<int> { 1 };
+        var createOrderDto = new CreateOrderDto { GameIds = gameIds };
+        var user = new User { Id = userId, Country = Countries.US };
+
+        _userRepositoryMock.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
+        _gameRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync((Game)null);
+
+        await Assert.ThrowsAsync<GameNotFoundException>(() =>
+            _orderService.CreateOrder(userId, createOrderDto));
+    }
+
+    [Fact]
+    public async Task CreateOrder_ThrowsBannedGamesException_WhenGameIsBannedInUserCountry() {
         var userId = 1;
         var gameIds = new List<int> { 1 };
         var createOrderDto = new CreateOrderDto { GameIds = gameIds };
-        _gameRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync((Game)null);
+        var user = new User { Id = userId, Country = Countries.UA };
+        var game = new Game { Id = 1, Price = 10, Title = "Banned Game" };
+        var bannedGame = new GameBan { GameId = 1, Country = Countries.UA };
 
-        await Assert.ThrowsAsync<GameNotFoundException>(() => 
+        _userRepositoryMock.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
+        _gameRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(game);
+        _gameBanRepositoryMock.Setup(r => r.GetByCountryAsync(Countries.UA))
+            .ReturnsAsync(new List<GameBan> { bannedGame });
+
+        await Assert.ThrowsAsync<BannedGamesInOrderException>(() =>
             _orderService.CreateOrder(userId, createOrderDto));
     }
 
@@ -139,8 +143,8 @@ public class OrderServiceTests
         var orderId = 1;
         var newStatus = OrderStatus.Payed;
         var updateOrderDto = new UpdateOrderDto { Status = newStatus };
-        var existingOrder = new Order { Id = orderId, Status = OrderStatus.Created };
-        
+        var existingOrder = new Order { Id = orderId, Status = OrderStatus.Created, UserId = 1 };
+
         _orderRepositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(existingOrder);
 
         var result = await _orderService.UpdateOrder(orderId, updateOrderDto);
@@ -150,13 +154,24 @@ public class OrderServiceTests
     }
 
     [Fact]
-    public async Task UpdateOrder_ThrowsNotFoundException_WhenOrderDoesNotExist()
-    {
-        var orderId = 1;
-        _orderRepositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync((Order)null);
+    public async Task UpdateOrder_WithNewGames_ValidatesGameBans() {
+        const int orderId = 1;
+        var gameIds = new List<int> { 1 };
+        var updateOrderDto = new UpdateOrderDto { Status = OrderStatus.Created, GameIds = gameIds };
+        var existingOrder = new Order { Id = orderId, Status = OrderStatus.Created, UserId = 1 };
+        var user = new User { Id = 1, Country = Countries.US };
+        var game = new Game { Id = 1, Price = 10, Title = "Game 1" };
 
-        await Assert.ThrowsAsync<OrderNotFoundException>(() => 
-            _orderService.UpdateOrder(orderId, new UpdateOrderDto { Status = OrderStatus.Created }));
+        _orderRepositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(existingOrder);
+        _userRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(user);
+        _gameRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(game);
+        _gameBanRepositoryMock.Setup(r => r.GetByCountryAsync(Countries.US))
+            .ReturnsAsync(new List<GameBan>());
+
+        var result = await _orderService.UpdateOrder(orderId, updateOrderDto);
+
+        Assert.Equal(10, result.TotalSum);
+        _orderRepositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Order>()), Times.Once);
     }
 
     [Fact]

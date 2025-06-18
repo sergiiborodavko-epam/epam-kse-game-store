@@ -4,7 +4,6 @@ using DataAccess.Repositories.Game;
 using DataAccess.Repositories.GameBan;
 using Domain.DTO.GameBan;
 using Domain.Entities;
-using Domain.Enums;
 using Domain.Exceptions.Game;
 using Domain.Exceptions.GameBan;
 
@@ -35,12 +34,12 @@ public class GameBanService(IGameBanRepository banRepository, IGameRepository ga
         };
     }
 
-    public async Task<IEnumerable<GameBanDto>> GetBansByCountryAsync(Countries country) {
+    public async Task<IEnumerable<GameBanDto>> GetBansByCountryAsync(string country) {
         if (!CountryHelper.IsValidCountry(country)) {
-            throw new InvalidCountryException(country.ToString(), CountryHelper.GetValidCountries());
+            throw new InvalidCountryException(country, CountryHelper.GetValidCountries());
         }
     
-        var bans = await banRepository.GetByCountryAsync(country);
+        var bans = await banRepository.GetByCountryAsync(CountryHelper.ParseCountry(country));
 
         return bans.Select(b => new GameBanDto {
             Id = b.Id,
@@ -54,20 +53,22 @@ public class GameBanService(IGameBanRepository banRepository, IGameRepository ga
     public async Task<GameBanDto> CreateBanAsync(CreateGameBanDto dto) {
 
         if (!CountryHelper.IsValidCountry(dto.Country)) {
-            throw new InvalidCountryException(dto.Country.ToString(), CountryHelper.GetValidCountries());
+            throw new InvalidCountryException(dto.Country, CountryHelper.GetValidCountries());
         }
+        
+        var country = CountryHelper.ParseCountry(dto.Country);
         
         var game = await gameRepository.GetByIdAsync(dto.GameId);
         if (game == null) throw new GameNotFoundException(dto.GameId);
 
-        var existingBan = await banRepository.GetByGameAndCountryAsync(dto.GameId, dto.Country);
+        var existingBan = await banRepository.GetByGameAndCountryAsync(dto.GameId, country);
         if (existingBan != null) {
-            throw new BanAlreadyExistsException(dto.GameId, dto.Country.ToString());
+            throw new BanAlreadyExistsException(dto.GameId, dto.Country);
         }
 
         var ban = new GameBan {
             GameId = dto.GameId,
-            Country = dto.Country,
+            Country = country,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -82,11 +83,9 @@ public class GameBanService(IGameBanRepository banRepository, IGameRepository ga
         };
     }
 
-    public async Task DeleteBanAsync(int id)
-    {
+    public async Task DeleteBanAsync(int id) {
         var ban = await banRepository.GetByIdAsync(id);
-        if (ban == null)
-        {
+        if (ban == null) {
             throw new BanNotFoundException(id);
         }
 

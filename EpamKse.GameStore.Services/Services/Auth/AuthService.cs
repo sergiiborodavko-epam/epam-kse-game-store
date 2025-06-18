@@ -34,7 +34,7 @@ public class AuthService : IAuthService
     public async Task<(string, string)> Register(RegisterDTO registerDto)
     {
         if (!CountryHelper.IsValidCountry(registerDto.Country)) {
-            throw new InvalidCountryException(registerDto.Country.ToString(), CountryHelper.GetValidCountries());
+            throw new InvalidCountryException(registerDto.Country, CountryHelper.GetValidCountries());
         }
         
         if (await _dbContext.Users.AnyAsync(u => u.Email == registerDto.Email))
@@ -50,7 +50,7 @@ public class AuthService : IAuthService
             PasswordHash = hashedPassword,
             FullName = registerDto.FullName,
             Role = Roles.Customer,
-            Country = registerDto.Country
+            Country = CountryHelper.ParseCountry(registerDto.Country),
         };
         
         await _dbContext.Users.AddAsync(newUser);

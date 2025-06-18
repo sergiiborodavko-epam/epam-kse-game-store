@@ -1,7 +1,6 @@
 ﻿namespace EpamKse.GameStore.Domain.DTO.GameBan;
 
 using System.ComponentModel.DataAnnotations;
-using Enums;
 
 public class CreateGameBanDto {
     [Required(ErrorMessage = "Game ID is required")]
@@ -9,5 +8,7 @@ public class CreateGameBanDto {
     public int GameId { get; set; }
     
     [Required(ErrorMessage = "Country is required")]
-    public Countries Country { get; set; }
+    [MinLength(2, ErrorMessage = "Country must be at least 2 characters")]
+    [MaxLength(2, ErrorMessage = "Country must be exactly 2 characters")]
+    public string Country { get; set; } = string.Empty;
 }
