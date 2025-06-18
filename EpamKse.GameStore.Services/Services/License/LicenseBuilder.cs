@@ -1,28 +1,25 @@
 using System.Text;
 
-namespace EpamKse.GameStore.Services.Helpers.License;
+namespace EpamKse.GameStore.Services.Services.License;
 using Domain.Entities;
 
-public class LicenseBuilder
+public class LicenseBuilder : ILicenseBuilder
 {
-    public LicenseBuilder(License license)
-    {
-        _license = license;
-    }
+    public LicenseBuilder() {}
 
-    public byte[] Build()
+    public byte[] Build(License license)
     {
-        var order = _license.Order;
+        var order = license.Order;
         var user = order.User;
         var gamesList = GetGamesList(order.Games);
         
-        var licenseTxt = _pattern.Replace("{licenseId}", _license.Id.ToString())
+        var licenseTxt = _pattern.Replace("{licenseId}", license.Id.ToString())
             .Replace("{orderId}", order.Id.ToString())
             .Replace("{userFullName}", user.FullName)
             .Replace("{userEmail}", user.Email)
             .Replace("{gamesList}", string.Join("\n", gamesList))
             .Replace("{orderTotalSum}", order.TotalSum.ToString())
-            .Replace("{licenseKey}", _license.Key);
+            .Replace("{licenseKey}", license.Key);
         
         return Encoding.UTF8.GetBytes(licenseTxt);
     }
@@ -40,7 +37,6 @@ public class LicenseBuilder
         return gamesTxt;
     }
     
-    private readonly License _license;
     private readonly string _pattern = """
                           License №{licenseId} for order №{orderId}
                           Owner: {userFullName}

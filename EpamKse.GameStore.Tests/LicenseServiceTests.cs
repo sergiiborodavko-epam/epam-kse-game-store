@@ -18,6 +18,7 @@ public class LicenseServiceTests
     private readonly Mock<ILicenseRepository> _licenseRepositoryMock;
     private readonly Mock<IEncryptionService> _encryptionServiceMock;
     private readonly Mock<IOrderRepository> _orderRepositoryMock;
+    private readonly Mock<ILicenseBuilder> _licenseBuilderMock;
     private readonly LicenseService _licenseService;
 
     public LicenseServiceTests()
@@ -25,7 +26,8 @@ public class LicenseServiceTests
         _licenseRepositoryMock = new Mock<ILicenseRepository>();
         _encryptionServiceMock = new Mock<IEncryptionService>();
         _orderRepositoryMock = new Mock<IOrderRepository>();
-        _licenseService = new LicenseService(_licenseRepositoryMock.Object, _encryptionServiceMock.Object, _orderRepositoryMock.Object);
+        _licenseBuilderMock = new Mock<ILicenseBuilder>();
+        _licenseService = new LicenseService(_licenseRepositoryMock.Object, _encryptionServiceMock.Object, _orderRepositoryMock.Object, _licenseBuilderMock.Object);;
     }
 
     [Fact]
@@ -68,12 +70,14 @@ public class LicenseServiceTests
                 TotalSum = 10
             }
         };
+        var expectedBytes = new byte[] { 1, 2, 3 };
+        
         _licenseRepositoryMock.Setup(r => r.GetByOrderIdAsync(orderId)).ReturnsAsync(license);
+        _licenseBuilderMock.Setup(b => b.Build(license)).Returns(expectedBytes);
 
         var result = await _licenseService.GenerateLicenseFileByOrderId(orderId);
 
-        Assert.NotNull(result);
-        Assert.True(result.Length > 0);
+        Assert.Equal(expectedBytes, result);
     }
 
     [Fact]
@@ -91,27 +95,27 @@ public class LicenseServiceTests
     {
         var userId = 1;
         var gameId = 1;
-        var licenses = new List<License>
+        var license = new License
         {
-            new()
+            Id = 1,
+            Key = "test_key",
+            Order = new Order
             {
                 Id = 1,
-                Key = "test_key",
-                Order = new Order
-                {
-                    Id = 1,
-                    User = new User { FullName = "Test User", Email = "test@example.com" },
-                    Games = new List<Game> { new() { Id = gameId, Title = "Game 1", Price = 10 } },
-                    TotalSum = 10
-                }
+                User = new User { FullName = "Test User", Email = "test@example.com" },
+                Games = new List<Game> { new() { Id = gameId, Title = "Game 1", Price = 10 } },
+                TotalSum = 10
             }
         };
-        _licenseRepositoryMock.Setup(r => r.GetByUserIdAsync(userId)).ReturnsAsync(licenses);
+        var expectedBytes = new byte[] { 1, 2, 3 };
+        
+        _licenseRepositoryMock.Setup(r => r.GetByUserIdAsync(userId))
+            .ReturnsAsync(new List<License> { license });
+        _licenseBuilderMock.Setup(b => b.Build(license)).Returns(expectedBytes);
 
         var result = await _licenseService.GenerateLicenseFileByGameId(userId, gameId);
 
-        Assert.NotNull(result);
-        Assert.True(result.Length > 0);
+        Assert.Equal(expectedBytes, result);
     }
 
     [Fact]

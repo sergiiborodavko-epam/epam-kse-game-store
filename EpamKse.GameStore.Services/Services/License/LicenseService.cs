@@ -6,7 +6,6 @@ using EpamKse.GameStore.DataAccess.Repositories.Order;
 using EpamKse.GameStore.Domain.DTO.License;
 using EpamKse.GameStore.Domain.Exceptions.License;
 using EpamKse.GameStore.Domain.Exceptions.Order;
-using EpamKse.GameStore.Services.Helpers.License;
 using EpamKse.GameStore.Services.Services.Encryption;
 
 namespace EpamKse.GameStore.Services.Services.License;
@@ -17,12 +16,14 @@ public class LicenseService : ILicenseService
     private readonly ILicenseRepository _licenseRepository;
     private readonly IEncryptionService _encryptionService;
     private readonly IOrderRepository _orderRepository;
+    private readonly ILicenseBuilder _licenseBuilder;
     
-    public LicenseService(ILicenseRepository licenseRepository, IEncryptionService encryptionService, IOrderRepository orderRepository)
+    public LicenseService(ILicenseRepository licenseRepository, IEncryptionService encryptionService, IOrderRepository orderRepository, ILicenseBuilder licenseBuilder)
     {
         _licenseRepository = licenseRepository;
         _encryptionService = encryptionService;
         _orderRepository = orderRepository;
+        _licenseBuilder = licenseBuilder;
     }
 
     public LicenseKey VerifyLicense(string key)
@@ -51,7 +52,7 @@ public class LicenseService : ILicenseService
             throw new LicenseNotFoundException($"No license for order id {orderId}");
         }
 
-        return new LicenseBuilder(license).Build();
+        return _licenseBuilder.Build(license);
     }
     
     public async Task<byte[]> GenerateLicenseFileByGameId(int userId, int gameId)
@@ -64,7 +65,7 @@ public class LicenseService : ILicenseService
             throw new LicenseNotFoundException($"No license for game id {gameId}");
         }
 
-        return new LicenseBuilder(license).Build();   
+        return _licenseBuilder.Build(license);   
     }
 
     public async Task<License> CreateLicense(CreateLicenseDto dto)

@@ -27,5 +27,6 @@ public static class ServiceRegistry {
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IEncryptionService, EncryptionService>();
         services.AddScoped<ILicenseService, LicenseService>();
+        services.AddSingleton<ILicenseBuilder, LicenseBuilder>();
     }
 }

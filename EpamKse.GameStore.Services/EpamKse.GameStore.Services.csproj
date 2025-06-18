@@ -15,4 +15,8 @@
       <ProjectReference Include="..\EpamKse.GameStore.DataAccess\EpamKse.GameStore.DataAccess.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Helpers\License\" />
+    </ItemGroup>
+
 </Project>
