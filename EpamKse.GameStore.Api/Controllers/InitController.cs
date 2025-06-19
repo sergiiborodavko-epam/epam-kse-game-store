@@ -4,13 +4,21 @@ using Microsoft.AspNetCore.Mvc;
 namespace EpamKse.GameStore.Api.Controllers;
 
 [ApiController]
+[AllowAnonymous]
 [Route("init")]
 public class InitController:ControllerBase
 {
-    [HttpGet]
-    [Authorize(AuthenticationSchemes = "Access")]
-    public IActionResult TestController()
+    [HttpGet("/healthcheck")]
+    public async Task<IActionResult> TestController()
     {
-        return Ok("start");
+        var httpClient = new HttpClient();
+        var response = await httpClient.GetAsync("http://gamestore-payment-service:5172/health");
+        return Ok(response.Content.ReadAsStringAsync().Result);
+    }
+    
+    [HttpGet("/sayhi")]
+    public IActionResult SayHi()
+    {
+        return Ok(new { message = "Hi!!!! I am up and running" });
     }
 }

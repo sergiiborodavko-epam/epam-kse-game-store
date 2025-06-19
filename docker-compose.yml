@@ -11,6 +11,26 @@
     volumes:
       - sqlserver_data:/var/opt/mssql
     restart: unless-stopped
+    
+  gamestore-api:
+    image: gamestore-api
+    build:
+      context: .
+      dockerfile: EpamKse.GameStore.Api/Dockerfile
+    env_file:
+      - EpamKse.GameStore.Api/.env
+    ports:
+      - "5186:5186"
+
+  gamestore-payment-service:
+    image: gamestore-payment-service
+    build:
+      context: .
+      dockerfile: EpamKse.GameStore.PaymentService/Dockerfile
+    ports:
+      - "5172:5172"
 
 volumes:
   sqlserver_data:
+  
+
