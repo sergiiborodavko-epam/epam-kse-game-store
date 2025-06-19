@@ -8,6 +8,7 @@ using Services.Services.Game;
 using Domain.DTO.Game;
 
 [ApiController]
+[Authorize(Policy = "UserPolicy")]
 [Route("api/games")]
 public class GamesController(IGameService gameService) : ControllerBase {
 

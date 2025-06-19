@@ -4,21 +4,28 @@ using Microsoft.AspNetCore.Mvc;
 namespace EpamKse.GameStore.Api.Controllers;
 
 [ApiController]
-[AllowAnonymous]
 [Route("init")]
+[AllowAnonymous]
+[Authorize(Policy = "ApikeyPolicy")]
 public class InitController:ControllerBase
 {
-    [HttpGet("/healthcheck")]
-    public async Task<IActionResult> TestController()
+    [HttpGet("/try-reach-payment-service")]
+    public async Task<IActionResult> SayHi()
     {
         var httpClient = new HttpClient();
-        var response = await httpClient.GetAsync("http://gamestore-payment-service:5172/health");
+        
+        var apiKey = Environment.GetEnvironmentVariable("PAYMENT_SERVICE_API_KEY")
+                     ?? throw new InvalidOperationException("PAYMENT_SERVICE_API_KEY environment variable is not set");
+        
+        httpClient.DefaultRequestHeaders.Add("X-API-KEY", apiKey);
+        
+        var response = await httpClient.GetAsync("http://gamestore-payment-service:5172/payment-service-health");
         return Ok(response.Content.ReadAsStringAsync().Result);
     }
     
-    [HttpGet("/sayhi")]
-    public IActionResult SayHi()
+    [HttpGet("/api-health")]
+    public async Task<IActionResult> TestController()
     {
-        return Ok("Hi!!!! I am up and running");
+        return Ok("Reached api");
     }
 }

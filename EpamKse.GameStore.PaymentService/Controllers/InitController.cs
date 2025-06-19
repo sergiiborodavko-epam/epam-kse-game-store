@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EpamKse.GameStore.PaymentService.Controllers;
@@ -6,19 +7,21 @@ namespace EpamKse.GameStore.PaymentService.Controllers;
 [Route("/")]
 public class InitController : ControllerBase
 {
-    public InitController() {}
-    
-    [HttpGet("/health")]
+    [HttpGet("/payment-service-health")]
     public IActionResult Health()
     {
-        return Ok("Healthy");
+        return Ok("Reached payment service");
     }
     
-    [HttpGet("/sayhi-from-api")]
+    [HttpGet("/try-reach-api")]
     public async Task<IActionResult> SayHi()
     {
         var httpClient = new HttpClient();
-        var response = await httpClient.GetAsync("http://gamestore-api:5186/sayhi");
+        var apiKey = Environment.GetEnvironmentVariable("PAYMENT_SERVICE_API_KEY")
+            ?? throw new InvalidOperationException("PAYMENT_SERVICE_API_KEY environment variable is not set");
+        
+        httpClient.DefaultRequestHeaders.Add("X-API-KEY", apiKey);
+        var response = await httpClient.GetAsync("http://gamestore-api:5186/api-health");
         if (response.IsSuccessStatusCode)
         {
             return Ok(response.Content.ReadAsStringAsync().Result);

@@ -10,9 +10,9 @@ using EpamKse.GameStore.DataAccess.Repositories;
 using EpamKse.GameStore.Services.Services;
 using EpamKse.GameStore.Api.Filters;
 using EpamKse.GameStore.DataAccess.Context;
+using EpamKse.GameStore.Domain.Policies;
 using EpamKse.GameStore.Domain.Profiles;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
 
 Env.Load();
 
@@ -27,7 +27,6 @@ builder.Services.AddDbContext<GameStoreDbContext>(options =>
 builder.Services.AddAutoMapper(typeof(OrderProfile).Assembly);
 builder.Services.AddControllers(options => {
     options.Filters.Add<CustomHttpExceptionFilter>();
-    options.Filters.Add(new AuthorizeFilter());
 }).AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -72,9 +71,16 @@ builder.Services.AddAuthentication()
         };
     });
 
+builder.Services.AddSingleton<IAuthorizationHandler, ApikeyHandler>();
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddAuthorization(options =>
 {
-    options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+    options.AddPolicy("UserPolicy", policy => policy.RequireAuthenticatedUser());
+    
+    var apiKey = Environment.GetEnvironmentVariable("PAYMENT_SERVICE_API_KEY") 
+                 ?? throw new InvalidOperationException("PAYMENT_SERVICE_API_KEY environment variable is not set");
+    options.AddPolicy("ApikeyPolicy", policy => policy.Requirements.Add(new ApikeyRequirement(apiKey)));
 });
 
 var app = builder.Build();
