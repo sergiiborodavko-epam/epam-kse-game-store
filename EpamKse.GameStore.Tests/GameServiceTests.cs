@@ -51,7 +51,7 @@ public class GameServiceTests
 
         var publisher = await _pubService.CreatePublisher(createPublisher);
 
-        var game = new Game { Title = "TestGame", Price = 10 };
+        var game = new Game { Title = "TestGame", Price = 10, Stock = 12 };
         await _dbContext.Games.AddAsync(game);
         await _dbContext.SaveChangesAsync();
 
@@ -81,7 +81,7 @@ public class GameServiceTests
     [Fact]
     public async Task SetPublisherToGame_ShouldThrow_WhenPublisherNotFound()
     {
-        var game = new Game { Title = "GameOnly", Price = 20 };
+        var game = new Game { Title = "GameOnly", Price = 20, Stock = 12 };
         await _dbContext.Games.AddAsync(game);
         await _dbContext.SaveChangesAsync();
 
@@ -105,6 +105,7 @@ public class GameServiceTests
             Title = "Game",
             Description = "Descr",
             Price = 10,
+            Stock = 12,
             PublisherId = publisher.Id
         };
         var createdGame = await _gameService.CreateGameAsync(gameDto);
@@ -139,6 +140,7 @@ public class GameServiceTests
             Title = "Update Me",
             Description = "Old description",
             Price = 49,
+            Stock = 12,
             PublisherId = oldPublisher.Id,
         };
         var createdGame = await _gameService.CreateGameAsync(game);
@@ -146,6 +148,7 @@ public class GameServiceTests
         var updateDto = new GameDto
         {
             Title = "Update Me",
+            Stock = 12,
             PublisherId = newPublisher.Id,
             Price = 49
         };
@@ -170,6 +173,7 @@ public class GameServiceTests
             Title = "Update Me",
             Description = "Old description",
             Price = 49,
+            Stock = 12,
             PublisherId = publisher.Id,
         };
         var createdGame = await _gameService.CreateGameAsync(game);
@@ -178,6 +182,7 @@ public class GameServiceTests
         {
             Title = "Update Me",
             PublisherId = 11111,
+            Stock = 12,
             Price = 49
         };
         await Assert.ThrowsAsync<PublisherNotFoundException>(() =>
@@ -191,6 +196,7 @@ public class GameServiceTests
         var gameDto = new GameDto
         {
             Title = "Game",
+            Stock = 12,
             Description = "Descr",
             Price = 10,
             PublisherId = 22
@@ -198,4 +204,55 @@ public class GameServiceTests
         await Assert.ThrowsAsync<PublisherNotFoundException>(() =>
             _gameService.CreateGameAsync(gameDto));
     }
+
+
+    [Fact]
+    public async Task CreateGameAsyncWithStock_ShouldBeEqualToTwelve()
+    {
+        var createPublisher = new CreatePublisherDTO
+        {
+            Name = "Initial Publisher",
+            Description = "Publisher for old game",
+            HomePageUrl = "https://old.com"
+        };
+        var publisher = await _pubService.CreatePublisher(createPublisher);
+        var gameDto = new GameDto
+        {
+            Title = "Game",
+            Stock = 12,
+            Description = "Descr",
+            Price = 10,
+            PublisherId = publisher.Id
+        };
+        var createdGame = await _gameService.CreateGameAsync(gameDto);
+        Assert.Equal(createdGame.Stock, 12);
+    }
+    
+    
+    [Fact]
+    public async Task CreateGameAsyncWithStock_ChnageStockValue_ShouldBeEqualToTwelve()
+    {
+        var createPublisher = new CreatePublisherDTO
+        {
+            Name = "Initial Publisher",
+            Description = "Publisher for old game",
+            HomePageUrl = "https://old.com"
+        };
+        var publisher = await _pubService.CreatePublisher(createPublisher);
+        var gameDto = new GameDto
+        {
+            Title = "Game",
+            Stock = 12,
+            Description = "Descr",
+            Price = 10,
+            PublisherId = publisher.Id
+        };
+        var createdGame = await _gameService.CreateGameAsync(gameDto);
+
+
+        var finalStock = await _gameService.SetGameStock(new SetStockDto { NewStock = 34, GameId = createdGame.Id });
+        Assert.Equal(finalStock, 34);
+    }
+    
+    
 }

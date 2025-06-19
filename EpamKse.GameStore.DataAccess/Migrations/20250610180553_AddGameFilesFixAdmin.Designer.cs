@@ -4,6 +4,7 @@ using EpamKse.GameStore.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EpamKse.GameStore.DataAccess.Migrations
 {
     [DbContext(typeof(GameStoreDbContext))]
-    partial class GameStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250610180553_AddGameFilesFixAdmin")]
+    partial class AddGameFilesFixAdmin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,9 +51,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Stock")
-                        .HasColumnType("int");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -70,7 +70,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                             GenreIds = "1,2,4",
                             Price = 49.99m,
                             ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Stock = 12,
                             Title = "Game 1"
                         },
                         new
@@ -80,7 +79,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                             GenreIds = "11,13",
                             Price = 59.99m,
                             ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Stock = 12,
                             Title = "Game 2"
                         });
                 });
@@ -266,59 +264,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                     b.ToTable("HistoricalPrices", (string)null);
                 });
 
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.License", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId")
-                        .IsUnique();
-
-                    b.ToTable("Licenses", (string)null);
-                });
-
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Order", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("TotalSum")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Orders", (string)null);
-                });
-
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Platform", b =>
                 {
                     b.Property<int>("Id")
@@ -445,21 +390,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                         });
                 });
 
-            modelBuilder.Entity("GameOrder", b =>
-                {
-                    b.Property<int>("GamesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OrdersId")
-                        .HasColumnType("int");
-
-                    b.HasKey("GamesId", "OrdersId");
-
-                    b.HasIndex("OrdersId");
-
-                    b.ToTable("OrderGames", (string)null);
-                });
-
             modelBuilder.Entity("GamePlatform", b =>
                 {
                     b.Property<int>("GamesId")
@@ -530,43 +460,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                     b.Navigation("Game");
                 });
 
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.License", b =>
-                {
-                    b.HasOne("EpamKse.GameStore.Domain.Entities.Order", "Order")
-                        .WithOne("License")
-                        .HasForeignKey("EpamKse.GameStore.Domain.Entities.License", "OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
-                });
-
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Order", b =>
-                {
-                    b.HasOne("EpamKse.GameStore.Domain.Entities.User", "User")
-                        .WithMany("Orders")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("GameOrder", b =>
-                {
-                    b.HasOne("EpamKse.GameStore.Domain.Entities.Game", null)
-                        .WithMany()
-                        .HasForeignKey("GamesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EpamKse.GameStore.Domain.Entities.Order", null)
-                        .WithMany()
-                        .HasForeignKey("OrdersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("GamePlatform", b =>
                 {
                     b.HasOne("EpamKse.GameStore.Domain.Entities.Game", null)
@@ -609,20 +502,9 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                     b.Navigation("SubGenres");
                 });
 
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Order", b =>
-                {
-                    b.Navigation("License")
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Publisher", b =>
                 {
                     b.Navigation("Games");
-                });
-
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.User", b =>
-                {
-                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

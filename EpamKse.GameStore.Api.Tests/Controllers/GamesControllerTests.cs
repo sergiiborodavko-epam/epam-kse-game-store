@@ -21,8 +21,8 @@ public class GamesControllerTests {
     [Fact]
     public async Task GetAllGames_ReturnsOkWithGamesList() {
         var games = new List<Game> {
-            new() { Id = 1, Title = "Strategy Game", GenreIds = [1, 2] },
-            new() { Id = 2, Title = "Action Game", GenreIds = [4, 5] }
+            new() { Id = 1, Title = "Strategy Game", GenreIds = [1, 2],Stock = 12 },
+            new() { Id = 2, Title = "Action Game", GenreIds = [4, 5],Stock = 12 }
         };
         _mockGameService.Setup(s => s.GetAllGamesAsync()).ReturnsAsync(games);
 
@@ -35,7 +35,7 @@ public class GamesControllerTests {
 
     [Fact]
     public async Task GetGameById_ReturnsGameWithGenres() {
-        var game = new Game { Id = 1, Title = "Test Game", GenreIds = [1, 2, 4] };
+        var game = new Game { Id = 1, Title = "Test Game", GenreIds = [1, 2, 4], Stock = 12};
         _mockGameService.Setup(s => s.GetGameByIdAsync(1)).ReturnsAsync(game);
 
         var result = await _controller.GetGameById(1);
@@ -49,7 +49,7 @@ public class GamesControllerTests {
     [Fact]
     public async Task CreateGame_WithGenresAndSubgenres_ReturnsCreated() {
         var gameDto = new GameDto {
-            Title = "New Game", Description = "Description", Price = 39.99m, ReleaseDate = DateTime.Now,
+            Title = "New Game", Description = "Description", Stock = 12, Price = 39.99m, ReleaseDate = DateTime.Now,
             GenreNames = ["Strategy", "Action"], SubGenreNames = ["RTS", "FPS"]
         };
         var createdGame = new GameViewDto { 
@@ -68,7 +68,7 @@ public class GamesControllerTests {
     [Fact]
     public async Task CreateGame_OnlyMainGenres_ReturnsCreated() {
         var gameDto = new GameDto {
-            Title = "Simple Game", Description = "Description", Price = 19.99m, ReleaseDate = DateTime.Now,
+            Title = "Simple Game", Description = "Description", Price = 19.99m, Stock = 12, ReleaseDate = DateTime.Now,
             GenreNames = ["Sports"], SubGenreNames = []
         };
         var createdGame = new GameViewDto { 
@@ -86,7 +86,7 @@ public class GamesControllerTests {
     [Fact]
     public async Task UpdateGame_ChangeGenres_ReturnsUpdated() {
         var gameDto = new GameDto {
-            Title = "Updated Game", Description = "Updated", Price = 49.99m, ReleaseDate = DateTime.Now,
+            Title = "Updated Game", Description = "Updated", Stock = 12, Price = 49.99m, ReleaseDate = DateTime.Now,
             GenreNames = ["Action"], SubGenreNames = ["FPS"]
         };
         var updatedGame = new GameViewDto { 

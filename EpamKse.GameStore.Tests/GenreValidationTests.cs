@@ -63,7 +63,7 @@ public class GenreValidationTests {
         };
         var publisher = await _pubService.CreatePublisher(createPublisher);
         var gameDto = new GameDto {
-            Title = "Test Game", Description = "Test", Price = 19.99m, ReleaseDate = DateTime.Now, PublisherId = publisher.Id,
+            Title = "Test Game", Description = "Test", Price = 19.99m, ReleaseDate = DateTime.Now,Stock = 12, PublisherId = publisher.Id,
             GenreNames = ["Strategy", "Action"], SubGenreNames = ["RTS", "FPS"]
         };
 
@@ -86,7 +86,7 @@ public class GenreValidationTests {
         };
         var publisher = await _pubService.CreatePublisher(createPublisher);
         var gameDto = new GameDto {
-            Title = "Test Game", Description = "Test", Price = 19.99m, ReleaseDate = DateTime.Now, PublisherId = publisher.Id,
+            Title = "Test Game", Description = "Test", Stock = 12, Price = 19.99m, ReleaseDate = DateTime.Now, PublisherId = publisher.Id,
             GenreNames = ["Strategy", "Sports"], SubGenreNames = []
         };
 
@@ -107,7 +107,7 @@ public class GenreValidationTests {
         };
         var publisher = await _pubService.CreatePublisher(createPublisher);
         var gameDto = new GameDto {
-            Title = "Test Game", Description = "Test", Price = 19.99m, ReleaseDate = DateTime.Now, PublisherId = publisher.Id,
+            Title = "Test Game", Description = "Test", Stock = 12, Price = 19.99m, ReleaseDate = DateTime.Now, PublisherId = publisher.Id,
             GenreNames = ["Sports"], SubGenreNames = ["RTS"] // RTS belongs to Strategy, not Sports
         };
 
@@ -124,7 +124,7 @@ public class GenreValidationTests {
         };
         var publisher = await _pubService.CreatePublisher(createPublisher);
         var gameDto = new GameDto {
-            Title = "Test Game", Description = "Test", Price = 19.99m, ReleaseDate = DateTime.Now, PublisherId = publisher.Id,
+            Title = "Test Game", Description = "Test", Stock = 12, Price = 19.99m, ReleaseDate = DateTime.Now, PublisherId = publisher.Id,
             GenreNames = ["NonExistent"], SubGenreNames = []
         };
 
@@ -141,7 +141,7 @@ public class GenreValidationTests {
         };
         var publisher = await _pubService.CreatePublisher(createPublisher);
         var gameDto = new GameDto {
-            Title = "Test Game", Description = "Test", Price = 19.99m, ReleaseDate = DateTime.Now, PublisherId = publisher.Id,
+            Title = "Test Game", Description = "Test", Stock = 12, Price = 19.99m, ReleaseDate = DateTime.Now, PublisherId = publisher.Id,
             GenreNames = ["Strategy"], SubGenreNames = ["NonExistentSub"]
         };
 
@@ -158,14 +158,14 @@ public class GenreValidationTests {
         };
         var publisher = await _pubService.CreatePublisher(createPublisher);
         var existingGame = new Game {
-            Title = "Existing Game", Description = "Test", Price = 29.99m, PublisherId = publisher.Id,
+            Title = "Existing Game", Description = "Test", Stock = 12, Price = 29.99m, PublisherId = publisher.Id,
             ReleaseDate = DateTime.Now, GenreIds = [1]
         };
         _context.Games.Add(existingGame);
         await _context.SaveChangesAsync();
 
         var updateDto = new GameDto {
-            Title = "Existing Game", Description = "Test", Price = 29.99m, ReleaseDate = DateTime.Now,
+            Title = "Existing Game", Description = "Test", Stock = 12, Price = 29.99m, ReleaseDate = DateTime.Now,
             GenreNames = ["Action"], SubGenreNames = ["FPS"],PublisherId = publisher.Id
         };
 

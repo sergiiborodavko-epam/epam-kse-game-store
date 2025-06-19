@@ -4,6 +4,7 @@ using EpamKse.GameStore.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EpamKse.GameStore.DataAccess.Migrations
 {
     [DbContext(typeof(GameStoreDbContext))]
-    partial class GameStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250617103912_DefaultStock")]
+    partial class DefaultStock
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,51 +86,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                             Stock = 12,
                             Title = "Game 2"
                         });
-                });
-
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.GameFile", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FileExtension")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("GameId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PlatformId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UploadedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GameId", "PlatformId")
-                        .IsUnique();
-
-                    b.ToTable("GameFiles", (string)null);
                 });
 
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Genre", b =>
@@ -264,29 +222,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                     b.HasIndex("GameId");
 
                     b.ToTable("HistoricalPrices", (string)null);
-                });
-
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.License", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId")
-                        .IsUnique();
-
-                    b.ToTable("Licenses", (string)null);
                 });
 
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Order", b =>
@@ -500,15 +435,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                     b.Navigation("Publisher");
                 });
 
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.GameFile", b =>
-                {
-                    b.HasOne("EpamKse.GameStore.Domain.Entities.Game", null)
-                        .WithMany("GameFiles")
-                        .HasForeignKey("GameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Genre", b =>
                 {
                     b.HasOne("EpamKse.GameStore.Domain.Entities.Genre", "ParentGenre")
@@ -528,17 +454,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Game");
-                });
-
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.License", b =>
-                {
-                    b.HasOne("EpamKse.GameStore.Domain.Entities.Order", "Order")
-                        .WithOne("License")
-                        .HasForeignKey("EpamKse.GameStore.Domain.Entities.License", "OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Order", b =>
@@ -599,20 +514,12 @@ namespace EpamKse.GameStore.DataAccess.Migrations
 
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Game", b =>
                 {
-                    b.Navigation("GameFiles");
-
                     b.Navigation("HistoricalPrices");
                 });
 
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Genre", b =>
                 {
                     b.Navigation("SubGenres");
-                });
-
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Order", b =>
-                {
-                    b.Navigation("License")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Publisher", b =>
