@@ -1,0 +1,6 @@
+@EpamKse.GameStore.PaymentService_HostAddress = http://localhost:5172
+
+GET {{EpamKse.GameStore.PaymentService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
