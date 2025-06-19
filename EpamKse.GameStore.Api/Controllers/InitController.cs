@@ -19,6 +19,6 @@ public class InitController:ControllerBase
     [HttpGet("/sayhi")]
     public IActionResult SayHi()
     {
-        return Ok(new { message = "Hi!!!! I am up and running" });
+        return Ok("Hi!!!! I am up and running");
     }
 }

@@ -2,10 +2,12 @@
 WORKDIR /src
 
 COPY EpamKse.GameStore.PaymentService/*.csproj ./EpamKse.GameStore.PaymentService/
+COPY EpamKse.GameStore.Domain/*.csproj ./EpamKse.GameStore.Domain/
 
 RUN dotnet restore ./EpamKse.GameStore.PaymentService/EpamKse.GameStore.PaymentService.csproj
 
 COPY EpamKse.GameStore.PaymentService/ ./EpamKse.GameStore.PaymentService/
+COPY EpamKse.GameStore.Domain/ ./EpamKse.GameStore.Domain/
 
 WORKDIR /src/EpamKse.GameStore.PaymentService
 
