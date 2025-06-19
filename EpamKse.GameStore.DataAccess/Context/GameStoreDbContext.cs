@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 using Domain.Entities;
 
-public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : DbContext(options) {
+public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : DbContext(options)
+{
     public DbSet<Game> Games { get; set; } = null!;
     public DbSet<User> Users { get; set; }
     public DbSet<Platform> Platforms { get; set; }
@@ -16,8 +17,9 @@ public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : 
     public DbSet<HistoricalPrice> HistoricalPrices { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<GameFile> GameFiles { get; set; }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder) {
+    public DbSet<License> Licenses { get; set; }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         SeedData(modelBuilder);
