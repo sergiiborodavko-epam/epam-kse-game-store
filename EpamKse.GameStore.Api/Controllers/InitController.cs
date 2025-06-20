@@ -5,7 +5,6 @@ namespace EpamKse.GameStore.Api.Controllers;
 
 [ApiController]
 [Route("init")]
-[AllowAnonymous]
 [Authorize(Policy = "ApikeyPolicy")]
 public class InitController:ControllerBase
 {
