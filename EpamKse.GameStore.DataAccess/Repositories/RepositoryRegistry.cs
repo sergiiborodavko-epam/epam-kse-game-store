@@ -1,4 +1,6 @@
 using EpamKse.GameStore.DataAccess.Repositories.HistoricalPrice;
+using EpamKse.GameStore.DataAccess.Repositories.Genre;
+using EpamKse.GameStore.DataAccess.Repositories.License;
 using EpamKse.GameStore.DataAccess.Repositories.Order;
 using EpamKse.GameStore.DataAccess.Repositories.User;
 using EpamKse.GameStore.DataAccess.Repositories.Platform;
@@ -22,5 +24,6 @@ public static class RepositoryRegistry {
         services.AddScoped<IHistoricalPriceRepository, HistoricalPriceRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<ILicenseRepository, LicenseRepository>();
     }
 }
