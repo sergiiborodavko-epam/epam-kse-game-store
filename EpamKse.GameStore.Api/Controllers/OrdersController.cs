@@ -61,4 +61,11 @@ public class OrdersController : ControllerBase
         var order = await _orderService.DeleteOrder(id);
         return Ok(_mapper.Map<OrderDto>(order));
     }
+
+    [HttpPatch("orderWebhook/{id:int}")]
+    public async Task<IActionResult> OrderWebhook(int id, WebhookMessage webhookMessage)
+    {
+        var result = await _orderService.ProcessWebhook(id, webhookMessage);
+        return Ok(result);
+    }
 }
