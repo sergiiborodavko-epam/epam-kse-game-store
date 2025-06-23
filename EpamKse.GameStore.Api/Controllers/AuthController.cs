@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EpamKse.GameStore.Api.Controllers;
 
-[AllowAnonymous]
 [ApiController]
 [Route("auth")]
 public class AuthController : ControllerBase

@@ -5,12 +5,26 @@ namespace EpamKse.GameStore.Api.Controllers;
 
 [ApiController]
 [Route("init")]
+[Authorize(Policy = "ApikeyPolicy")]
 public class InitController:ControllerBase
 {
-    [HttpGet]
-    [Authorize(AuthenticationSchemes = "Access")]
-    public IActionResult TestController()
+    [HttpGet("/try-reach-payment-service")]
+    public async Task<IActionResult> SayHi()
     {
-        return Ok("start");
+        var httpClient = new HttpClient();
+        
+        var apiKey = Environment.GetEnvironmentVariable("PAYMENT_SERVICE_API_KEY")
+                     ?? throw new InvalidOperationException("PAYMENT_SERVICE_API_KEY environment variable is not set");
+        
+        httpClient.DefaultRequestHeaders.Add("X-API-KEY", apiKey);
+        
+        var response = await httpClient.GetAsync("http://gamestore-payment-service:5172/payment-service-health");
+        return Ok(response.Content.ReadAsStringAsync().Result);
+    }
+    
+    [HttpGet("/api-health")]
+    public async Task<IActionResult> TestController()
+    {
+        return Ok("Reached api");
     }
 }

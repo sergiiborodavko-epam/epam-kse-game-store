@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EpamKse.GameStore.Api.Controllers;
 
 [ApiController]
+[Authorize(Policy = "UserPolicy")]
 [Route("historical-price")]
 public class HistoricalPriceController : ControllerBase
 {
