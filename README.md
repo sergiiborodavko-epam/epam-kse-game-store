@@ -39,8 +39,10 @@ Add the following variables to your `.env` file in `EpamKse.GameStore.Api`:
 CONNECTION_STRING=
 ACCESS_TOKEN_SECRET=
 REFRESH_TOKEN_SECRET=
+LICENSE_ENCRYPTION_KEY=
 PAYMENT_SERVICE_API_KEY=
 ```
+Important note: **LICENSE_ENCRYPTION_KEY** is a base64 string. Must be 16 or 32 characters long. In development purposes its fine to set it to a random string of numbers and characters
 
 Add the following variables to your `.env` file in `EpamKse.GameStore.PaymentService`:
 

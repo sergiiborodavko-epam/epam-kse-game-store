@@ -53,6 +53,13 @@ public class GamesController(IGameService gameService) : ControllerBase {
         var status = await gameService.SetPublisherToGame(setPublisherDto);
         return Ok(status);
     }
+    [Authorize(Roles = "Admin")]
+    [HttpPatch("setStock")]
+    public async Task<IActionResult> setStock(SetStockDto setStockDto) {
+
+        var status = await gameService.SetGameStock(setStockDto);
+        return Ok(status);
+    }
     
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]

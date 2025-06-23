@@ -97,8 +97,8 @@ public class OrderServiceTests
         var createOrderDto = new CreateOrderDto { GameIds = gameIds };
         var games = new List<Game>
         {
-            new Game { Id = 1, Price = 10 },
-            new Game { Id = 2, Price = 20 }
+            new Game { Id = 1, Price = 10, Stock = 12 },
+            new Game { Id = 2, Price = 20, Stock = 12 }
         };
 
         _gameRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(games[0]);
@@ -121,7 +121,7 @@ public class OrderServiceTests
         var createOrderDto = new CreateOrderDto { GameIds = gameIds };
         _gameRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync((Game)null);
 
-        await Assert.ThrowsAsync<GameNotFoundException>(() => 
+        await Assert.ThrowsAsync<GameNotFoundException>(() =>
             _orderService.CreateOrder(userId, createOrderDto));
     }
 
@@ -132,7 +132,7 @@ public class OrderServiceTests
         var newStatus = OrderStatus.Payed;
         var updateOrderDto = new UpdateOrderDto { Status = newStatus };
         var existingOrder = new Order { Id = orderId, Status = OrderStatus.Created };
-        
+
         _orderRepositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(existingOrder);
 
         var result = await _orderService.UpdateOrder(orderId, updateOrderDto);
@@ -147,7 +147,7 @@ public class OrderServiceTests
         var orderId = 1;
         _orderRepositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync((Order)null);
 
-        await Assert.ThrowsAsync<OrderNotFoundException>(() => 
+        await Assert.ThrowsAsync<OrderNotFoundException>(() =>
             _orderService.UpdateOrder(orderId, new UpdateOrderDto { Status = OrderStatus.Created }));
     }
 
@@ -171,5 +171,66 @@ public class OrderServiceTests
         _orderRepositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync((Order)null);
 
         await Assert.ThrowsAsync<OrderNotFoundException>(() => _orderService.DeleteOrder(orderId));
+    }
+
+    [Fact]
+    public async Task CreateOrder_DecreasesGameStock_WhenOrderIsCreated()
+    {
+        var userId = 1;
+        var game1 = new Game { Id = 1, Price = 15, Stock = 5 };
+        var game2 = new Game { Id = 2, Price = 25, Stock = 8 };
+        var createOrderDto = new CreateOrderDto { GameIds = new List<int> { 1, 2 } };
+
+        _gameRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(game1);
+        _gameRepositoryMock.Setup(r => r.GetByIdAsync(2)).ReturnsAsync(game2);
+        await _orderService.CreateOrder(userId, createOrderDto);
+
+        Assert.Equal(4, game1.Stock);
+        Assert.Equal(7, game2.Stock);
+    }
+
+    [Fact]
+    public async Task UpdateOrder_RestoresOldStock_AndDecreasesNewStock()
+    {
+        var orderId = 1;
+        var oldGame = new Game { Id = 1, Price = 10, Stock = 2 };
+        var newGame = new Game { Id = 2, Price = 20, Stock = 5 };
+        var existingOrder = new Order
+        {
+            Id = orderId,
+            Status = OrderStatus.Created,
+            Games = new List<Game> { oldGame }
+        };
+
+        var updateDto = new UpdateOrderDto { Status = OrderStatus.Payed, GameIds = new List<int> { 2 } };
+
+        _orderRepositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(existingOrder);
+        _gameRepositoryMock.Setup(r => r.GetByIdAsync(2)).ReturnsAsync(newGame);
+
+        await _orderService.UpdateOrder(orderId, updateDto);
+
+        Assert.Equal(3, oldGame.Stock);
+        Assert.Equal(4, newGame.Stock);
+    }
+
+    [Fact]
+    public async Task DeleteOrder_RestoresGameStock_WhenOrderDeleted()
+    {
+        var orderId = 1;
+        var game1 = new Game { Id = 1, Price = 15, Stock = 1 };
+        var game2 = new Game { Id = 2, Price = 25, Stock = 3 };
+
+        var existingOrder = new Order
+        {
+            Id = orderId,
+            Games = new List<Game> { game1, game2 }
+        };
+
+        _orderRepositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(existingOrder);
+
+        await _orderService.DeleteOrder(orderId);
+
+        Assert.Equal(2, game1.Stock);
+        Assert.Equal(4, game2.Stock);
     }
 }

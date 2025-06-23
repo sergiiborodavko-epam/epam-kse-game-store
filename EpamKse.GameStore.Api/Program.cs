@@ -4,6 +4,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
 using DotNetEnv;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 using EpamKse.GameStore.Api.Infrastructure;
 using EpamKse.GameStore.DataAccess.Repositories;
@@ -16,6 +17,8 @@ using Microsoft.AspNetCore.Authorization;
 
 Env.Load();
 
+const int maxRequestBodySizeBytes = 100 * 1024 * 1024;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") 
@@ -24,6 +27,15 @@ var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
 builder.Services.AddDbContext<GameStoreDbContext>(options => 
     options.UseSqlServer(connectionString)
 );
+
+builder.Services.Configure<IISServerOptions>(options => {
+    options.MaxRequestBodySize = maxRequestBodySizeBytes;
+});
+
+builder.Services.Configure<KestrelServerOptions>(options => {
+    options.Limits.MaxRequestBodySize = maxRequestBodySizeBytes;
+});
+
 builder.Services.AddAutoMapper(typeof(OrderProfile).Assembly);
 builder.Services.AddControllers(options => {
     options.Filters.Add<CustomHttpExceptionFilter>();
@@ -58,6 +70,7 @@ builder.Services.AddSwaggerGen(options => {
         }
     });
 });
+
 builder.Services.AddAuthentication()
     .AddJwtBearer("Access", options => {
         options.TokenValidationParameters = new TokenValidationParameters {

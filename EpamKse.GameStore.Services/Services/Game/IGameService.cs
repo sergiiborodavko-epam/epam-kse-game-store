@@ -10,4 +10,5 @@ public interface IGameService {
     Task<GameViewDto> UpdateGameAsync(int id, GameDto gameDto);
     Task DeleteGameAsync(int id);
     Task<bool> SetPublisherToGame(SetPublisherDto setPublisherDto);
+    Task<int> SetGameStock(SetStockDto setStockDto);
 }
