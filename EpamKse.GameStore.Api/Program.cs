@@ -57,6 +57,13 @@ builder.Services.AddSwaggerGen(options => {
         Scheme = "Bearer",
         BearerFormat = "JWT"
     });
+    
+    options.AddSecurityDefinition("Apikey", new OpenApiSecurityScheme
+    {
+        Name = "x-api-key",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey
+    });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement {
         {
@@ -64,6 +71,17 @@ builder.Services.AddSwaggerGen(options => {
                 Reference = new OpenApiReference {
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        },
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Apikey"
                 }
             },
             Array.Empty<string>()
