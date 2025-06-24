@@ -24,6 +24,8 @@
       dockerfile: EpamKse.GameStore.Api/Dockerfile
     env_file:
       - EpamKse.GameStore.Api/.env
+    environment:
+      - CONNECTION_STRING=Server=sqlserver,1433;Database=GameStoreDb;User Id=sa;Password=<set_password>;Encrypt=False;TrustServerCertificate=True;
     ports:
       - "5186:5186"
     depends_on:

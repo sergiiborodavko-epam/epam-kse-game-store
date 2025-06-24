@@ -1,16 +1,13 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EpamKse.GameStore.Api.Controllers;
 
 [ApiController]
 [Route("init")]
-[Authorize(Policy = "ApikeyPolicy")]
-public class InitController:ControllerBase
-{
+public class InitController : ControllerBase {
+    
     [HttpGet("/try-reach-payment-service")]
-    public async Task<IActionResult> SayHi()
-    {
+    public async Task<IActionResult> SayHi() {
         var httpClient = new HttpClient();
         
         var apiKey = Environment.GetEnvironmentVariable("PAYMENT_SERVICE_API_KEY")
@@ -23,8 +20,7 @@ public class InitController:ControllerBase
     }
     
     [HttpGet("/api-health")]
-    public async Task<IActionResult> TestController()
-    {
-        return Ok("Reached api");
+    public Task<IActionResult> TestController() {
+        return Task.FromResult<IActionResult>(Ok("Reached api"));
     }
 }
