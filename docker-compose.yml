@@ -11,6 +11,18 @@
     volumes:
       - sqlserver_data:/var/opt/mssql
     restart: unless-stopped
+  
+  service-migrations:
+    image: service-migrations
+    build:
+      context: .
+      dockerfile: migrations.Dockerfile
+      target: migrations  
+    env_file:
+      - EpamKse.GameStore.Api/.env
+    restart: "no"
+    depends_on:
+      - sqlserver
     
   gamestore-api:
     image: gamestore-api
