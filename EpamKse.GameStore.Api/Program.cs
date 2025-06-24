@@ -116,10 +116,6 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 
-using var scope = app.Services.CreateScope();
-var dbContext = scope.ServiceProvider.GetRequiredService<GameStoreDbContext>();
-dbContext.Database.Migrate();
-
 app.UseSwagger();
 app.UseSwaggerUI();
 
