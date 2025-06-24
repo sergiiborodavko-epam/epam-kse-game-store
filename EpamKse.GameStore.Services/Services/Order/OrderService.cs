@@ -88,11 +88,14 @@ public class OrderService : IOrderService {
         {
             throw new OrderNotFoundException(id);
         }
+        
         foreach (var oldGame in order.Games)
         {
             oldGame.Stock++;
         }
+        
         order.Status = dto.Status ?? order.Status;
+        
         if (dto.GameIds != null)
         {
             var user = await _userRepository.GetByIdAsync(order.UserId);
@@ -120,6 +123,7 @@ public class OrderService : IOrderService {
         {
             throw new OrderNotFoundException(id);
         }
+        
         foreach (var game in order.Games)
         {
             game.Stock++;
@@ -139,10 +143,6 @@ public class OrderService : IOrderService {
             {
                 throw new GameNotFoundException(gameId);
             }
-            if (game.Stock<=0)
-            {
-                throw new NoGamesLeftException(game.Id);
-            }
             games.Add(game);
         }
         return games;
@@ -157,6 +157,10 @@ public class OrderService : IOrderService {
         if (bannedGamesInOrder.Count != 0) {
             var bannedGameNames = string.Join(", ", bannedGamesInOrder.Select(g => g.Title));
             throw new BannedGamesInOrderException(bannedGameNames);
+        }
+
+        foreach (var game in games.Where(game => game.Stock <= 0)) {
+            throw new NoGamesLeftException(game.Id);
         }
     }
     

@@ -125,7 +125,7 @@ public class OrderServiceTests
         var gameIds = new List<int> { 1 };
         var createOrderDto = new CreateOrderDto { GameIds = gameIds };
         var user = new User { Id = userId, Country = Countries.UA };
-        var game = new Game { Id = 1, Price = 10, Title = "Banned Game" };
+        var game = new Game { Id = 1, Price = 10, Title = "Banned Game", Stock = 5 };
         var bannedGame = new GameBan { GameId = 1, Country = Countries.UA };
 
         _userRepositoryMock.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
@@ -160,7 +160,7 @@ public class OrderServiceTests
         var updateOrderDto = new UpdateOrderDto { Status = OrderStatus.Created, GameIds = gameIds };
         var existingOrder = new Order { Id = orderId, Status = OrderStatus.Created, UserId = 1 };
         var user = new User { Id = 1, Country = Countries.US };
-        var game = new Game { Id = 1, Price = 10, Title = "Game 1" };
+        var game = new Game { Id = 1, Price = 10, Title = "Game 1", Stock = 5 };
 
         _orderRepositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(existingOrder);
         _userRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(user);
@@ -202,10 +202,15 @@ public class OrderServiceTests
         var userId = 1;
         var game1 = new Game { Id = 1, Price = 15, Stock = 5 };
         var game2 = new Game { Id = 2, Price = 25, Stock = 8 };
-        var createOrderDto = new CreateOrderDto { GameIds = new List<int> { 1, 2 } };
+        var createOrderDto = new CreateOrderDto { GameIds = [1, 2] };
+        var user = new User { Id = userId, Country = Countries.US };
 
+        _userRepositoryMock.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
         _gameRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(game1);
         _gameRepositoryMock.Setup(r => r.GetByIdAsync(2)).ReturnsAsync(game2);
+        _gameBanRepositoryMock.Setup(r => r.GetByCountryAsync(Countries.US))
+            .ReturnsAsync(new List<GameBan>());
+
         await _orderService.CreateOrder(userId, createOrderDto);
 
         Assert.Equal(4, game1.Stock);
@@ -222,13 +227,18 @@ public class OrderServiceTests
         {
             Id = orderId,
             Status = OrderStatus.Created,
+            UserId = 1,
             Games = new List<Game> { oldGame }
         };
 
-        var updateDto = new UpdateOrderDto { Status = OrderStatus.Payed, GameIds = new List<int> { 2 } };
+        var updateDto = new UpdateOrderDto { Status = OrderStatus.Payed, GameIds = [2] };
+        var user = new User { Id = 1, Country = Countries.US };
 
         _orderRepositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(existingOrder);
+        _userRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(user);
         _gameRepositoryMock.Setup(r => r.GetByIdAsync(2)).ReturnsAsync(newGame);
+        _gameBanRepositoryMock.Setup(r => r.GetByCountryAsync(Countries.US))
+            .ReturnsAsync(new List<GameBan>());
 
         await _orderService.UpdateOrder(orderId, updateDto);
 

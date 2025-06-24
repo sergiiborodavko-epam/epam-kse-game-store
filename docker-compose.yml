@@ -11,9 +11,14 @@
     volumes:
       - sqlserver_data:/var/opt/mssql
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P GameStore123! -C -Q 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     
   gamestore-api:
-    image: gamestore-api
     build:
       context: .
       dockerfile: EpamKse.GameStore.Api/Dockerfile
@@ -21,9 +26,12 @@
       - EpamKse.GameStore.Api/.env
     ports:
       - "5186:5186"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    restart: unless-stopped
 
   gamestore-payment-service:
-    image: gamestore-payment-service
     build:
       context: .
       dockerfile: EpamKse.GameStore.PaymentService/Dockerfile
@@ -31,8 +39,7 @@
       - EpamKse.GameStore.PaymentService/.env
     ports:
       - "5172:5172"
+    restart: unless-stopped
 
 volumes:
   sqlserver_data:
-  
-

@@ -68,13 +68,22 @@ public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : 
         modelBuilder.Entity<User>().HasData(
             new User { 
                 Id = 1, 
-                Role = Roles.Admin, 
-                CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc), 
-                Email = "admin@example.com", 
-                UserName = "admin", 
-                FullName = "admin", 
+                UserName = "admin",
+                Email = "admin@example.com",
                 PasswordHash = adminPass,
-                Country = Countries.UA
+                FullName = "Admin User",
+                Role = Roles.Admin,
+                Country = Countries.UA,
+                CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            }
+        );
+        
+        modelBuilder.Entity<GameBan>().HasData(
+            new GameBan {
+                Id = 1,
+                GameId = 1,
+                Country = Countries.UA,
+                CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             }
         );
     }
