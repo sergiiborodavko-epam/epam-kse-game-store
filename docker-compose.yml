@@ -18,6 +18,8 @@
       context: .
       dockerfile: migrations.Dockerfile
       target: migrations  
+    env_file:
+      - EpamKse.GameStore.Api/.env
     restart: "no"
     depends_on:
       - sqlserver
