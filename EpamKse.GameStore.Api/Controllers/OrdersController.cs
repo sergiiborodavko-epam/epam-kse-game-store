@@ -8,7 +8,6 @@ namespace EpamKse.GameStore.Api.Controllers;
 
 [ApiController]
 [Route("orders")]
-[Authorize(Policy = "UserPolicy")]
 public class OrdersController : ControllerBase
 {
     private readonly IOrderService _orderService;
@@ -20,6 +19,7 @@ public class OrdersController : ControllerBase
         _mapper = mapper;
     }
 
+    [Authorize(Policy = "UserPolicy")]
     [HttpGet]
     public async Task<IActionResult> GetOrders([FromQuery] OrdersQueryDto queryDto)
     {
@@ -27,6 +27,7 @@ public class OrdersController : ControllerBase
         return Ok(_mapper.Map<List<OrderDto>>(orders));
     }
 
+    [Authorize(Policy = "UserPolicy")]
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetOrder(int id)
     {
@@ -34,6 +35,7 @@ public class OrdersController : ControllerBase
         return Ok(_mapper.Map<OrderDto>(order));
     }
 
+    [Authorize(Policy = "UserPolicy")]
     [HttpPost]
     public async Task<IActionResult> CreateOrder(CreateOrderDto createOrderDto)
     {
@@ -42,12 +44,13 @@ public class OrdersController : ControllerBase
         {
             throw new UnauthorizedAccessException();
         }
-        
+
         var userId = int.Parse(userIdClaim);
         var order = await _orderService.CreateOrder(userId, createOrderDto);
         return Created($"/orders/${order.Id}", _mapper.Map<OrderDto>(order));
     }
 
+    [Authorize(Policy = "UserPolicy")]
     [HttpPatch("{id:int}")]
     public async Task<IActionResult> UpdateOrder(int id, UpdateOrderDto updateOrderDto)
     {
@@ -55,12 +58,14 @@ public class OrdersController : ControllerBase
         return Ok(_mapper.Map<OrderDto>(order));
     }
 
+    [Authorize(Policy = "UserPolicy")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteOrder(int id)
     {
         var order = await _orderService.DeleteOrder(id);
         return Ok(_mapper.Map<OrderDto>(order));
     }
+
     [Authorize(Policy = "ApikeyPolicy")]
     [HttpPost("orderWebhook/{id:int}")]
     public async Task<IActionResult> OrderWebhook(int id, WebhookMessage webhookMessage)
