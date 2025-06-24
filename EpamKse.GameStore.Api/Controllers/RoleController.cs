@@ -1,11 +1,13 @@
 using EpamKse.GameStore.Domain.DTO.Role;
 using EpamKse.GameStore.Services.Services.Role;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EpamKse.GameStore.Api.Controllers;
 
 [ApiController]
 [Route("roles")]
+[Authorize(Policy = "UserPolicy")]
 public class RoleController : ControllerBase
 {
     private readonly IRoleService _roleService;

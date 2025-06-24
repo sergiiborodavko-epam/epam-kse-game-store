@@ -8,7 +8,7 @@ namespace EpamKse.GameStore.Api.Controllers;
 
 [ApiController]
 [Route("orders")]
-[Authorize(AuthenticationSchemes = "Access")]
+[Authorize(Policy = "UserPolicy")]
 public class OrdersController : ControllerBase
 {
     private readonly IOrderService _orderService;

@@ -21,7 +21,7 @@ cd EpamKse.GameStore.Api
 
 ### 2. **Create Environment Configuration**
 
-Create a `.env` file inside the `EpamKse.GameStore.Api` directory:
+Create a `.env` file inside the `EpamKse.GameStore.Api` and `EpamKse.GameStore.PaymentService` directories:
 
 ```bash
 touch .env
@@ -33,15 +33,24 @@ echo. > .env
 ```
 ### 3. **Configure Environment Variables**
 
-Add the following variables to your `.env` file:
+Add the following variables to your `.env` file in `EpamKse.GameStore.Api`:
 
 ```env
 CONNECTION_STRING=
 ACCESS_TOKEN_SECRET=
 REFRESH_TOKEN_SECRET=
 LICENSE_ENCRYPTION_KEY=
+PAYMENT_SERVICE_API_KEY=
 ```
 Important note: **LICENSE_ENCRYPTION_KEY** is a base64 string. Must be 16 or 32 characters long. In development purposes its fine to set it to a random string of numbers and characters
+
+Add the following variables to your `.env` file in `EpamKse.GameStore.PaymentService`:
+
+```env
+PAYMENT_SERVICE_API_KEY=
+```
+
+`PAYMENT_SERVICE_API_KEY` must be the same for both services for proper communication
 
 ### 4. **Generate JWT Secrets**
 

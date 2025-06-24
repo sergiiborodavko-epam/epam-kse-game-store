@@ -10,6 +10,7 @@ namespace EpamKse.GameStore.Api.Controllers;
 
 [ApiController]
 [Route("publishers")]
+[Authorize(Policy = "UserPolicy")]
 public class PublisherController : ControllerBase
 {
     private readonly IPublisherService _publisherService;
