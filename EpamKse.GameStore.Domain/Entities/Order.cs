@@ -11,4 +11,5 @@ public class Order
     public decimal TotalSum { get; set; } = 0;
     public User User { get; set; }
     public ICollection<Game> Games { get; set; } = new List<Game>();
+    public License License { get; set; }
 }

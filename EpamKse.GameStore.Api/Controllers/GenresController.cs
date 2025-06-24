@@ -8,6 +8,7 @@ using Services.Services.Genre;
 using Domain.DTO.Genre;
 
 [ApiController]
+[Authorize(Policy = "UserPolicy")]
 [Route("api/genres")]
 public class GenresController(IGenreService genreService) : ControllerBase {
 

@@ -7,6 +7,7 @@ namespace EpamKse.GameStore.Api.Controllers;
 
 [ApiController]
 [Route("platforms")]
+[Authorize(Policy = "UserPolicy")]
 public class PlatformController : ControllerBase
 {
     private readonly IPlatformService _platformService;
