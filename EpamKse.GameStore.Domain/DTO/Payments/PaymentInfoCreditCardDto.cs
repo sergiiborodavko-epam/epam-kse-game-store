@@ -9,8 +9,12 @@ public class PaymentInfoCreditCardDto
     public string CardNumber { get; set; }
     
     [Required]
-    [Length(5, 5)]
-    public string ExpirationDate { get; set; }
+    [Range(1, 12)]
+    public int ExpirationMonth { get; set; }
+    
+    [Required]
+    [Range(2000, 2100)]
+    public int ExpirationYear { get; set; }
     
     [Required]
     [Range(1, int.MaxValue)]

@@ -45,7 +45,8 @@ public class PaymentService : IPaymentService
         {
             CardNumber = dto.CardNumber,
             Cvv = dto.Cvv,
-            ExpirationDate = dto.ExpirationDate,
+            ExpirationMonth = dto.ExpirationMonth,
+            ExpirationYear = dto.ExpirationYear,
             OrderId = order.Id,
             TotalSum = order.TotalSum,
             CallbackUrl = $"/orders/orderWebhook/{order.Id}"

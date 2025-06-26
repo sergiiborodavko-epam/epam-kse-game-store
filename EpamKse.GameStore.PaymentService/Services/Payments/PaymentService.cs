@@ -15,7 +15,7 @@ public class PaymentService : IPaymentService
 
     public async Task PayByCreditCard(PaymentInfoCreditCardDto dto)
     {
-        if (IsCardExpired(dto.ExpirationDate))
+        if (IsCardExpired(dto.ExpirationMonth, dto.ExpirationYear))
         {
             throw new PaymentFailedException("Card expired");
         }
@@ -39,29 +39,9 @@ public class PaymentService : IPaymentService
         var result = random.Next(0, 100) < probabilityOfSuccess;
         return Task.FromResult(result);
     }
-    private bool IsCardExpired(string expirationDate)
+    private bool IsCardExpired(int month, int year)
     {
-        var parts = expirationDate.Split('/');
-        if (parts.Length != 2)
-        {
-            return true;
-        }
-
-        if (!int.TryParse(parts[0], out var month) || !int.TryParse(parts[1], out var year))
-        {
-            return true;
-        }
-
-        if (month < 1 || month > 12)
-        {
-            return true;
-        }
-
-        var century = 2000;
-        var fullYear = century + year;
-        
-        var expDate = new DateTime(fullYear, month, 1);
-        
+        var expDate = new DateTime(year, month, 1);
         return expDate < DateTime.UtcNow;
     }
 }
