@@ -17,6 +17,9 @@ using Microsoft.AspNetCore.Authorization;
 
 Env.Load();
 
+var apiKey = Environment.GetEnvironmentVariable("PAYMENT_SERVICE_API_KEY") ??
+             throw new InvalidOperationException("PAYMENT_SERVICE_API_KEY environment variable is not set");
+
 const int maxRequestBodySizeBytes = 100 * 1024 * 1024;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,6 +37,12 @@ builder.Services.Configure<IISServerOptions>(options => {
 
 builder.Services.Configure<KestrelServerOptions>(options => {
     options.Limits.MaxRequestBodySize = maxRequestBodySizeBytes;
+});
+
+builder.Services.AddHttpClient("PaymentServiceClient", client =>
+{
+    client.BaseAddress = new Uri("http://gamestore-payment-service:5172");
+    client.DefaultRequestHeaders.Add("x-api-key", apiKey);
 });
 
 builder.Services.AddAutoMapper(typeof(OrderProfile).Assembly);
@@ -108,9 +117,6 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("UserPolicy", policy => policy.RequireAuthenticatedUser());
-    
-    var apiKey = Environment.GetEnvironmentVariable("PAYMENT_SERVICE_API_KEY") 
-                 ?? throw new InvalidOperationException("PAYMENT_SERVICE_API_KEY environment variable is not set");
     options.AddPolicy("ApikeyPolicy", policy => policy.Requirements.Add(new ApikeyRequirement(apiKey)));
 });
 

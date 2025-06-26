@@ -1,14 +1,16 @@
 using DotNetEnv;
-using EpamKse.GameStore.Domain.Policies;
 using EpamKse.GameStore.PaymentService.Filters;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+using EpamKse.GameStore.PaymentService.Services.Payments;
 using Microsoft.OpenApi.Models;
 
 Env.Load();
 
+var apiKey = Environment.GetEnvironmentVariable("PAYMENT_SERVICE_API_KEY") 
+             ?? throw new InvalidOperationException("PAYMENT_SERVICE_API_KEY environment variable is not set");
+
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -36,10 +38,14 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddControllers(options =>
 {
-    var apiKey = Environment.GetEnvironmentVariable("PAYMENT_SERVICE_API_KEY") 
-        ?? throw new InvalidOperationException("PAYMENT_SERVICE_API_KEY environment variable is not set");
-    
+    options.Filters.Add(new CustomHttpExceptionFilter());
     options.Filters.Add(new ApikeyFilter(apiKey));
+});
+
+builder.Services.AddHttpClient("ApiClient", client =>
+{
+    client.BaseAddress = new Uri("http://gamestore-api:5186");
+    client.DefaultRequestHeaders.Add("x-api-key", apiKey);
 });
 
 var app = builder.Build();
