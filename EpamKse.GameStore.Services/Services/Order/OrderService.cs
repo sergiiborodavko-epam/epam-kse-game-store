@@ -62,6 +62,7 @@ public class OrderService : IOrderService {
 
         var games = await ValidateGames(dto.GameIds);
         await ValidateGamesBansForUser(games, user.Country);
+        ValidateGamesStock(games);
         
         var order = new Order {
             UserId = userId, 
@@ -101,6 +102,7 @@ public class OrderService : IOrderService {
             var user = await _userRepository.GetByIdAsync(order.UserId);
             var games = await ValidateGames(dto.GameIds);
             await ValidateGamesBansForUser(games, user!.Country);
+            ValidateGamesStock(games);
             
             order.Games = new List<Game>();
             foreach (var game in games)
@@ -171,8 +173,12 @@ public class OrderService : IOrderService {
             var bannedGameNames = string.Join(", ", bannedGamesInOrder.Select(g => g.Title));
             throw new BannedGamesInOrderException(bannedGameNames);
         }
+    }
 
-        foreach (var game in games.Where(game => game.Stock <= 0)) {
+    private static void ValidateGamesStock(List<Game> games)
+    {
+        foreach (var game in games.Where(game => game.Stock <= 0))
+        {
             throw new NoGamesLeftException(game.Id);
         }
     }

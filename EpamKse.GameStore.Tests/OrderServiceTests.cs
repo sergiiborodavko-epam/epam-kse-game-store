@@ -138,6 +138,23 @@ public class OrderServiceTests
     }
 
     [Fact]
+    public async Task CreateOrder_ThrowsNoGamesLeftException_WhenGameOutOfStock() {
+        var userId = 1;
+        var gameIds = new List<int> { 1 };
+        var createOrderDto = new CreateOrderDto { GameIds = gameIds };
+        var user = new User { Id = userId, Country = Countries.US };
+        var game = new Game { Id = 1, Price = 10, Title = "Out of Stock Game", Stock = 0 };
+
+        _userRepositoryMock.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(user);
+        _gameRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(game);
+        _gameBanRepositoryMock.Setup(r => r.GetByCountryAsync(Countries.US))
+            .ReturnsAsync(new List<GameBan>());
+
+        await Assert.ThrowsAsync<NoGamesLeftException>(() =>
+            _orderService.CreateOrder(userId, createOrderDto));
+    }
+
+    [Fact]
     public async Task UpdateOrder_ReturnsUpdatedOrder_WhenOrderExists()
     {
         var orderId = 1;
@@ -172,6 +189,25 @@ public class OrderServiceTests
 
         Assert.Equal(10, result.TotalSum);
         _orderRepositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Order>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateOrder_WithNewGames_ThrowsNoGamesLeftException_WhenGameOutOfStock() {
+        const int orderId = 1;
+        var gameIds = new List<int> { 1 };
+        var updateOrderDto = new UpdateOrderDto { Status = OrderStatus.Created, GameIds = gameIds };
+        var existingOrder = new Order { Id = orderId, Status = OrderStatus.Created, UserId = 1 };
+        var user = new User { Id = 1, Country = Countries.US };
+        var game = new Game { Id = 1, Price = 10, Title = "Out of Stock Game", Stock = 0 };
+
+        _orderRepositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(existingOrder);
+        _userRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(user);
+        _gameRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(game);
+        _gameBanRepositoryMock.Setup(r => r.GetByCountryAsync(Countries.US))
+            .ReturnsAsync(new List<GameBan>());
+
+        await Assert.ThrowsAsync<NoGamesLeftException>(() =>
+            _orderService.UpdateOrder(orderId, updateOrderDto));
     }
 
     [Fact]
@@ -270,12 +306,13 @@ public class OrderServiceTests
     [Fact]
     public async Task ProcessWebhook_UpdatesOrderStatus_WhenOrderExists()
     {
-      
         var orderId = 1;
         var existingOrder = new Order { Id = orderId, Status = OrderStatus.Created };
         var webhookMessage = new WebhookMessage { OrderStatus = OrderStatus.Payed };
         _orderRepositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(existingOrder);
+        
         var result = await _orderService.ProcessWebhook(orderId, webhookMessage);
+        
         Assert.Equal(OrderStatus.Payed, result);
         Assert.Equal(OrderStatus.Payed, existingOrder.Status);
         _orderRepositoryMock.Verify(r => r.UpdateAsync(It.Is<Order>(o =>
