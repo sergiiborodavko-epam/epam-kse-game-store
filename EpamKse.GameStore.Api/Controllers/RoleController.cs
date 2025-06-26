@@ -7,7 +7,7 @@ namespace EpamKse.GameStore.Api.Controllers;
 
 [ApiController]
 [Route("roles")]
-[Authorize(Policy = "UserPolicy")]
+[Authorize(Roles = "Admin")]
 public class RoleController : ControllerBase
 {
     private readonly IRoleService _roleService;

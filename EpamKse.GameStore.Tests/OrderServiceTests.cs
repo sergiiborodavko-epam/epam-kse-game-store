@@ -266,4 +266,19 @@ public class OrderServiceTests
         Assert.Equal(2, game1.Stock);
         Assert.Equal(4, game2.Stock);
     }
+    
+    [Fact]
+    public async Task ProcessWebhook_UpdatesOrderStatus_WhenOrderExists()
+    {
+      
+        var orderId = 1;
+        var existingOrder = new Order { Id = orderId, Status = OrderStatus.Created };
+        var webhookMessage = new WebhookMessage { OrderStatus = OrderStatus.Payed };
+        _orderRepositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(existingOrder);
+        var result = await _orderService.ProcessWebhook(orderId, webhookMessage);
+        Assert.Equal(OrderStatus.Payed, result);
+        Assert.Equal(OrderStatus.Payed, existingOrder.Status);
+        _orderRepositoryMock.Verify(r => r.UpdateAsync(It.Is<Order>(o =>
+            o.Id == orderId && o.Status == OrderStatus.Payed)), Times.Once);
+    }
 }

@@ -17,15 +17,26 @@
       timeout: 5s
       retries: 5
       start_period: 10s
+  
+  service-migrations:
+    image: service-migrations
+    build:
+      context: .
+      dockerfile: migrations.Dockerfile
+      target: migrations  
+    env_file:
+      - EpamKse.GameStore.Api/.env
+    restart: "no"
+    depends_on:
+      - sqlserver
     
   gamestore-api:
+    image: gamestore-api
     build:
       context: .
       dockerfile: EpamKse.GameStore.Api/Dockerfile
     env_file:
       - EpamKse.GameStore.Api/.env
-    environment:
-      - CONNECTION_STRING=Server=sqlserver,1433;Database=GameStoreDb;User Id=sa;Password=<set_password>;Encrypt=False;TrustServerCertificate=True;
     ports:
       - "5186:5186"
     depends_on:
@@ -34,6 +45,7 @@
     restart: unless-stopped
 
   gamestore-payment-service:
+    image: gamestore-payment-service
     build:
       context: .
       dockerfile: EpamKse.GameStore.PaymentService/Dockerfile
@@ -45,3 +57,4 @@
 
 volumes:
   sqlserver_data:
+

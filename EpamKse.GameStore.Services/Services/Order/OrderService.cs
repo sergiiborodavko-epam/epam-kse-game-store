@@ -133,6 +133,19 @@ public class OrderService : IOrderService {
         return order;
     }
 
+    public async Task<OrderStatus> ProcessWebhook(int id, WebhookMessage dto)
+    {
+        var order = await _orderRepository.GetByIdAsync(id);
+        if (order is null)
+        {
+            throw new OrderNotFoundException(id);
+        }
+
+        order.Status = dto.OrderStatus;
+        await _orderRepository.UpdateAsync(order);
+        return order.Status;
+    }
+
     private async Task<List<Game>> ValidateGames(List<int> gameIds)
     {
         var games = new List<Game>();
