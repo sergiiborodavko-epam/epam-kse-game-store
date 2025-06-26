@@ -41,7 +41,7 @@ builder.Services.Configure<KestrelServerOptions>(options => {
 
 builder.Services.AddHttpClient("PaymentServiceClient", client =>
 {
-    client.BaseAddress = new Uri("http://gamestore-payment-service:5172");
+    client.BaseAddress = new Uri(builder.Configuration["ServicesUrls:PaymentService"]);
     client.DefaultRequestHeaders.Add("x-api-key", apiKey);
 });
 

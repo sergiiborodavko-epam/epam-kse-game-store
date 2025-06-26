@@ -44,7 +44,7 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddHttpClient("ApiClient", client =>
 {
-    client.BaseAddress = new Uri("http://gamestore-api:5186");
+    client.BaseAddress = new Uri(builder.Configuration["ServicesUrls:Api"]);
     client.DefaultRequestHeaders.Add("x-api-key", apiKey);
 });
 
