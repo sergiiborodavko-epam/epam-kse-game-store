@@ -14,7 +14,6 @@ using Services.Services.Genre;
 
 public class GenresControllerTests {
     private readonly Mock<IGenreService> _mockService;
-    private readonly IMapper _mapper;
     private readonly GenresController _controller;
 
     public GenresControllerTests() {
