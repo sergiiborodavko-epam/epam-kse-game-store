@@ -13,18 +13,15 @@ namespace EpamKse.GameStore.Services.Services.Payment;
 public class PaymentService : IPaymentService
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILicenseService _licenseService;
     private readonly IOrderRepository _orderRepository;
 
-    public PaymentService(IHttpClientFactory httpClientFactory, ILicenseService licenseService,
-        IOrderRepository orderRepository)
+    public PaymentService(IHttpClientFactory httpClientFactory, IOrderRepository orderRepository)
     {
         _httpClientFactory = httpClientFactory;
-        _licenseService = licenseService;
         _orderRepository = orderRepository;
     }
     
-    public async Task<byte[]> PayByCreditCard(PayForOrderDto dto)
+    public async Task PayByCreditCard(PayForOrderDto dto)
     {
         var order = await _orderRepository.GetByIdAsync(dto.OrderId);
         if (order == null)
@@ -41,7 +38,7 @@ public class PaymentService : IPaymentService
         await _orderRepository.UpdateAsync(order);
 
         var paymentServiceClient = _httpClientFactory.CreateClient("PaymentServiceClient");
-        var result = await paymentServiceClient.PostAsJsonAsync("payments/credit-card", new PaymentInfoCreditCardDto
+        paymentServiceClient.PostAsJsonAsync("payments/credit-card", new PaymentInfoCreditCardDto
         {
             CardNumber = dto.CardNumber,
             Cvv = dto.Cvv,
@@ -51,16 +48,5 @@ public class PaymentService : IPaymentService
             TotalSum = order.TotalSum,
             CallbackUrl = $"/orders/orderWebhook/{order.Id}"
         });
-        
-        if (!result.IsSuccessStatusCode)
-        {
-            var jsonString = await result.Content.ReadAsStringAsync();
-            var response = JsonSerializer.Deserialize<PaymentResultDto>(jsonString);
-            throw new PaymentFailedException(response.message);
-        }
-
-        await _licenseService.CreateLicense(new CreateLicenseDto { OrderId = order.Id });
-        var license = await _licenseService.GenerateLicenseFileByOrderId(order.Id);
-        return license;
     }
 }

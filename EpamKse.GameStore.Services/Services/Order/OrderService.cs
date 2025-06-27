@@ -1,9 +1,11 @@
 using EpamKse.GameStore.DataAccess.Repositories.Game;
 using EpamKse.GameStore.DataAccess.Repositories.Order;
+using EpamKse.GameStore.Domain.DTO.License;
 using EpamKse.GameStore.Domain.DTO.Order;
 using EpamKse.GameStore.Domain.Enums;
 using EpamKse.GameStore.Domain.Exceptions.Game;
 using EpamKse.GameStore.Domain.Exceptions.Order;
+using EpamKse.GameStore.Services.Services.License;
 
 namespace EpamKse.GameStore.Services.Services.Order;
 using Domain.Entities;
@@ -12,11 +14,13 @@ public class OrderService : IOrderService
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IGameRepository _gameRepository;
+    private readonly ILicenseService _licenseService;
 
-    public OrderService(IOrderRepository orderRepository, IGameRepository gameRepository)
+    public OrderService(IOrderRepository orderRepository, IGameRepository gameRepository, ILicenseService licenseService)
     {
         _orderRepository = orderRepository;
         _gameRepository = gameRepository;
+        _licenseService = licenseService;
     }
 
     public async Task<IEnumerable<Order>> GetOrders(OrdersQueryDto ordersQueryDto)
@@ -122,6 +126,12 @@ public class OrderService : IOrderService
         }
 
         order.Status = dto.OrderStatus;
+
+        if (dto.OrderStatus == OrderStatus.Payed)
+        {
+            await _licenseService.CreateLicense(new CreateLicenseDto { OrderId = id });
+        }
+        
         await _orderRepository.UpdateAsync(order);
         return order.Status;
     }

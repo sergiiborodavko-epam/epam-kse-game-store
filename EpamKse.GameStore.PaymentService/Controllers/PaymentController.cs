@@ -19,6 +19,6 @@ public class PaymentController : ControllerBase
     public async Task<IActionResult> PayByCreditCard([FromBody] PaymentInfoCreditCardDto dto)
     {
         await _paymentService.PayByCreditCard(dto);
-        return Ok(new { message = "Payment successful"});
+        return Ok(new { message = "Payment created"});
     }
 }

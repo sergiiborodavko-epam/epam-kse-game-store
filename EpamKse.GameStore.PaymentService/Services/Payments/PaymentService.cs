@@ -24,12 +24,7 @@ public class PaymentService : IPaymentService
         var paymentResult = await TryPayTheOrder();
         var orderStatus = paymentResult ? OrderStatus.Payed : OrderStatus.Cancelled;
         
-        await apiClient.PostAsJsonAsync(dto.CallbackUrl, new { orderStatus = orderStatus });
-        
-        if (!paymentResult)
-        {
-            throw new PaymentFailedException("Insufficient funds");
-        }
+        apiClient.PostAsJsonAsync(dto.CallbackUrl, new { orderStatus = orderStatus });
     }
 
     private Task<bool> TryPayTheOrder()

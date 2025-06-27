@@ -18,9 +18,8 @@ public class PaymentController : ControllerBase
     }
     
     [HttpPost("credit-card")]
-    public async Task<IActionResult> PayByCreditCard([FromBody] PayForOrderDto dto)
+    public async Task PayByCreditCard([FromBody] PayForOrderDto dto)
     {
-        var license = await _paymentService.PayByCreditCard(dto);
-        return File(license, "text/plain", "license.txt");
+        await _paymentService.PayByCreditCard(dto);
     }
 }
