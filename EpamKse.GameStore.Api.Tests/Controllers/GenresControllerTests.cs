@@ -1,4 +1,7 @@
-﻿namespace EpamKse.GameStore.Api.Tests.Controllers;
+﻿using AutoMapper;
+using EpamKse.GameStore.Domain.Profiles;
+
+namespace EpamKse.GameStore.Api.Tests.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
@@ -11,11 +14,19 @@ using Services.Services.Genre;
 
 public class GenresControllerTests {
     private readonly Mock<IGenreService> _mockService;
+    private readonly IMapper _mapper;
     private readonly GenresController _controller;
 
     public GenresControllerTests() {
         _mockService = new Mock<IGenreService>();
-        _controller = new GenresController(_mockService.Object);
+        
+        var mapperConfig = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile<GenreProfile>();
+        });
+        var mapper = mapperConfig.CreateMapper();
+        
+        _controller = new GenresController(_mockService.Object, mapper);
     }
 
     [Fact]
@@ -30,7 +41,7 @@ public class GenresControllerTests {
         var result = await _controller.GetAllGenres();
 
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var returnedGenres = Assert.IsType<IEnumerable<Genre>>(okResult.Value, exactMatch: false);
+        var returnedGenres = Assert.IsType<IEnumerable<GenreViewDto>>(okResult.Value, exactMatch: false);
         Assert.Equal(3, returnedGenres.Count());
     }
 
@@ -47,9 +58,8 @@ public class GenresControllerTests {
         var result = await _controller.GetGenreById(2);
 
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var returnedGenre = Assert.IsType<Genre>(okResult.Value);
+        var returnedGenre = Assert.IsType<GenreViewDto>(okResult.Value);
         Assert.Equal("RTS", returnedGenre.Name);
-        Assert.Equal(1, returnedGenre.ParentGenreId);
     }
 
     [Fact]
@@ -61,9 +71,8 @@ public class GenresControllerTests {
         var result = await _controller.CreateGenre(genreDto);
 
         var createdResult = Assert.IsType<CreatedAtActionResult>(result);
-        var returnedGenre = Assert.IsType<Genre>(createdResult.Value);
+        var returnedGenre = Assert.IsType<GenreViewDto>(createdResult.Value);
         Assert.Equal("RPG", returnedGenre.Name);
-        Assert.Null(returnedGenre.ParentGenreId);
     }
 
     [Fact]
@@ -75,9 +84,8 @@ public class GenresControllerTests {
         var result = await _controller.CreateGenre(genreDto);
 
         var createdResult = Assert.IsType<CreatedAtActionResult>(result);
-        var returnedGenre = Assert.IsType<Genre>(createdResult.Value);
+        var returnedGenre = Assert.IsType<GenreViewDto>(createdResult.Value);
         Assert.Equal("TBS", returnedGenre.Name);
-        Assert.Equal(1, returnedGenre.ParentGenreId);
     }
 
     [Fact]
@@ -89,7 +97,7 @@ public class GenresControllerTests {
         var result = await _controller.UpdateGenre(1, genreDto);
 
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var returnedGenre = Assert.IsType<Genre>(okResult.Value);
+        var returnedGenre = Assert.IsType<GenreViewDto>(okResult.Value);
         Assert.Equal("Updated Strategy", returnedGenre.Name);
     }
 
