@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EpamKse.GameStore.Api.Controllers;
 
@@ -10,18 +11,18 @@ using Domain.DTO.Genre;
 [ApiController]
 [Authorize(Policy = "UserPolicy")]
 [Route("api/genres")]
-public class GenresController(IGenreService genreService) : ControllerBase {
+public class GenresController(IGenreService genreService, IMapper _mapper) : ControllerBase {
 
     [HttpGet]
     public async Task<IActionResult> GetAllGenres() {
         var genres = await genreService.GetAllGenresAsync();
-        return Ok(genres);
+        return Ok(_mapper.Map<IEnumerable<GenreViewDto>>(genres));
     }
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetGenreById(int id) {
         var genre = await genreService.GetGenreByIdAsync(id);
-        return Ok(genre);
+        return Ok(_mapper.Map<GenreViewDto>(genre));
     }
 
     [Authorize(Roles = "Admin")]
@@ -32,7 +33,7 @@ public class GenresController(IGenreService genreService) : ControllerBase {
         }
         
         var createdGenre = await genreService.CreateGenreAsync(genreDto);
-        return CreatedAtAction(nameof(GetGenreById), new { id = createdGenre.Id }, createdGenre);
+        return CreatedAtAction(nameof(GetGenreById), new { id = createdGenre.Id }, _mapper.Map<GenreViewDto>(createdGenre));
     }
 
     [Authorize(Roles = "Admin")]
@@ -43,7 +44,7 @@ public class GenresController(IGenreService genreService) : ControllerBase {
         }
         
         var updatedGenre = await genreService.UpdateGenreAsync(id, genreDto);
-        return Ok(updatedGenre);
+        return Ok(_mapper.Map<GenreViewDto>(updatedGenre));
     }
 
     [Authorize(Roles = "Admin")]
