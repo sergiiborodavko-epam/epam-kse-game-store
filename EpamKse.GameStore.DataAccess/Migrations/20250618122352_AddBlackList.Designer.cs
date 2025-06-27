@@ -4,6 +4,7 @@ using EpamKse.GameStore.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EpamKse.GameStore.DataAccess.Migrations
 {
     [DbContext(typeof(GameStoreDbContext))]
-    partial class GameStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250618122352_AddBlackList")]
+    partial class AddBlackList
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,9 +51,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Stock")
-                        .HasColumnType("int");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -70,7 +70,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                             GenreIds = "1,2,4",
                             Price = 49.99m,
                             ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Stock = 12,
                             Title = "Game 1"
                         },
                         new
@@ -80,7 +79,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                             GenreIds = "11,13",
                             Price = 59.99m,
                             ReleaseDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Stock = 12,
                             Title = "Game 2"
                         });
                 });
@@ -111,15 +109,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                         .IsUnique();
 
                     b.ToTable("GameCountryBans", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Country = "UA",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            GameId = 1
-                        });
                 });
 
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.GameFile", b =>
@@ -303,29 +292,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                     b.ToTable("HistoricalPrices", (string)null);
                 });
 
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.License", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId")
-                        .IsUnique();
-
-                    b.ToTable("Licenses", (string)null);
-                });
-
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -479,7 +445,7 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                             Country = 0,
                             CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@example.com",
-                            FullName = "Admin User",
+                            FullName = "admin",
                             PasswordHash = "$argon2id$v=19$m=65536,t=3,p=1$hIWcROP/j0uU/PceT+/jHw$Kn1RHnAoDdMitEPzaT43//MwsEDJMwAjEPr8liXCHrM",
                             Role = "Admin",
                             UserName = "admin"
@@ -582,17 +548,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
                     b.Navigation("Game");
                 });
 
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.License", b =>
-                {
-                    b.HasOne("EpamKse.GameStore.Domain.Entities.Order", "Order")
-                        .WithOne("License")
-                        .HasForeignKey("EpamKse.GameStore.Domain.Entities.License", "OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
-                });
-
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Order", b =>
                 {
                     b.HasOne("EpamKse.GameStore.Domain.Entities.User", "User")
@@ -661,12 +616,6 @@ namespace EpamKse.GameStore.DataAccess.Migrations
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Genre", b =>
                 {
                     b.Navigation("SubGenres");
-                });
-
-            modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Order", b =>
-                {
-                    b.Navigation("License")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("EpamKse.GameStore.Domain.Entities.Publisher", b =>

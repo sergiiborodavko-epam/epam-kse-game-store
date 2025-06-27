@@ -11,5 +11,6 @@ public class User
     public Roles Role { get; set; }
     public string PasswordHash { get; set; }
     public string FullName { get; set; }
+    public Countries Country { get; set; }
     public ICollection<Order> Orders { get; set; }
 }
