@@ -40,15 +40,4 @@ public class LicensesController : ControllerBase
         var txt = await _licenseService.GenerateLicenseFileByGameId(userId, id);
         return File(txt, "text/plain", "license.txt");   
     }
-    
-    [Authorize(Roles = "Admin")]
-    [HttpPost]
-    public async Task<IActionResult> CreateLicense(CreateLicenseDto dto)
-    {
-        var license = await _licenseService.CreateLicense(dto);
-        return Ok(new
-        {
-            licenseKey = license.Key
-        });   
-    }
 }

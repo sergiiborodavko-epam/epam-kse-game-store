@@ -1,10 +1,12 @@
 using EpamKse.GameStore.DataAccess.Repositories.Game;
 using EpamKse.GameStore.DataAccess.Repositories.Order;
+using EpamKse.GameStore.Domain.DTO.License;
 using EpamKse.GameStore.Domain.DTO.Order;
 using EpamKse.GameStore.Domain.Entities;
 using EpamKse.GameStore.Domain.Enums;
 using EpamKse.GameStore.Domain.Exceptions.Game;
 using EpamKse.GameStore.Domain.Exceptions.Order;
+using EpamKse.GameStore.Services.Services.License;
 using EpamKse.GameStore.Services.Services.Order;
 using Moq;
 using Xunit;
@@ -16,13 +18,15 @@ public class OrderServiceTests
 {
     private readonly Mock<IOrderRepository> _orderRepositoryMock;
     private readonly Mock<IGameRepository> _gameRepositoryMock;
+    private readonly Mock<ILicenseService> _licenseServiceMock;
     private readonly OrderService _orderService;
 
     public OrderServiceTests()
     {
         _orderRepositoryMock = new Mock<IOrderRepository>();
         _gameRepositoryMock = new Mock<IGameRepository>();
-        _orderService = new OrderService(_orderRepositoryMock.Object, _gameRepositoryMock.Object);
+        _licenseServiceMock = new Mock<ILicenseService>();
+        _orderService = new OrderService(_orderRepositoryMock.Object, _gameRepositoryMock.Object, _licenseServiceMock.Object);
     }
 
     [Fact]
@@ -247,5 +251,33 @@ public class OrderServiceTests
         Assert.Equal(OrderStatus.Payed, existingOrder.Status);
         _orderRepositoryMock.Verify(r => r.UpdateAsync(It.Is<Order>(o =>
             o.Id == orderId && o.Status == OrderStatus.Payed)), Times.Once);
+    }
+
+    [Fact]
+    public async Task ProcessWebhook_CreatesLicense_WhenOrderIsPaid()
+    {
+        var orderId = 1;
+        var existingOrder = new Order { Id = orderId, Status = OrderStatus.Created };
+        var webhookMessage = new WebhookMessage { OrderStatus = OrderStatus.Payed };
+        
+        _orderRepositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(existingOrder);
+        var result = await _orderService.ProcessWebhook(orderId, webhookMessage);
+        Assert.NotNull(result);
+        Assert.Equal(OrderStatus.Payed, existingOrder.Status);
+        _licenseServiceMock.Verify(r => r.CreateLicense(It.IsAny<CreateLicenseDto>()), Times.Once);
+    }
+    
+    [Fact]
+    public async Task ProcessWebhook_DoesntCreateLicense_WhenOrderIsCancelled()
+    {
+        var orderId = 1;
+        var existingOrder = new Order { Id = orderId, Status = OrderStatus.Created };
+        var webhookMessage = new WebhookMessage { OrderStatus = OrderStatus.Cancelled };
+        
+        _orderRepositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(existingOrder);
+        var result = await _orderService.ProcessWebhook(orderId, webhookMessage);
+        Assert.NotNull(result);
+        Assert.Equal(OrderStatus.Cancelled, existingOrder.Status);
+        _licenseServiceMock.Verify(r => r.CreateLicense(It.IsAny<CreateLicenseDto>()), Times.Never);
     }
 }
