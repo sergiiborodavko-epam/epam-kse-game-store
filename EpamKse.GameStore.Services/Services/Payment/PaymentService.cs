@@ -49,4 +49,29 @@ public class PaymentService : IPaymentService
             CallbackUrl = $"/orders/orderWebhook/{order.Id}"
         });
     }
+
+    public async Task<string> PayByIban(int orderId)
+    {
+        var order = await _orderRepository.GetByIdAsync(orderId);
+        if (order == null)
+        {
+            throw new OrderNotFoundException(orderId);
+        }
+        if (order.Status == OrderStatus.Payed)
+        {
+            throw new OrderAlreadyPaidException(order.Id);
+        }
+        order.Status = OrderStatus.Initiated;
+        await _orderRepository.UpdateAsync(order);
+        var paymentServiceClient = _httpClientFactory.CreateClient("PaymentServiceClient");
+       var result= await paymentServiceClient.PostAsJsonAsync("payments/iban", new PaymentInfoForIban
+        {
+            OrderId = order.Id,
+            TotalSum = order.TotalSum,
+            CallbackUrl = $"/orders/orderWebhook/{order.Id}"
+        });
+        result.EnsureSuccessStatusCode();
+        var ibanResult = await result.Content.ReadFromJsonAsync<IbanResultDto>();
+        return ibanResult?.Iban ?? throw new InvalidOperationException("IBAN not returned from payment service.");
+    }
 }

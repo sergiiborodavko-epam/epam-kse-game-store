@@ -127,10 +127,10 @@ public class OrderService : IOrderService
 
         order.Status = dto.OrderStatus;
 
-        if (dto.OrderStatus == OrderStatus.Payed)
-        {
-            await _licenseService.CreateLicense(new CreateLicenseDto { OrderId = id });
-        }
+       // if (dto.OrderStatus == OrderStatus.Payed)
+        //{
+       //     await _licenseService.CreateLicense(new CreateLicenseDto { OrderId = id });
+       // }
         
         await _orderRepository.UpdateAsync(order);
         return order.Status;

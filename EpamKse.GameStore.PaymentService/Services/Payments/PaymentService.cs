@@ -7,9 +7,10 @@ namespace EpamKse.GameStore.PaymentService.Services.Payments;
 public class PaymentService : IPaymentService
 {
     private readonly IHttpClientFactory _httpClientFactory;
-
+    private readonly string IBAN;
     public PaymentService(IHttpClientFactory httpClientFactory)
     {
+        IBAN=Environment.GetEnvironmentVariable("IBAN");
         _httpClientFactory = httpClientFactory;
     }
 
@@ -26,7 +27,14 @@ public class PaymentService : IPaymentService
         
         apiClient.PostAsJsonAsync(dto.CallbackUrl, new { orderStatus = orderStatus });
     }
-
+    public async Task<string> PayByIban(PaymentInfoForIban dto)
+    {
+        var apiClient = _httpClientFactory.CreateClient("ApiClient");
+        var paymentResult = await TryPayTheOrder();
+        var orderStatus = paymentResult ? OrderStatus.Payed : OrderStatus.Cancelled;
+        await apiClient.PostAsJsonAsync(dto.CallbackUrl, new { orderStatus = orderStatus });
+        return IBAN;
+    }
     private Task<bool> TryPayTheOrder()
     {
         const int probabilityOfSuccess = 50;
