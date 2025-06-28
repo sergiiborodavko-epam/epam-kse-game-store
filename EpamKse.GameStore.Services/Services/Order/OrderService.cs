@@ -8,6 +8,7 @@ using EpamKse.GameStore.Domain.Exceptions.Order;
 using EpamKse.GameStore.Services.Services.License;
 
 namespace EpamKse.GameStore.Services.Services.Order;
+
 using Domain.Entities;
 
 public class OrderService : IOrderService
@@ -16,7 +17,8 @@ public class OrderService : IOrderService
     private readonly IGameRepository _gameRepository;
     private readonly ILicenseService _licenseService;
 
-    public OrderService(IOrderRepository orderRepository, IGameRepository gameRepository, ILicenseService licenseService)
+    public OrderService(IOrderRepository orderRepository, IGameRepository gameRepository,
+        ILicenseService licenseService)
     {
         _orderRepository = orderRepository;
         _gameRepository = gameRepository;
@@ -34,7 +36,7 @@ public class OrderService : IOrderService
         {
             return await _orderRepository.GetAllAsync(ordersQueryDto.Limit!.Value, ordersQueryDto.Offset);
         }
-        
+
         return await _orderRepository.GetAllAsync();
     }
 
@@ -45,6 +47,7 @@ public class OrderService : IOrderService
         {
             throw new OrderNotFoundException(id);
         }
+
         return order;
     }
 
@@ -52,21 +55,21 @@ public class OrderService : IOrderService
     {
         var order = new Order()
         {
-            UserId = userId, 
-            CreatedAt = DateTime.Now, 
+            UserId = userId,
+            CreatedAt = DateTime.Now,
             Status = OrderStatus.Created
         };
 
         var games = await ValidateGames(dto.GameIds);
-        
+
         foreach (var game in games)
         {
             order.Games.Add(game);
             game.Stock--;
         }
-        
+
         order.TotalSum = CalcTotalSum(games);
-        
+
         await _orderRepository.CreateAsync(order);
         return order;
     }
@@ -78,22 +81,24 @@ public class OrderService : IOrderService
         {
             throw new OrderNotFoundException(id);
         }
+
         foreach (var oldGame in order.Games)
         {
             oldGame.Stock++;
         }
+
         order.Status = dto.Status ?? order.Status;
         if (dto.GameIds != null)
         {
             order.Games = new List<Game>();
             var games = await ValidateGames(dto.GameIds);
-            
+
             foreach (var game in games)
             {
                 order.Games.Add(game);
                 game.Stock--;
             }
-        
+
             order.TotalSum = CalcTotalSum(games);
         }
 
@@ -108,6 +113,7 @@ public class OrderService : IOrderService
         {
             throw new OrderNotFoundException(id);
         }
+
         foreach (var game in order.Games)
         {
             game.Stock++;
@@ -127,11 +133,11 @@ public class OrderService : IOrderService
 
         order.Status = dto.OrderStatus;
 
-       // if (dto.OrderStatus == OrderStatus.Payed)
-        //{
-       //     await _licenseService.CreateLicense(new CreateLicenseDto { OrderId = id });
-       // }
-        
+        if (dto.OrderStatus == OrderStatus.Payed)
+        {
+            await _licenseService.CreateLicense(new CreateLicenseDto { OrderId = id });
+        }
+
         await _orderRepository.UpdateAsync(order);
         return order.Status;
     }
@@ -146,14 +152,18 @@ public class OrderService : IOrderService
             {
                 throw new GameNotFoundException(gameId);
             }
-            if (game.Stock<=0)
+
+            if (game.Stock <= 0)
             {
                 throw new NoGamesLeftException(game.Id);
             }
+
             games.Add(game);
         }
+
         return games;
-    } 
+    }
+
     private decimal CalcTotalSum(IEnumerable<Game> games)
     {
         return games.Sum(game => game.Price);
