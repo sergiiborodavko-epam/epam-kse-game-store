@@ -22,7 +22,7 @@ public class PaymentController : ControllerBase
     {
         await _paymentService.PayByCreditCard(dto);
     }
-    [HttpPost("iban/{orderId:int}")]
+    [HttpGet("iban/{orderId:int}")]
     public async Task<IActionResult> PayByIban(int orderId)
     { 
         var Iban=await _paymentService.PayByIban(orderId);
