@@ -21,4 +21,10 @@ public class PaymentController : ControllerBase
         await _paymentService.PayByCreditCard(dto);
         return Ok(new { message = "Payment created"});
     }
+    [HttpPost("iban")]
+    public async Task<IActionResult> PayByIban([FromBody] PaymentInfoForIban dto)
+    {
+       var IBAN= await _paymentService.PayByIban(dto);
+       return Ok(new { iban = IBAN });
+    }
 }

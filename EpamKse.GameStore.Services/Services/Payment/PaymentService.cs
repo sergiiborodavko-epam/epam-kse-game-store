@@ -6,6 +6,7 @@ using EpamKse.GameStore.Domain.DTO.Payments;
 using EpamKse.GameStore.Domain.Enums;
 using EpamKse.GameStore.Domain.Exceptions.Order;
 using EpamKse.GameStore.Domain.Exceptions.Payment;
+using EpamKse.GameStore.Services.Helpers.Payment;
 using EpamKse.GameStore.Services.Services.License;
 
 namespace EpamKse.GameStore.Services.Services.Payment;
@@ -20,7 +21,7 @@ public class PaymentService : IPaymentService
         _httpClientFactory = httpClientFactory;
         _orderRepository = orderRepository;
     }
-    
+
     public async Task PayByCreditCard(PayForOrderDto dto)
     {
         var order = await _orderRepository.GetByIdAsync(dto.OrderId);
@@ -46,7 +47,34 @@ public class PaymentService : IPaymentService
             ExpirationYear = dto.ExpirationYear,
             OrderId = order.Id,
             TotalSum = order.TotalSum,
-            CallbackUrl = $"/orders/orderWebhook/{order.Id}"
+            CallbackUrl = CallBackUrlBuilder.GetCallBackUrl(order.Id)
         });
+    }
+
+    public async Task<string> PayByIban(PayForOrderIbanDto dto)
+    {
+        var order = await _orderRepository.GetByIdAsync(dto.OrderId);
+        if (order == null)
+        {
+            throw new OrderNotFoundException(dto.OrderId);
+        }
+
+        if (order.Status == OrderStatus.Payed)
+        {
+            throw new OrderAlreadyPaidException(order.Id);
+        }
+
+        order.Status = OrderStatus.Initiated;
+        await _orderRepository.UpdateAsync(order);
+        var paymentServiceClient = _httpClientFactory.CreateClient("PaymentServiceClient");
+        var result = await paymentServiceClient.PostAsJsonAsync("payments/iban", new PaymentInfoForIban
+        {
+            OrderId = order.Id,
+            TotalSum = order.TotalSum,
+            CallbackUrl = CallBackUrlBuilder.GetCallBackUrl(order.Id)
+        });
+        result.EnsureSuccessStatusCode();
+        var ibanResult = await result.Content.ReadFromJsonAsync<IbanResultDto>();
+        return ibanResult?.Iban ?? throw new InvalidOperationException("IBAN not returned from payment service.");
     }
 }
