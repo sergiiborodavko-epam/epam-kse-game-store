@@ -1,14 +1,12 @@
-using EpamKse.GameStore.Domain.Enums;
-
 namespace EpamKse.GameStore.DataAccess.Context;
 
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 
 using Domain.Entities;
+using Domain.Enums;
 
-public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : DbContext(options)
-{
+public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : DbContext(options) {
     public DbSet<Game> Games { get; set; } = null!;
     public DbSet<User> Users { get; set; }
     public DbSet<Platform> Platforms { get; set; }
@@ -17,9 +15,10 @@ public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : 
     public DbSet<HistoricalPrice> HistoricalPrices { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<GameFile> GameFiles { get; set; }
+    public DbSet<GameBan> GameBans { get; set; }
     public DbSet<License> Licenses { get; set; }
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         SeedData(modelBuilder);
@@ -69,12 +68,22 @@ public class GameStoreDbContext(DbContextOptions<GameStoreDbContext> options) : 
         modelBuilder.Entity<User>().HasData(
             new User { 
                 Id = 1, 
-                Role = Roles.Admin, 
-                CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc), 
-                Email = "admin@example.com", 
-                UserName = "admin", 
-                FullName = "admin", 
-                PasswordHash = adminPass 
+                UserName = "admin",
+                Email = "admin@example.com",
+                PasswordHash = adminPass,
+                FullName = "Admin User",
+                Role = Roles.Admin,
+                Country = Countries.UA,
+                CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            }
+        );
+        
+        modelBuilder.Entity<GameBan>().HasData(
+            new GameBan {
+                Id = 1,
+                GameId = 1,
+                Country = Countries.UA,
+                CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             }
         );
     }

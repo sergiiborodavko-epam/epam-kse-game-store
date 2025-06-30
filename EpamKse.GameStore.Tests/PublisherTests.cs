@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using EpamKse.GameStore.Services.Services.Publisher;
 using EpamKse.GameStore.DataAccess.Context;
 using EpamKse.GameStore.Domain.DTO.Publisher;
-using EpamKse.GameStore.Domain.Exceptions;
 using EpamKse.GameStore.Domain.Entities;
 
 public class PublisherServiceTests

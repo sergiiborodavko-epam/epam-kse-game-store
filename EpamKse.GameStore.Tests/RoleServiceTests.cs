@@ -2,7 +2,6 @@ using EpamKse.GameStore.DataAccess.Repositories.User;
 using EpamKse.GameStore.Domain.DTO.Role;
 using EpamKse.GameStore.Domain.Entities;
 using EpamKse.GameStore.Domain.Enums;
-using EpamKse.GameStore.Domain.Exceptions;
 using EpamKse.GameStore.Domain.Exceptions.User;
 using EpamKse.GameStore.Services.Services.Role;
 using Moq;
