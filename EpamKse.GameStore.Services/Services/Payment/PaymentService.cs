@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using EpamKse.GameStore.Services.Helpers.Payment;
 
 namespace EpamKse.GameStore.Services.Services.Payment;
 
@@ -23,7 +24,7 @@ public class PaymentService(IHttpClientFactory httpClientFactory, IOrderReposito
             ExpirationYear = dto.ExpirationYear,
             OrderId = order.Id,
             TotalSum = order.TotalSum,
-            CallbackUrl = GetCallbackUrl(order.Id),
+            CallbackUrl = CallBackUrlBuilder.GetCallBackUrl(order.Id)
         });
     }
     public async Task PayByIBox(PayForOrderIBoxDto dto) {
@@ -38,8 +39,22 @@ public class PaymentService(IHttpClientFactory httpClientFactory, IOrderReposito
             OrderId = order.Id,
             UserId = dto.UserId,
             TotalSum = order.TotalSum,
-            CallbackUrl = GetCallbackUrl(order.Id),
+            CallbackUrl = CallBackUrlBuilder.GetCallBackUrl(order.Id)
         });
+    }
+
+    public async Task<string> PayByIban(PayForOrderIbanDto dto) {
+        var order = await CheckOrderStatusAsync(dto.OrderId);
+        
+        var result = await _httpClient.PostAsJsonAsync("payments/iban", new PaymentInfoForIban {
+            OrderId = order.Id,
+            TotalSum = order.TotalSum,
+            CallbackUrl = CallBackUrlBuilder.GetCallBackUrl(order.Id)
+        });
+        
+        result.EnsureSuccessStatusCode();
+        var ibanResult = await result.Content.ReadFromJsonAsync<IbanResultDto>();
+        return ibanResult?.Iban ?? throw new InvalidOperationException("IBAN not returned from payment service.");
     }
     
     public async Task<OrderStatus> GetPaymentStatus(int orderId) {
@@ -60,11 +75,8 @@ public class PaymentService(IHttpClientFactory httpClientFactory, IOrderReposito
             throw new OrderAlreadyPaidException(order.Id);
         }
         
+        order.Status = OrderStatus.Initiated;
         await orderRepository.UpdateAsync(order);
         return order;
-    }
-    
-    private static string GetCallbackUrl(int orderId) {
-        return $"/orders/orderWebhook/{orderId}";
     }
 }

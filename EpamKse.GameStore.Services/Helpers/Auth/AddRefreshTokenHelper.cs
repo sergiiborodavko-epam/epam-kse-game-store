@@ -11,7 +11,7 @@ public static class AddRefreshTokenHelper
         cookies.Append("refreshToken", refreshToken, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
+            Secure = false,
             SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddDays(COOKIE_LIFETIME)
         });

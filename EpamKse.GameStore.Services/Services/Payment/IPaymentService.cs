@@ -9,4 +9,5 @@ public interface IPaymentService
     public Task PayByCreditCard(PayForOrderDto dto);
     public Task PayByIBox(PayForOrderIBoxDto dto);
     Task<OrderStatus> GetPaymentStatus(int orderId);
+    public Task<string> PayByIban(PayForOrderIbanDto dto);
 }

@@ -27,4 +27,10 @@ public class PaymentController : ControllerBase
         await _paymentService.PayByIBox(dto);
         return Ok(new { message = "Payment created", dynamicUrl = dto.DynamicUrl });
     }
+    [HttpPost("iban")]
+    public async Task<IActionResult> PayByIban([FromBody] PaymentInfoForIban dto)
+    {
+       var IBAN= await _paymentService.PayByIban(dto);
+       return Ok(new { iban = IBAN });
+    }
 }
