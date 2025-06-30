@@ -42,13 +42,21 @@ public class PaymentService(IHttpClientFactory httpClientFactory, IOrderReposito
         });
     }
     
+    public async Task<OrderStatus> GetPaymentStatus(int orderId) {
+        var order = await orderRepository.GetByIdAsync(orderId);
+        if (order == null) {
+            throw new OrderNotFoundException(orderId);
+        }
+        return order.Status;
+    }
+    
     private async Task<Order> CheckOrderStatusAsync(int orderId) {
         var order = await orderRepository.GetByIdAsync(orderId);
         if (order == null) {
             throw new OrderNotFoundException(orderId);
         }
 
-        if (order.Status == OrderStatus.Payed || order.Status == OrderStatus.Cancelled) {
+        if (order.Status == OrderStatus.Payed) {
             throw new OrderAlreadyPaidException(order.Id);
         }
         
@@ -60,4 +68,3 @@ public class PaymentService(IHttpClientFactory httpClientFactory, IOrderReposito
         return $"/orders/orderWebhook/{orderId}";
     }
 }
-

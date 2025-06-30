@@ -27,4 +27,10 @@ public class PaymentController : ControllerBase
     public async Task PayByIBox([FromBody] PayForOrderIBoxDto dto) {
         await _paymentService.PayByIBox(dto);
     }
+    
+    [HttpGet("status/{orderId:int}")]
+    public async Task<IActionResult> GetPaymentStatus(int orderId) {
+        var paymentStatus = await _paymentService.GetPaymentStatus(orderId);
+        return Ok(paymentStatus);
+    }
 }
