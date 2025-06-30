@@ -11,7 +11,9 @@ using Domain.DTO.Auth;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Exceptions.Auth;
+using Domain.Exceptions.GameBan;
 using Helpers.Auth;
+using Helpers.GameBan;
 using DataAccess.Context;
 
 public class AuthService : IAuthService
@@ -31,6 +33,10 @@ public class AuthService : IAuthService
 
     public async Task<(string, string)> Register(RegisterDTO registerDto)
     {
+        if (!CountryHelper.IsValidCountry(registerDto.Country)) {
+            throw new InvalidCountryException(registerDto.Country, CountryHelper.GetValidCountries());
+        }
+        
         if (await _dbContext.Users.AnyAsync(u => u.Email == registerDto.Email))
         {
             throw new UserAlreadyExistsException();
@@ -44,6 +50,7 @@ public class AuthService : IAuthService
             PasswordHash = hashedPassword,
             FullName = registerDto.FullName,
             Role = Roles.Customer,
+            Country = CountryHelper.ParseCountry(registerDto.Country),
         };
         
         await _dbContext.Users.AddAsync(newUser);
