@@ -2,6 +2,7 @@ using EpamKse.GameStore.Services.Services.Encryption;
 using EpamKse.GameStore.Services.Services.HistoricalPrice;
 using EpamKse.GameStore.Services.Services.License;
 using EpamKse.GameStore.Services.Services.Order;
+using EpamKse.GameStore.Services.Services.Payment;
 using EpamKse.GameStore.Services.Services.Role;
 
 namespace EpamKse.GameStore.Services.Services;
@@ -32,5 +33,6 @@ public static class ServiceRegistry {
         services.AddScoped<IEncryptionService, EncryptionService>();
         services.AddScoped<ILicenseService, LicenseService>();
         services.AddSingleton<ILicenseBuilder, LicenseBuilder>();
+        services.AddScoped<IPaymentService, PaymentService>();
     }
 }
