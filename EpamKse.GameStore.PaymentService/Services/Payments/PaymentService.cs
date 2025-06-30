@@ -4,14 +4,8 @@ using EpamKse.GameStore.Domain.Exceptions.Payment;
 
 namespace EpamKse.GameStore.PaymentService.Services.Payments;
 
-public class PaymentService : IPaymentService
-{
-    private readonly IHttpClientFactory _httpClientFactory;
-
-    public PaymentService(IHttpClientFactory httpClientFactory)
-    {
-        _httpClientFactory = httpClientFactory;
-    }
+public class PaymentService(IHttpClientFactory httpClientFactory) : IPaymentService {
+    private readonly HttpClient _apiClient = httpClientFactory.CreateClient("ApiClient");
 
     public async Task PayByCreditCard(PaymentInfoCreditCardDto dto)
     {
@@ -20,11 +14,17 @@ public class PaymentService : IPaymentService
             throw new PaymentFailedException("Card expired");
         }
 
-        var apiClient = _httpClientFactory.CreateClient("ApiClient");
         var paymentResult = await TryPayTheOrder();
         var orderStatus = paymentResult ? OrderStatus.Payed : OrderStatus.Cancelled;
         
-        apiClient.PostAsJsonAsync(dto.CallbackUrl, new { orderStatus = orderStatus });
+        await _apiClient.PostAsJsonAsync(dto.CallbackUrl, new { orderStatus });
+    }
+    
+    public async Task PayByIBox(PaymentInfoIBoxDto dto) {
+        var paymentResult = await TryPayTheOrder();
+        var orderStatus = paymentResult ? OrderStatus.Payed : OrderStatus.Cancelled;
+        
+        await _apiClient.PostAsJsonAsync(dto.CallbackUrl, new { orderStatus });
     }
 
     private Task<bool> TryPayTheOrder()
@@ -34,6 +34,7 @@ public class PaymentService : IPaymentService
         var result = random.Next(0, 100) < probabilityOfSuccess;
         return Task.FromResult(result);
     }
+    
     private bool IsCardExpired(int month, int year)
     {
         var expDate = new DateTime(year, month, 1);

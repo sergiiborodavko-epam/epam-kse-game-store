@@ -22,4 +22,9 @@ public class PaymentController : ControllerBase
     {
         await _paymentService.PayByCreditCard(dto);
     }
+    
+    [HttpPost("ibox")]
+    public async Task PayByIBox([FromBody] PayForOrderIBoxDto dto) {
+        await _paymentService.PayByIBox(dto);
+    }
 }

@@ -5,4 +5,5 @@ namespace EpamKse.GameStore.PaymentService.Services.Payments;
 public interface IPaymentService
 {
     public Task PayByCreditCard(PaymentInfoCreditCardDto dto);
+    public Task PayByIBox(PaymentInfoIBoxDto dto);
 }

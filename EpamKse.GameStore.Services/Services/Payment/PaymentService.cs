@@ -1,52 +1,63 @@
 using System.Net.Http.Json;
-using System.Text.Json;
-using EpamKse.GameStore.DataAccess.Repositories.Order;
-using EpamKse.GameStore.Domain.DTO.License;
-using EpamKse.GameStore.Domain.DTO.Payments;
-using EpamKse.GameStore.Domain.Enums;
-using EpamKse.GameStore.Domain.Exceptions.Order;
-using EpamKse.GameStore.Domain.Exceptions.Payment;
-using EpamKse.GameStore.Services.Services.License;
 
 namespace EpamKse.GameStore.Services.Services.Payment;
 
-public class PaymentService : IPaymentService
-{
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IOrderRepository _orderRepository;
+using DataAccess.Repositories.Order;
+using DataAccess.Repositories.User;
+using Domain.DTO.Payments;
+using Domain.Enums;
+using Domain.Exceptions.Order;
+using Domain.Exceptions.User;
+using Domain.Entities;
 
-    public PaymentService(IHttpClientFactory httpClientFactory, IOrderRepository orderRepository)
-    {
-        _httpClientFactory = httpClientFactory;
-        _orderRepository = orderRepository;
-    }
+public class PaymentService(IHttpClientFactory httpClientFactory, IOrderRepository orderRepository, IUserRepository userRepository) : IPaymentService {
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("PaymentServiceClient");
     
-    public async Task PayByCreditCard(PayForOrderDto dto)
-    {
-        var order = await _orderRepository.GetByIdAsync(dto.OrderId);
-        if (order == null)
-        {
-            throw new OrderNotFoundException(dto.OrderId);
-        }
+    public async Task PayByCreditCard(PayForOrderDto dto) {
+        var order = await CheckOrderStatusAsync(dto.OrderId);
 
-        if (order.Status == OrderStatus.Payed)
-        {
-            throw new OrderAlreadyPaidException(order.Id);
-        }
-
-        order.Status = OrderStatus.Initiated;
-        await _orderRepository.UpdateAsync(order);
-
-        var paymentServiceClient = _httpClientFactory.CreateClient("PaymentServiceClient");
-        paymentServiceClient.PostAsJsonAsync("payments/credit-card", new PaymentInfoCreditCardDto
-        {
+        await _httpClient.PostAsJsonAsync("payments/credit-card", new PaymentInfoCreditCardDto {
             CardNumber = dto.CardNumber,
             Cvv = dto.Cvv,
             ExpirationMonth = dto.ExpirationMonth,
             ExpirationYear = dto.ExpirationYear,
             OrderId = order.Id,
             TotalSum = order.TotalSum,
-            CallbackUrl = $"/orders/orderWebhook/{order.Id}"
+            CallbackUrl = GetCallbackUrl(order.Id),
         });
     }
+    public async Task PayByIBox(PayForOrderIBoxDto dto) {
+        var order = await CheckOrderStatusAsync(dto.OrderId);
+        
+        var user = await userRepository.GetByIdAsync(dto.UserId);
+        if (user == null) {
+            throw new UserNotFoundException(dto.UserId);
+        }
+
+        await _httpClient.PostAsJsonAsync("payments/ibox", new PaymentInfoIBoxDto {
+            OrderId = order.Id,
+            UserId = dto.UserId,
+            TotalSum = order.TotalSum,
+            CallbackUrl = GetCallbackUrl(order.Id),
+        });
+    }
+    
+    private async Task<Order> CheckOrderStatusAsync(int orderId) {
+        var order = await orderRepository.GetByIdAsync(orderId);
+        if (order == null) {
+            throw new OrderNotFoundException(orderId);
+        }
+
+        if (order.Status == OrderStatus.Payed) {
+            throw new OrderAlreadyPaidException(order.Id);
+        }
+        
+        await orderRepository.UpdateAsync(order);
+        return order;
+    }
+    
+    private static string GetCallbackUrl(int orderId) {
+        return $"/orders/orderWebhook/{orderId}";
+    }
 }
+
