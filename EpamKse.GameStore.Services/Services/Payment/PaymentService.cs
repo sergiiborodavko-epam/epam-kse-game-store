@@ -48,7 +48,7 @@ public class PaymentService(IHttpClientFactory httpClientFactory, IOrderReposito
             throw new OrderNotFoundException(orderId);
         }
 
-        if (order.Status == OrderStatus.Payed) {
+        if (order.Status == OrderStatus.Payed || order.Status == OrderStatus.Cancelled) {
             throw new OrderAlreadyPaidException(order.Id);
         }
         

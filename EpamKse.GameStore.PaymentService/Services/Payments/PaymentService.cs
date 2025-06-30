@@ -1,4 +1,5 @@
 using EpamKse.GameStore.Domain.DTO.Payments;
+using EpamKse.GameStore.Domain.DTO.Order;
 using EpamKse.GameStore.Domain.Enums;
 using EpamKse.GameStore.Domain.Exceptions.Payment;
 
@@ -17,14 +18,14 @@ public class PaymentService(IHttpClientFactory httpClientFactory) : IPaymentServ
         var paymentResult = await TryPayTheOrder();
         var orderStatus = paymentResult ? OrderStatus.Payed : OrderStatus.Cancelled;
         
-        await _apiClient.PostAsJsonAsync(dto.CallbackUrl, new { orderStatus });
+        await _apiClient.PostAsJsonAsync(dto.CallbackUrl, new WebhookMessage { OrderStatus = orderStatus });
     }
     
     public async Task PayByIBox(PaymentInfoIBoxDto dto) {
         var paymentResult = await TryPayTheOrder();
         var orderStatus = paymentResult ? OrderStatus.Payed : OrderStatus.Cancelled;
         
-        await _apiClient.PostAsJsonAsync(dto.CallbackUrl, new { orderStatus });
+        await _apiClient.PostAsJsonAsync(dto.CallbackUrl, new WebhookMessage { OrderStatus = orderStatus });
     }
 
     private Task<bool> TryPayTheOrder()
