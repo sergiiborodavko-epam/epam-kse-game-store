@@ -9,6 +9,7 @@ using EpamKse.GameStore.Services.Services.License;
 
 namespace EpamKse.GameStore.Services.Services.Order;
 
+
 using DataAccess.Repositories.GameBan;
 using DataAccess.Repositories.User;
 using Domain.Entities;
@@ -20,6 +21,7 @@ public class OrderService : IOrderService {
     private readonly ILicenseService _licenseService;
     private readonly IUserRepository _userRepository;
     private readonly IGameBanRepository _banRepository;
+
 
     public OrderService(IOrderRepository orderRepository, IGameRepository gameRepository, 
         IUserRepository userRepository, IGameBanRepository banRepository, ILicenseService licenseService) {
@@ -41,7 +43,7 @@ public class OrderService : IOrderService {
         {
             return await _orderRepository.GetAllAsync(ordersQueryDto.Limit!.Value, ordersQueryDto.Offset);
         }
-        
+
         return await _orderRepository.GetAllAsync();
     }
 
@@ -52,6 +54,7 @@ public class OrderService : IOrderService {
         {
             throw new OrderNotFoundException(id);
         }
+
         return order;
     }
 
@@ -60,6 +63,7 @@ public class OrderService : IOrderService {
         var user = await _userRepository.GetByIdAsync(userId);
         if (user == null)
         {
+
             throw new UserNotFoundException(userId);
         }
 
@@ -78,9 +82,9 @@ public class OrderService : IOrderService {
             order.Games.Add(game);
             game.Stock--;
         }
-        
+
         order.TotalSum = CalcTotalSum(games);
-        
+
         await _orderRepository.CreateAsync(order);
         return order;
     }
@@ -92,18 +96,20 @@ public class OrderService : IOrderService {
         {
             throw new OrderNotFoundException(id);
         }
-        
+
+
         foreach (var oldGame in order.Games)
         {
             oldGame.Stock++;
         }
-        
+
         order.Status = dto.Status ?? order.Status;
         
         if (dto.GameIds != null)
         {
             var user = await _userRepository.GetByIdAsync(order.UserId);
             var games = await ValidateGames(dto.GameIds);
+
             await ValidateGamesBansForUser(games, user!.Country);
             ValidateGamesStock(games);
             
@@ -113,7 +119,7 @@ public class OrderService : IOrderService {
                 order.Games.Add(game);
                 game.Stock--;
             }
-        
+
             order.TotalSum = CalcTotalSum(games);
         }
 
@@ -128,7 +134,7 @@ public class OrderService : IOrderService {
         {
             throw new OrderNotFoundException(id);
         }
-        
+
         foreach (var game in order.Games)
         {
             game.Stock++;
@@ -152,7 +158,7 @@ public class OrderService : IOrderService {
         {
             await _licenseService.CreateLicense(new CreateLicenseDto { OrderId = id });
         }
-        
+
         await _orderRepository.UpdateAsync(order);
         return order.Status;
     }
@@ -167,10 +173,19 @@ public class OrderService : IOrderService {
             {
                 throw new GameNotFoundException(gameId);
             }
+
+            if (game.Stock <= 0)
+            {
+                throw new NoGamesLeftException(game.Id);
+            }
+
+
             games.Add(game);
         }
+
         return games;
     }
+
 
     private async Task ValidateGamesBansForUser(List<Game> games, Countries userCountry) {
         var countryBans = await _banRepository.GetByCountryAsync(userCountry);

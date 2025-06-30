@@ -123,7 +123,11 @@ builder.Services.AddAuthorization(options =>
 var app = builder.Build();
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "GameStore");
+    options.ConfigObject.AdditionalItems["withCredentials"] = true;
+});
 
 app.UseWhen(context => context.Request.Path.StartsWithSegments("/auth/refresh"), 
     appBuilder => { appBuilder.UseMiddleware<RefreshTokenValidator>(); }
