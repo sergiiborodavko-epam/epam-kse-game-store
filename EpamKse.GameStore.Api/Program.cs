@@ -39,17 +39,15 @@ builder.Services.Configure<KestrelServerOptions>(options => {
     options.Limits.MaxRequestBodySize = maxRequestBodySizeBytes;
 });
 
-builder.Services.AddHttpClient("PaymentServiceClient", client =>
-{
-    client.BaseAddress = new Uri(builder.Configuration["ServicesUrls:PaymentService"]);
+builder.Services.AddHttpClient("PaymentServiceClient", client => {
+    client.BaseAddress = new Uri(builder.Configuration["ServicesUrls:PaymentService"]!);
     client.DefaultRequestHeaders.Add("x-api-key", apiKey);
 });
 
 builder.Services.AddAutoMapper(typeof(OrderProfile).Assembly);
 builder.Services.AddControllers(options => {
     options.Filters.Add<CustomHttpExceptionFilter>();
-}).AddJsonOptions(options =>
-{
+}).AddJsonOptions(options => {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 }).ConfigureApiBehaviorOptions(options => {
     options.SuppressModelStateInvalidFilter = false;
@@ -66,13 +64,6 @@ builder.Services.AddSwaggerGen(options => {
         Scheme = "Bearer",
         BearerFormat = "JWT"
     });
-    
-    options.AddSecurityDefinition("Apikey", new OpenApiSecurityScheme
-    {
-        Name = "x-api-key",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey
-    });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement {
         {
@@ -80,17 +71,6 @@ builder.Services.AddSwaggerGen(options => {
                 Reference = new OpenApiReference {
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        },
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Apikey"
                 }
             },
             Array.Empty<string>()
@@ -114,11 +94,9 @@ builder.Services.AddAuthentication()
 builder.Services.AddSingleton<IAuthorizationHandler, ApikeyHandler>();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("UserPolicy", policy => policy.RequireAuthenticatedUser());
-    options.AddPolicy("ApikeyPolicy", policy => policy.Requirements.Add(new ApikeyRequirement(apiKey)));
-});
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("UserPolicy", policy => policy.RequireAuthenticatedUser())
+    .AddPolicy("ApikeyPolicy", policy => policy.Requirements.Add(new ApikeyRequirement(apiKey)));
 
 var app = builder.Build();
 
@@ -127,6 +105,7 @@ app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "GameStore");
     options.ConfigObject.AdditionalItems["withCredentials"] = true;
+    options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
 });
 
 app.UseWhen(context => context.Request.Path.StartsWithSegments("/auth/refresh"), 
