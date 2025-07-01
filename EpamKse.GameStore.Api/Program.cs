@@ -105,6 +105,7 @@ app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "GameStore");
     options.ConfigObject.AdditionalItems["withCredentials"] = true;
+    options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
 });
 
 app.UseWhen(context => context.Request.Path.StartsWithSegments("/auth/refresh"), 

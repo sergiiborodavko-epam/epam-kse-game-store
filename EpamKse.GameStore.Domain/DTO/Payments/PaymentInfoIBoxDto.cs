@@ -17,6 +17,4 @@ public class PaymentInfoIBoxDto {
     
     [Required]
     public string CallbackUrl { get; set; }
-    
-    public string DynamicUrl => $"https://ibox.terminal.com/pay/{OrderId}/{UserId}";
 }

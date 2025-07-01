@@ -6,8 +6,4 @@ public class PayForOrderIBoxDto {
     [Required]
     [Range(1, int.MaxValue)]
     public int OrderId { get; set; }
-    
-    [Required]
-    [Range(1, int.MaxValue)]
-    public int UserId { get; set; }
 }

@@ -4,18 +4,19 @@ using EpamKse.GameStore.Services.Helpers.Payment;
 namespace EpamKse.GameStore.Services.Services.Payment;
 
 using DataAccess.Repositories.Order;
-using DataAccess.Repositories.User;
 using Domain.DTO.Payments;
 using Domain.Enums;
 using Domain.Exceptions.Order;
-using Domain.Exceptions.User;
 using Domain.Entities;
 
-public class PaymentService(IHttpClientFactory httpClientFactory, IOrderRepository orderRepository, IUserRepository userRepository) : IPaymentService {
+public class PaymentService(IHttpClientFactory httpClientFactory, IOrderRepository orderRepository) : IPaymentService {
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient("PaymentServiceClient");
     
     public async Task PayByCreditCard(PayForOrderDto dto) {
         var order = await CheckOrderStatusAsync(dto.OrderId);
+        
+        order.Status = OrderStatus.Initiated;
+        await orderRepository.UpdateAsync(order);
 
         await _httpClient.PostAsJsonAsync("payments/credit-card", new PaymentInfoCreditCardDto {
             CardNumber = dto.CardNumber,
@@ -27,17 +28,16 @@ public class PaymentService(IHttpClientFactory httpClientFactory, IOrderReposito
             CallbackUrl = CallBackUrlBuilder.GetCallBackUrl(order.Id)
         });
     }
+    
     public async Task PayByIBox(PayForOrderIBoxDto dto) {
         var order = await CheckOrderStatusAsync(dto.OrderId);
         
-        var user = await userRepository.GetByIdAsync(dto.UserId);
-        if (user == null) {
-            throw new UserNotFoundException(dto.UserId);
-        }
+        order.Status = OrderStatus.Initiated;
+        await orderRepository.UpdateAsync(order);
 
         await _httpClient.PostAsJsonAsync("payments/ibox", new PaymentInfoIBoxDto {
             OrderId = order.Id,
-            UserId = dto.UserId,
+            UserId = order.UserId,
             TotalSum = order.TotalSum,
             CallbackUrl = CallBackUrlBuilder.GetCallBackUrl(order.Id)
         });
@@ -45,6 +45,9 @@ public class PaymentService(IHttpClientFactory httpClientFactory, IOrderReposito
 
     public async Task<string> PayByIban(PayForOrderIbanDto dto) {
         var order = await CheckOrderStatusAsync(dto.OrderId);
+        
+        order.Status = OrderStatus.Initiated;
+        await orderRepository.UpdateAsync(order);
         
         var result = await _httpClient.PostAsJsonAsync("payments/iban", new PaymentInfoForIban {
             OrderId = order.Id,
@@ -75,8 +78,6 @@ public class PaymentService(IHttpClientFactory httpClientFactory, IOrderReposito
             throw new OrderAlreadyPaidException(order.Id);
         }
         
-        order.Status = OrderStatus.Initiated;
-        await orderRepository.UpdateAsync(order);
         return order;
     }
 }
